@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getGoPayClient } from '@/lib/gopay'
-import { sendOrderConfirmationEmail } from '@/lib/email'
+import { sendOrderEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -86,19 +86,7 @@ export async function POST(request: NextRequest) {
     // Pokud byla platba úspěšná, pošleme potvrzovací email
     if (newPaymentStatus === 'paid' && order.paymentStatus !== 'paid') {
       try {
-        await sendOrderConfirmationEmail({
-          orderId: order.id,
-          orderNumber: order.orderNumber,
-          customerEmail: order.customerEmail,
-          customerName: order.customerName,
-          items: order.items.map((item) => ({
-            name: item.product.name,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-          totalAmount: order.totalAmount,
-          shippingMethod: order.shippingMethod,
-        })
+        await sendOrderEmail(order.id, 'accepted')
         console.log(`Confirmation email sent for order ${order.orderNumber}`)
       } catch (emailError) {
         console.error('Error sending confirmation email:', emailError)
