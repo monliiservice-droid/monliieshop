@@ -1,0 +1,15 @@
+# robots.txt pro Monlii E-shop
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout/success/
+Disallow: /kosik
+Disallow: /_next/
+
+# Sitemap
+Sitemap: https://monlii.cz/sitemap.xml
+
+# Crawl delay (pro slušné boty)
+Crawl-delay: 1
