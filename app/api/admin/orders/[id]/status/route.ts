@@ -3,7 +3,6 @@ import { prisma } from '@/lib/prisma'
 import { sendOrderEmail, sendInvoiceEmail } from '@/lib/email'
 import { createInvoiceForOrder, markInvoiceAsPaid } from '@/lib/invoice-generator'
 
-export const runtime = 'edge'
 
 export async function PATCH(
   request: NextRequest,

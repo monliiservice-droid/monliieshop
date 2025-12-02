@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendOrderEmail } from '@/lib/email'
 
-export const runtime = 'edge'
 
 // Tento endpoint by měl být volán cronem každý den
 // Například přes Vercel Cron Jobs nebo externí službu jako cron-job.org
