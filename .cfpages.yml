@@ -1,0 +1,13 @@
+# Cloudflare Pages Configuration
+# Dokumentace: https://developers.cloudflare.com/pages
+
+# Build configuration
+build:
+  command: npm run build
+  output_directory: .next
+  
+# Environment variables (nastavuje se v Cloudflare dashboard)
+# Viz: README_CLOUDFLARE.md pro kompletní seznam
+
+# Redirects a Headers
+# (Definovány v next.config.ts)

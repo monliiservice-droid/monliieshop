@@ -1,0 +1,153 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  stock       Int      @default(0)
+  images      String   @default("[]") // JSON array of image URLs
+  category    String?
+  variants    ProductVariant[]
+  orderItems  OrderItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String  // např. "Velikost", "Barva"
+  value     String  // např. "M", "Červená"
+  stock     Int     @default(0)
+  priceAdjustment Float @default(0)
+}
+
+model Order {
+  id                   String      @id @default(cuid())
+  orderNumber          String      @unique
+  customerName         String
+  customerEmail        String
+  customerPhone        String?
+  shippingAddress      String      // JSON string: {street, city, zip, country}
+  billingAddress       String?     // JSON string
+  items                OrderItem[]
+  invoices             Invoice[]   // Faktury k objednávce
+  totalAmount          Float
+  discountCode         String?     // Použitý slevový kód
+  discountAmount       Float       @default(0) // Částka slevy
+  status               String      @default("new") // new, accepted, rejected, in_production, ready_to_ship, shipped, delivered, cancelled
+  paymentMethod        String      // gopay, cash_on_delivery
+  paymentStatus        String      @default("pending") // pending, paid, failed
+  shippingMethod       String      // zasilkovna_pickup, zasilkovna_home, personal_pickup
+  trackingNumber       String?
+  gopayPaymentId       String?     // GoPay payment ID
+  gopayState           String?     // GoPay payment state
+  reviewEmailSentAt    DateTime?   // Kdy byl odeslán email s žádostí o recenzi
+  deliveredAt          DateTime?   // Kdy byla objednávka doručena
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float   // Cena v okamžiku objednávky
+  variant   String? // JSON string: Varianta produktu
+}
+
+model Settings {
+  id                String   @id @default(cuid())
+  key               String   @unique
+  value             String   // JSON string
+  updatedAt         DateTime @updatedAt
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashované heslo
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DiscountCode {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  type        String   // "percentage" nebo "fixed"
+  value       Float    // Hodnota slevy (procenta nebo pevná částka v Kč)
+  minAmount   Float?   // Minimální částka objednávky pro použití
+  maxUses     Int?     // Maximální počet použití (null = neomezené)
+  usedCount   Int      @default(0) // Počet použití
+  totalRevenue Float   @default(0) // Celková tržba s tímto kódem
+  isActive    Boolean  @default(true)
+  validFrom   DateTime @default(now())
+  validUntil  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Invoice {
+  id              String   @id @default(cuid())
+  invoiceNumber   String   @unique // Číslo faktury např. "2024001"
+  orderId         String?  // Vazba na objednávku (nullable pro manuální faktury)
+  order           Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  type            String   @default("automatic") // "automatic" nebo "manual"
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  customerAddress String   // JSON string: {street, city, zip, country}
+  customerIco     String?  // IČO zákazníka
+  customerDic     String?  // DIČ zákazníka
+  items           String   // JSON array: [{name, quantity, price}]
+  subtotal        Float    // Částka bez DPH
+  vatRate         Float    @default(21) // DPH sazba v %
+  vatAmount       Float    // Částka DPH
+  totalAmount     Float    // Celková částka včetně DPH
+  notes           String?  // Poznámky k faktuře
+  issueDate       DateTime @default(now()) // Datum vystavení
+  dueDate         DateTime // Datum splatnosti
+  paidDate        DateTime? // Datum zaplacení
+  status          String   @default("unpaid") // unpaid, paid, overdue, cancelled
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CompanySettings {
+  id              String   @id @default(cuid())
+  companyName     String   // Název firmy
+  ico             String   // IČO
+  dic             String?  // DIČ
+  street          String   // Ulice a číslo
+  city            String   // Město
+  zip             String   // PSČ
+  country         String   @default("Česká republika")
+  email           String   // Email
+  phone           String   // Telefon
+  bankAccount     String?  // Číslo účtu
+  iban            String?  // IBAN
+  swift           String?  // SWIFT/BIC
+  invoicePrefix   String   @default("") // Prefix faktur např. "2024"
+  nextInvoiceNum  Int      @default(1)  // Další číslo faktury
+  vatPayer        Boolean  @default(true) // Plátce DPH
+  defaultVatRate  Float    @default(21) // Výchozí sazba DPH
+  invoiceDueDays  Int      @default(14) // Počet dnů splatnosti
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
