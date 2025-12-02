@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+export const runtime = 'edge'
+
 // GET - načíst všechny faktury
 export async function GET() {
   try {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getGoPayClient } from '@/lib/gopay'
 
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     const { orderId } = await request.json()

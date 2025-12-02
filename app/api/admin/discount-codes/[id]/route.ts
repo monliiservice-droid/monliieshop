@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+export const runtime = 'edge'
+
 // PATCH - aktualizovat slevový kód (např. aktivovat/deaktivovat)
 export async function PATCH(
   request: NextRequest,

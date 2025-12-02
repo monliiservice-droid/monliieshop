@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { getGoPayClient } from '@/lib/gopay'
 import { sendOrderEmail } from '@/lib/email'
 
+export const runtime = 'edge'
+
 export async function POST(request: NextRequest) {
   try {
     // GoPay posílá notification jako form data
