@@ -11,7 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Plus, Edit, Trash2 } from 'lucide-react'
 import Link from 'next/link'
-import { prisma } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 import { DeleteProductButton } from '@/components/admin/delete-product-button'
 
 async function getProducts() {
