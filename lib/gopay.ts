@@ -90,6 +90,10 @@ class GoPayClient {
     // Token je platný 30 minut, nastavíme expiraci o 5 minut dříve
     this.tokenExpiry = Date.now() + (data.expires_in - 300) * 1000
 
+    if (!this.accessToken) {
+      throw new Error('GoPay: Failed to obtain access token')
+    }
+
     return this.accessToken
   }
 
