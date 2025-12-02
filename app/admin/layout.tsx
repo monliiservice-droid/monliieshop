@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { LayoutDashboard, Package, Settings, ShoppingBag, Users, LogOut, Tag, TrendingUp } from 'lucide-react'
+import { LayoutDashboard, Package, Settings, ShoppingBag, Users, Tag, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { LogoutButton } from '@/components/admin/LogoutButton'
 
 export default function AdminLayout({
   children,
@@ -41,10 +42,7 @@ export default function AdminLayout({
                 Zobrazit web
               </Button>
             </Link>
-            <Button variant="ghost" size="sm">
-              <LogOut className="h-4 w-4 mr-2" />
-              Odhlásit
-            </Button>
+            <LogoutButton />
           </div>
         </div>
       </header>
