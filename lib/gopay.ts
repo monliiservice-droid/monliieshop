@@ -10,7 +10,7 @@ interface GoPay {
   isProductionMode: boolean
 }
 
-interface GoPay Payment {
+interface GoPayPayment {
   amount: number
   currency: string
   order_number: string
@@ -35,7 +35,7 @@ interface GoPay Payment {
   lang?: string
 }
 
-interface GoPay PaymentResponse {
+interface GoPayPaymentResponse {
   id: number
   state: string
   gw_url: string
