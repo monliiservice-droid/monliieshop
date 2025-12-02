@@ -92,11 +92,7 @@ export async function POST(request: NextRequest) {
           customerEmail: order.customerEmail,
           totalAmount: order.totalAmount,
           items: order.items,
-          shippingAddress: {
-            street: order.shippingAddress,
-            city: order.shippingCity,
-            postalCode: order.shippingPostalCode,
-          },
+          shippingAddress: JSON.parse(order.shippingAddress),
         })
         console.log(`Confirmation email sent for order ${order.orderNumber}`)
       } catch (emailError) {
