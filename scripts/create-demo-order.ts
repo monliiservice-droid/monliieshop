@@ -35,11 +35,11 @@ async function main() {
         discountCode: null,
         discountAmount: 0,
         status: 'new',
-        paymentMethod: 'stripe',
+        paymentMethod: 'gopay',
         paymentStatus: 'paid',
         shippingMethod: 'zasilkovna_pickup',
         trackingNumber: null,
-        stripePaymentId: `demo_${Date.now()}`,
+        gopayPaymentId: `demo_${Date.now()}`,
         items: {
           create: [
             {
