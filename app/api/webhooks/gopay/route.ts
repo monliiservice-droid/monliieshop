@@ -86,7 +86,18 @@ export async function POST(request: NextRequest) {
     // Pokud byla platba úspěšná, pošleme potvrzovací email
     if (newPaymentStatus === 'paid' && order.paymentStatus !== 'paid') {
       try {
-        await sendOrderEmail(order.id, 'order_accepted')
+        await sendOrderEmail('order_accepted', {
+          orderNumber: order.orderNumber,
+          customerName: order.customerName,
+          customerEmail: order.customerEmail,
+          totalAmount: order.totalAmount,
+          items: order.items,
+          shippingAddress: {
+            street: order.shippingAddress,
+            city: order.shippingCity,
+            postalCode: order.shippingPostalCode,
+          },
+        })
         console.log(`Confirmation email sent for order ${order.orderNumber}`)
       } catch (emailError) {
         console.error('Error sending confirmation email:', emailError)
