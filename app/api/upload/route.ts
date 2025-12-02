@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
-import path from 'path'
-
+import { put } from '@vercel/blob'
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,17 +16,17 @@ export async function POST(request: NextRequest) {
     const uploadedUrls: string[] = []
 
     for (const file of files) {
-      const bytes = await file.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-
       // Vytvoř unikátní jméno souboru
       const timestamp = Date.now()
       const originalName = file.name.replace(/\s/g, '_')
-      const filename = `${timestamp}_${originalName}`
-      const filepath = path.join(process.cwd(), 'public/uploads', filename)
+      const filename = `products/${timestamp}_${originalName}`
 
-      await writeFile(filepath, buffer)
-      uploadedUrls.push(`/uploads/${filename}`)
+      // Upload do Vercel Blob Storage
+      const blob = await put(filename, file, {
+        access: 'public',
+      })
+
+      uploadedUrls.push(blob.url)
     }
 
     return NextResponse.json({ urls: uploadedUrls })
