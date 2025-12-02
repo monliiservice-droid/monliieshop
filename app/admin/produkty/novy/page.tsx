@@ -11,6 +11,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { CATEGORY_GROUPS } from '@/lib/product-types'
+import imageCompression from 'browser-image-compression'
 
 export default function NewProductPage() {
   const router = useRouter()
@@ -26,18 +27,43 @@ export default function NewProductPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([])
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    setImageFiles(prev => [...prev, ...files])
     
-    // Vytvoř náhledy
-    files.forEach(file => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result as string])
+    // Komprese obrázků před nahráním
+    const compressionOptions = {
+      maxSizeMB: 1, // Max 1MB per image
+      maxWidthOrHeight: 1920, // Max dimension
+      useWebWorker: true,
+      fileType: 'image/webp' // Convert to WebP for better compression
+    }
+    
+    const compressedFiles: File[] = []
+    
+    for (const file of files) {
+      try {
+        const compressedFile = await imageCompression(file, compressionOptions)
+        compressedFiles.push(compressedFile)
+        
+        // Vytvoř náhled
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setImagePreviews(prev => [...prev, reader.result as string])
+        }
+        reader.readAsDataURL(compressedFile)
+      } catch (error) {
+        console.error('Error compressing image:', error)
+        // Fallback na original pokud komprese selže
+        compressedFiles.push(file)
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setImagePreviews(prev => [...prev, reader.result as string])
+        }
+        reader.readAsDataURL(file)
       }
-      reader.readAsDataURL(file)
-    })
+    }
+    
+    setImageFiles(prev => [...prev, ...compressedFiles])
   }
 
   const removeImage = (index: number) => {

@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
 
+// Zvýšit limit pro upload obrázků
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+}
+
+export const maxDuration = 60 // 60 seconds timeout
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
