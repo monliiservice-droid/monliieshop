@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+export const runtime = 'edge'
+
 // GET - získat měsíční tržby
 export async function GET() {
   try {

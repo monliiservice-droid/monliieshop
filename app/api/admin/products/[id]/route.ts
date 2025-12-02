@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
+export const runtime = 'edge'
+
 // GET - Získat konkrétní produkt
 export async function GET(
   request: Request,
