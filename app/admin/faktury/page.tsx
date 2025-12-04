@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { FileText, Download, AlertCircle } from 'lucide-react'
+import { FileText, Eye } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 
@@ -51,18 +51,18 @@ export default async function InvoicesPage() {
         <p className="text-gray-600">Přehled všech vystavených faktur</p>
       </div>
 
-      {/* PDF Export Warning */}
-      <Card className="mb-6 border-orange-200 bg-orange-50">
+      {/* Info Card */}
+      <Card className="mb-6 border-blue-200 bg-blue-50">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <FileText className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div>
-              <h3 className="font-semibold text-orange-900 mb-1">
-                Export faktur do PDF zatím není implementován
+              <h3 className="font-semibold text-blue-900 mb-1">
+                Zobrazení a tisk faktur
               </h3>
-              <p className="text-sm text-orange-800">
-                Funkce generování PDF faktur bude doplněna v příští aktualizaci. 
-                Prozatím můžete faktury zobrazit zde v administraci nebo poslat zákazníkovi emailem.
+              <p className="text-sm text-blue-800">
+                Klikněte na tlačítko "Zobrazit" pro otevření faktury. Poté můžete fakturu vytisknout 
+                nebo uložit jako PDF přímo z prohlížeče (Ctrl+P nebo Cmd+P).
               </p>
             </div>
           </div>
@@ -126,16 +126,16 @@ export default async function InvoicesPage() {
                           </Badge>
                         </td>
                         <td className="py-3 px-4 text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled
-                            className="opacity-50 cursor-not-allowed"
-                            title="Export do PDF zatím není k dispozici"
-                          >
-                            <Download className="h-4 w-4 mr-1" />
-                            PDF
-                          </Button>
+                          <Link href={`/admin/faktury/${invoice.id}/view`} target="_blank">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="hover:bg-[#931e31] hover:text-white"
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Zobrazit
+                            </Button>
+                          </Link>
                         </td>
                       </tr>
                     )
