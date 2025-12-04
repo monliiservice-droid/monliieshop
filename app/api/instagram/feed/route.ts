@@ -23,6 +23,7 @@ const INSTAGRAM_POSTS = [
   'https://www.instagram.com/p/DQsCraPAhTW/',
   'https://www.instagram.com/p/DKrQpFWs5NJ/',
   'https://www.instagram.com/p/DHMQj__MpA5/',
+  'https://www.instagram.com/p/DHYlZ1fIjPv/',
   // Add more posts here as needed
 ]
 
