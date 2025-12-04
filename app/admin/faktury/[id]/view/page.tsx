@@ -1,50 +1,108 @@
-import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Printer, Download } from 'lucide-react'
+import { Printer } from 'lucide-react'
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic'
-
-interface InvoiceViewPageProps {
-  params: Promise<{ id: string }>
+interface Invoice {
+  id: string
+  invoiceNumber: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string | null
+  customerAddress: string
+  customerIco: string | null
+  customerDic: string | null
+  items: string
+  subtotal: number
+  vatRate: number
+  vatAmount: number
+  totalAmount: number
+  notes: string | null
+  issueDate: string
+  dueDate: string
+  status: string
+  order?: {
+    orderNumber: string
+    shippingAddress: string
+  }
 }
 
-async function getInvoiceData(id: string) {
-  try {
-    const [invoice, companySettings] = await Promise.all([
-      prisma.invoice.findUnique({
-        where: { id },
-        include: {
-          order: {
-            select: {
-              orderNumber: true,
-              shippingAddress: true,
-            }
-          }
+interface CompanySettings {
+  companyName: string
+  ico: string
+  dic: string | null
+  street: string
+  city: string
+  zip: string
+  email: string
+  phone: string
+  bankAccount: string | null
+  iban: string | null
+  swift: string | null
+}
+
+export default function InvoiceViewPage() {
+  const params = useParams()
+  const id = params?.id as string
+  const [invoice, setInvoice] = useState<Invoice | null>(null)
+  const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [invoiceRes, settingsRes] = await Promise.all([
+          fetch(`/api/admin/invoices/${id}`),
+          fetch('/api/admin/company-settings')
+        ])
+
+        if (!invoiceRes.ok) {
+          setError(true)
+          return
         }
-      }),
-      prisma.companySettings.findFirst()
-    ])
 
-    if (!invoice) return null
+        const invoiceData = await invoiceRes.json()
+        const settingsData = await settingsRes.json()
 
-    return { invoice, companySettings }
-  } catch (error) {
-    console.error('Error fetching invoice:', error)
-    return null
+        setInvoice(invoiceData)
+        setCompanySettings(settingsData)
+      } catch (err) {
+        console.error('Error fetching invoice:', err)
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (id) {
+      fetchData()
+    }
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#931e31] mx-auto mb-4"></div>
+          <p className="text-gray-600">Načítám fakturu...</p>
+        </div>
+      </div>
+    )
   }
-}
 
-export default async function InvoiceViewPage({ params }: InvoiceViewPageProps) {
-  const { id } = await params
-  const data = await getInvoiceData(id)
-
-  if (!data) {
-    notFound()
+  if (error || !invoice) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-red-600 text-lg mb-4">Fakturu se nepodařilo načíst</p>
+          <Button onClick={() => window.close()}>Zavřít</Button>
+        </div>
+      </div>
+    )
   }
-
-  const { invoice, companySettings } = data
 
   // Parse invoice items
   let items: any[] = []
@@ -75,28 +133,30 @@ export default async function InvoiceViewPage({ params }: InvoiceViewPageProps) 
         </Button>
       </div>
 
+      {/* Print styles */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          .no-print {
+            display: none !important;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+          }
+          .invoice-container {
+            max-width: 100%;
+            padding: 20mm;
+          }
+        }
+        
+        @page {
+          size: A4;
+          margin: 0;
+        }
+      `}} />
+
       {/* Invoice HTML */}
       <div className="invoice-container max-w-4xl mx-auto p-8 bg-white">
-        <style jsx global>{`
-          @media print {
-            .no-print {
-              display: none !important;
-            }
-            body {
-              margin: 0;
-              padding: 0;
-            }
-            .invoice-container {
-              max-width: 100%;
-              padding: 20mm;
-            }
-          }
-          
-          @page {
-            size: A4;
-            margin: 0;
-          }
-        `}</style>
 
         {/* Header */}
         <div className="mb-12 border-b-2 border-[#931e31] pb-6">
