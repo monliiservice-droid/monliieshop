@@ -1,11 +1,31 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { Facebook, Instagram } from 'lucide-react'
-import { prisma } from '@/lib/prisma'
+import { useEffect, useState } from 'react'
 
-export async function Footer() {
-  // Načtení fakturačních údajů z databáze
-  const companySettings = await prisma.companySettings.findFirst()
+interface CompanySettings {
+  companyName: string
+  ico: string
+  street: string
+  city: string
+  zip: string
+  country: string
+  email: string
+  phone: string
+}
+
+export function Footer() {
+  const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null)
+
+  useEffect(() => {
+    // Načtení fakturačních údajů z API
+    fetch('/api/admin/company-settings')
+      .then(res => res.json())
+      .then(data => setCompanySettings(data))
+      .catch(err => console.error('Error loading company settings:', err))
+  }, [])
   
   return (
     <footer className="bg-gradient-to-b from-white via-pink-50/20 to-pink-50/30" style={{borderTop: '1px solid rgba(147, 30, 49, 0.08)'}}>
