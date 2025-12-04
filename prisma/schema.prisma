@@ -62,14 +62,15 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   orderId   String
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String // Název produktu v okamžiku objednávky (pro historii)
   quantity  Int
-  price     Float   // Cena v okamžiku objednávky
-  variant   String? // JSON string: Varianta produktu
+  price     Float    // Cena v okamžiku objednávky
+  variant   String?  // JSON string: Varianta produktu
 }
 
 model Settings {
