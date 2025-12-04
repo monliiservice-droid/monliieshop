@@ -1,79 +1,98 @@
-# Instagram Basic Display API - Návod k nastavení
+# Instagram oEmbed API - Návod k nastavení
 
-## 1. Vytvoření Facebook App
+## ✅ CO MÁŠ UŽ HOTOVÉ
 
-1. Jdi na https://developers.facebook.com/apps/
-2. Klikni na **"Create App"** (Vytvořit aplikaci)
-3. Vyber **"Consumer"** jako typ aplikace
-4. Vyplň název aplikace (např. "Monlii EShop")
-5. Klikni na **"Create App"**
+- ✅ Instagram App ID: `2079065312836422`
+- ✅ Instagram App Secret: `58c6226ce9665bd09d66e7e15ce160da`
+- ✅ Vybrané posty v kódu
 
-## 2. Přidání Instagram Basic Display
+## 🚀 ZBÝVÁ JEN PŘIDAT DO VERCEL
 
-1. V levém menu najdi **"Add Product"** (Přidat produkt)
-2. Najdi **"Instagram Basic Display"** a klikni **"Set Up"**
-3. Proklikej se přes průvodce
+### 1. Jdi na Vercel Dashboard
 
-## 3. Vytvoření Instagram App
+https://vercel.com/dashboard
 
-1. V levém menu klikni na **"Instagram Basic Display" → "Basic Display"**
-2. Scroll dolů na **"Instagram App"**
-3. Klikni **"Create New App"**
-4. Vyplň:
-   - **Valid OAuth Redirect URIs:** `https://monliieshop.vercel.app/`
-   - **Deauthorize Callback URL:** `https://monliieshop.vercel.app/`
-   - **Data Deletion Request URL:** `https://monliieshop.vercel.app/`
-5. Klikni **"Save Changes"**
+### 2. Vyber projekt "monliieshop"
 
-## 4. Přidání Instagram Test User
+Klikni na něj v seznamu projektů
 
-1. Scroll dolů na **"User Token Generator"**
-2. Klikni **"Add or Remove Instagram Testers"**
-3. Otevře se Instagram, přihlaš se
-4. Najdi **"Tester Invites"** v nastavení
-5. Přijmi pozvánku pro `@monlii_i`
+### 3. Jdi do Settings
 
-## 5. Získání Access Token
+V horním menu: **Settings**
 
-1. Vrať se do Facebook Developers
-2. V sekci **"User Token Generator"**
-3. Klikni **"Generate Token"** u `@monlii_i`
-4. Autorizuj aplikaci
-5. **Zkopíruj Long-Lived Access Token**
+### 4. Environment Variables
 
-## 6. Přidání do Vercel
+V levém menu: **Environment Variables**
 
-1. Jdi na https://vercel.com/dashboard
-2. Vyber projekt **monliieshop**
-3. Jdi na **"Settings" → "Environment Variables"**
-4. Přidej novou proměnnou:
-   - **Key:** `INSTAGRAM_ACCESS_TOKEN`
-   - **Value:** *tvůj long-lived token*
-   - **Environments:** Production, Preview, Development
-5. Klikni **"Save"**
+### 5. Přidej 2 proměnné
 
-## 7. Redeploy
+#### **První proměnná:**
+- **Key:** `INSTAGRAM_APP_ID`
+- **Value:** `2079065312836422`
+- **Environments:** ☑ Production, ☑ Preview, ☑ Development
+- Klikni **Save**
 
-1. Jdi na **"Deployments"** tab
-2. Klikni na tři tečky u nejnovějšího deploymentu
-3. Klikni **"Redeploy"**
+#### **Druhá proměnná:**
+- **Key:** `INSTAGRAM_APP_SECRET`
+- **Value:** `58c6226ce9665bd09d66e7e15ce160da`
+- **Environments:** ☑ Production, ☑ Preview, ☑ Development
+- Klikni **Save**
 
-## 8. Test
+### 6. Redeploy
 
-Po deploymenu jdi na homepage:
+1. Jdi na **Deployments** tab
+2. Klikni na tři tečky **"..."** u nejnovějšího deploymentu
+3. Vyber **"Redeploy"**
+4. Počkaj ~3-5 minut
+
+### 7. Hotovo! 🎉
+
+Jdi na homepage a uvidíš své Instagram posty:
 - https://monliieshop.vercel.app/
 - Scroll dolů na sekci "Náš Instagram"
-- Měly by se zobrazit skutečné Instagram posty místo placeholderů
 
-## ⚠️ DŮLEŽITÉ
+---
 
-- **Access Token vyprší za 60 dní** - musíš ho obnovit
-- Pro produkci doporuču nastavit automatické obnovování
-- Token nikdy necommituj do gitu
+## 📝 JAK PŘIDAT DALŠÍ POSTY
 
-## 📝 Poznámky
+### V souboru: `app/api/instagram/feed/route.ts`
 
-- Instagram Basic Display API má limit 200 requestů/hodinu
-- Feed je cachovaný 1 hodinu
-- Zobrazuje se max 8 nejnovějších postů
-- Filtruje pouze obrázky (ne videa)
+Najdi řádky 22-27:
+```typescript
+const INSTAGRAM_POSTS = [
+  'https://www.instagram.com/p/DQsCraPAhTW/',
+  'https://www.instagram.com/p/DKrQpFWs5NJ/',
+  'https://www.instagram.com/p/DHMQj__MpA5/',
+  // Add more posts here as needed
+]
+```
+
+**Prostě přidej další URL:**
+```typescript
+const INSTAGRAM_POSTS = [
+  'https://www.instagram.com/p/DQsCraPAhTW/',
+  'https://www.instagram.com/p/DKrQpFWs5NJ/',
+  'https://www.instagram.com/p/DHMQj__MpA5/',
+  'https://www.instagram.com/p/NOVY_POST/',  // ← nový post
+  'https://www.instagram.com/p/DALSI_POST/', // ← další post
+]
+```
+
+Commit, push a automaticky se nasadí na Vercel!
+
+---
+
+## 💡 VÝHODY TOHOTO ŘEŠENÍ
+
+✅ **Jednoduchá správa** - jen App ID a Secret  
+✅ **Plná kontrola** - vyber přesně které posty zobrazit  
+✅ **Žádné expirování** - credentials nevyprší  
+✅ **Rychlé** - cache 1 hodinu  
+✅ **Bezpečné** - credentials v environment variables
+
+## ⚠️ POZNÁMKY
+
+- Instagram posty jsou **statické** - nezobrazuje automaticky nejnovější
+- Pro aktualizaci přidej nové URL do pole `INSTAGRAM_POSTS`
+- Maximálně doporučuji 8 postů (kvůli rychlosti načítání)
+- API má limit 200 požadavků/hodinu (s cache by to neměl být problém)
