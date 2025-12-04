@@ -14,6 +14,10 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { DeleteProductButton } from '@/components/admin/delete-product-button'
 
+// Force dynamic rendering - don't cache this page
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getProducts() {
   try {
     const products = await prisma.product.findMany({
