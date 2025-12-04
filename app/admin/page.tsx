@@ -3,6 +3,10 @@ import { Package, ShoppingBag, TrendingUp, Users } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 
+// Force dynamic rendering - don't cache this page
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getDashboardData() {
   try {
     const [productCount, orderCount, totalRevenue] = await Promise.all([
