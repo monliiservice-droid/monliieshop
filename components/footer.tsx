@@ -1,8 +1,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Facebook, Instagram } from 'lucide-react'
+import { prisma } from '@/lib/prisma'
 
-export function Footer() {
+export async function Footer() {
+  // Načtení fakturačních údajů z databáze
+  const companySettings = await prisma.companySettings.findFirst()
+  
   return (
     <footer className="bg-gradient-to-b from-white via-pink-50/20 to-pink-50/30" style={{borderTop: '1px solid rgba(147, 30, 49, 0.08)'}}>
       <div className="container py-16">
@@ -47,16 +51,20 @@ export function Footer() {
           <div className="space-y-4">
             <h4 className="font-bold text-black">Kontakt</h4>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li>
-                <a href="mailto:info@monlii.cz" className="hover:text-black transition-colors">
-                  info@monlii.cz
-                </a>
-              </li>
-              <li>
-                <a href="tel:+420777123456" className="hover:text-black transition-colors">
-                  +420 777 123 456
-                </a>
-              </li>
+              {companySettings?.email && (
+                <li>
+                  <a href={`mailto:${companySettings.email}`} className="hover:text-black transition-colors">
+                    {companySettings.email}
+                  </a>
+                </li>
+              )}
+              {companySettings?.phone && (
+                <li>
+                  <a href={`tel:${companySettings.phone.replace(/\s/g, '')}`} className="hover:text-black transition-colors">
+                    {companySettings.phone}
+                  </a>
+                </li>
+              )}
             </ul>
             <div className="pt-4">
               <h5 className="font-semibold text-sm text-black mb-2">Sledujte nás</h5>
@@ -86,10 +94,19 @@ export function Footer() {
         <div className="mt-12 pt-8 space-y-6" style={{borderTop: '1px solid rgba(147, 30, 49, 0.08)'}}>
           {/* Company Identification */}
           <div className="text-center space-y-2">
-            <p className="text-sm text-gray-700 font-semibold">Monlii s.r.o.</p>
-            <p className="text-xs text-gray-600">
-              IČO: 12345678 | Adresa: Ulice 123, 738 01 Frýdek-Místek, Česká republika
-            </p>
+            {companySettings && (
+              <>
+                <p className="text-sm text-gray-700 font-semibold">{companySettings.companyName}</p>
+                <p className="text-xs text-gray-600">
+                  {companySettings.ico && `IČO: ${companySettings.ico}`}
+                  {companySettings.ico && companySettings.street && ' | '}
+                  {companySettings.street && `${companySettings.street}, `}
+                  {companySettings.zip && `${companySettings.zip} `}
+                  {companySettings.city}
+                  {companySettings.country && `, ${companySettings.country}`}
+                </p>
+              </>
+            )}
           </div>
 
           {/* Payment Methods */}
