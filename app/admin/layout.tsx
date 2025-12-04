@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { LayoutDashboard, Package, Settings, ShoppingBag, Users, Tag, TrendingUp } from 'lucide-react'
+import { LayoutDashboard, Package, Settings, ShoppingBag, Users, Tag, TrendingUp, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/admin/LogoutButton'
 
@@ -13,6 +13,7 @@ export default function AdminLayout({
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/admin/produkty', icon: Package, label: 'Produkty' },
     { href: '/admin/objednavky', icon: ShoppingBag, label: 'Objednávky' },
+    { href: '/admin/faktury', icon: FileText, label: 'Faktury' },
     { href: '/admin/trzby', icon: TrendingUp, label: 'Tržby' },
     { href: '/admin/slevove-kody', icon: Tag, label: 'Slevové kódy' },
     { href: '/admin/nastaveni', icon: Settings, label: 'Nastavení' },
