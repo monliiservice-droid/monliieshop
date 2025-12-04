@@ -3,45 +3,75 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const revalidate = 3600 // Cache for 1 hour
 
-interface InstagramMedia {
+interface InstagramOEmbed {
+  thumbnail_url: string
+  author_name: string
+  title?: string
+  html: string
+  permalink?: string
+}
+
+interface InstagramPost {
   id: string
-  media_type: 'IMAGE' | 'VIDEO' | 'CAROUSEL_ALBUM'
   media_url: string
   permalink: string
   caption?: string
-  timestamp: string
 }
+
+// Curated Instagram posts
+const INSTAGRAM_POSTS = [
+  'https://www.instagram.com/p/DQsCraPAhTW/',
+  'https://www.instagram.com/p/DKrQpFWs5NJ/',
+  'https://www.instagram.com/p/DHMQj__MpA5/',
+  // Add more posts here as needed
+]
 
 export async function GET() {
   try {
-    const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN
+    const appId = process.env.INSTAGRAM_APP_ID
+    const appSecret = process.env.INSTAGRAM_APP_SECRET
 
-    if (!accessToken) {
-      console.warn('Instagram Access Token not configured')
+    if (!appId || !appSecret) {
+      console.warn('Instagram credentials not configured')
       return NextResponse.json({ 
         error: 'Instagram not configured',
         posts: [] 
       })
     }
 
-    // Fetch latest media from Instagram Basic Display API
-    const response = await fetch(
-      `https://graph.instagram.com/me/media?fields=id,media_type,media_url,permalink,caption,timestamp&access_token=${accessToken}&limit=8`,
-      {
-        next: { revalidate: 3600 } // Cache for 1 hour
+    // Create access token from App ID and App Secret
+    const accessToken = `${appId}|${appSecret}`
+
+    // Fetch oEmbed data for each post
+    const postPromises = INSTAGRAM_POSTS.map(async (url) => {
+      try {
+        const oembedUrl = `https://graph.facebook.com/v18.0/instagram_oembed?url=${encodeURIComponent(url)}&access_token=${accessToken}`
+        
+        const response = await fetch(oembedUrl, {
+          next: { revalidate: 3600 } // Cache for 1 hour
+        })
+
+        if (!response.ok) {
+          console.error(`Failed to fetch oEmbed for ${url}:`, response.status)
+          return null
+        }
+
+        const data: InstagramOEmbed = await response.json()
+
+        return {
+          id: url.split('/p/')[1]?.split('/')[0] || Math.random().toString(),
+          media_url: data.thumbnail_url,
+          permalink: url,
+          caption: data.title || data.author_name
+        }
+      } catch (error) {
+        console.error(`Error fetching post ${url}:`, error)
+        return null
       }
-    )
+    })
 
-    if (!response.ok) {
-      throw new Error(`Instagram API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-
-    // Filter only images (no videos for now)
-    const posts: InstagramMedia[] = data.data
-      .filter((item: InstagramMedia) => item.media_type === 'IMAGE' || item.media_type === 'CAROUSEL_ALBUM')
-      .slice(0, 8)
+    const results = await Promise.all(postPromises)
+    const posts = results.filter((post) => post !== null) as InstagramPost[]
 
     return NextResponse.json({ 
       posts,
