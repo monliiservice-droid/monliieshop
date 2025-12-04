@@ -1,104 +1,73 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import { Instagram } from 'lucide-react'
+import { useEffect } from 'react'
 
-interface InstagramPost {
-  id: string
-  media_url: string
-  permalink: string
-  caption?: string
-}
+// Curated Instagram posts - same as in API
+const INSTAGRAM_POSTS = [
+  'https://www.instagram.com/p/DQsCraPAhTW/',
+  'https://www.instagram.com/p/DKrQpFWs5NJ/',
+  'https://www.instagram.com/p/DHMQj__MpA5/',
+  'https://www.instagram.com/p/DHYlZ1fIjPv/',
+]
 
 export function InstagramFeed() {
-  const [posts, setPosts] = useState<InstagramPost[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
-
   useEffect(() => {
-    async function fetchInstagramFeed() {
-      try {
-        console.log('🔍 Fetching Instagram feed...')
-        const response = await fetch('/api/instagram/feed')
-        console.log('📡 Response status:', response.status)
-        
-        const data = await response.json()
-        console.log('📦 API Response:', data)
+    // Load Instagram embed script
+    const script = document.createElement('script')
+    script.src = 'https://www.instagram.com/embed.js'
+    script.async = true
+    document.body.appendChild(script)
 
-        if (data.posts && data.posts.length > 0) {
-          console.log('✅ Instagram posts loaded:', data.posts.length)
-          setPosts(data.posts)
-          setError(false)
-        } else {
-          console.log('⚠️ No posts in response or empty array')
-          console.log('Error message:', data.error)
-          setError(true)
-        }
-      } catch (err) {
-        console.error('❌ Error loading Instagram feed:', err)
-        setError(true)
-      } finally {
-        setLoading(false)
+    // Process embeds after script loads
+    script.onload = () => {
+      if (window.instgrm) {
+        window.instgrm.Embeds.process()
       }
     }
 
-    fetchInstagramFeed()
+    return () => {
+      document.body.removeChild(script)
+    }
   }, [])
 
-  // Show placeholders while loading or if error
-  if (loading || error || posts.length === 0) {
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <a
-            key={i}
-            href="https://www.instagram.com/monlii_i/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative aspect-square rounded-2xl overflow-hidden soft-shadow group cursor-pointer"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <Instagram className="h-12 w-12 text-white" />
-            </div>
-            <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-              <Instagram className="h-16 w-16 text-[#931e31]/20" />
-            </div>
-          </a>
-        ))}
-      </div>
-    )
-  }
-
-  // Show actual Instagram posts
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {posts.map((post) => (
-        <a
-          key={post.id}
-          href={post.permalink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="relative aspect-square rounded-2xl overflow-hidden soft-shadow group cursor-pointer transition-all duration-300 hover:scale-105"
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto">
+      {INSTAGRAM_POSTS.map((url) => (
+        <div 
+          key={url}
+          className="instagram-embed-wrapper rounded-2xl overflow-hidden soft-shadow"
+          style={{ minHeight: '500px' }}
         >
-          {/* Instagram Post Image */}
-          <Image
-            src={post.media_url}
-            alt={post.caption || 'Instagram post'}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          <blockquote
+            className="instagram-media"
+            data-instgrm-captioned
+            data-instgrm-permalink={url}
+            data-instgrm-version="14"
+            style={{
+              background: '#FFF',
+              border: '0',
+              borderRadius: '16px',
+              boxShadow: '0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15)',
+              margin: '1px',
+              maxWidth: '100%',
+              minWidth: '326px',
+              padding: '0',
+              width: 'calc(100% - 2px)',
+            }}
           />
-          
-          {/* Hover overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#931e31]/90 via-[#931e31]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
-            <Instagram className="h-10 w-10 text-white mb-2" />
-            <p className="text-white text-sm font-medium text-center line-clamp-2">
-              {post.caption || 'Zobrazit na Instagramu'}
-            </p>
-          </div>
-        </a>
+        </div>
       ))}
     </div>
   )
+}
+
+// Type declaration for Instagram embed script
+declare global {
+  interface Window {
+    instgrm?: {
+      Embeds: {
+        process: () => void
+      }
+    }
+  }
 }

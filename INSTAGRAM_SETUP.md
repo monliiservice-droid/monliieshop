@@ -1,69 +1,33 @@
-# Instagram oEmbed API - Návod k nastavení
+# Instagram Embeds - Návod
 
-## ✅ CO MÁŠ UŽ HOTOVÉ
+## ✅ JAK TO FUNGUJE
 
-- ✅ Instagram App ID: `2079065312836422`
-- ✅ Instagram App Secret: `58c6226ce9665bd09d66e7e15ce160da`
-- ✅ Vybrané posty v kódu
+Web nyní používá **Instagram native embeds** - oficiální embed kód od Instagramu.
 
-## 🚀 ZBÝVÁ JEN PŘIDAT DO VERCEL
+**Výhody:**
+- ✅ **Žádné API** - funguje bez schvalování od Meta
+- ✅ **Oficiální** - přímo od Instagramu
+- ✅ **Bezpečné** - žádné tokeny ani credentials
+- ✅ **Interaktivní** - uživatelé vidí i lajky, komentáře
+- ✅ **Aktuální** - Instagram automaticky aktualizuje embed
 
-### 1. Jdi na Vercel Dashboard
-
-https://vercel.com/dashboard
-
-### 2. Vyber projekt "monliieshop"
-
-Klikni na něj v seznamu projektů
-
-### 3. Jdi do Settings
-
-V horním menu: **Settings**
-
-### 4. Environment Variables
-
-V levém menu: **Environment Variables**
-
-### 5. Přidej 2 proměnné
-
-#### **První proměnná:**
-- **Key:** `INSTAGRAM_APP_ID`
-- **Value:** `2079065312836422`
-- **Environments:** ☑ Production, ☑ Preview, ☑ Development
-- Klikni **Save**
-
-#### **Druhá proměnná:**
-- **Key:** `INSTAGRAM_APP_SECRET`
-- **Value:** `58c6226ce9665bd09d66e7e15ce160da`
-- **Environments:** ☑ Production, ☑ Preview, ☑ Development
-- Klikni **Save**
-
-### 6. Redeploy
-
-1. Jdi na **Deployments** tab
-2. Klikni na tři tečky **"..."** u nejnovějšího deploymentu
-3. Vyber **"Redeploy"**
-4. Počkaj ~3-5 minut
-
-### 7. Hotovo! 🎉
-
-Jdi na homepage a uvidíš své Instagram posty:
-- https://monliieshop.vercel.app/
-- Scroll dolů na sekci "Náš Instagram"
+**Nevýhody:**
+- ⚠️ Trochu pomalejší načítání (Instagram script)
+- ⚠️ Potřebuje JavaScript
 
 ---
 
 ## 📝 JAK PŘIDAT DALŠÍ POSTY
 
-### V souboru: `app/api/instagram/feed/route.ts`
+### V souboru: `components/InstagramFeed.tsx`
 
-Najdi řádky 22-27:
+Najdi řádky 6-11:
 ```typescript
 const INSTAGRAM_POSTS = [
   'https://www.instagram.com/p/DQsCraPAhTW/',
   'https://www.instagram.com/p/DKrQpFWs5NJ/',
   'https://www.instagram.com/p/DHMQj__MpA5/',
-  // Add more posts here as needed
+  'https://www.instagram.com/p/DHYlZ1fIjPv/',
 ]
 ```
 
@@ -73,26 +37,60 @@ const INSTAGRAM_POSTS = [
   'https://www.instagram.com/p/DQsCraPAhTW/',
   'https://www.instagram.com/p/DKrQpFWs5NJ/',
   'https://www.instagram.com/p/DHMQj__MpA5/',
+  'https://www.instagram.com/p/DHYlZ1fIjPv/',
   'https://www.instagram.com/p/NOVY_POST/',  // ← nový post
-  'https://www.instagram.com/p/DALSI_POST/', // ← další post
 ]
 ```
 
-Commit, push a automaticky se nasadí na Vercel!
+**Commit a push:**
+```bash
+git add -A
+git commit -m "Add new Instagram post"
+git push
+```
+
+Vercel automaticky nasadí změny (~3 min).
 
 ---
 
-## 💡 VÝHODY TOHOTO ŘEŠENÍ
+## 🎨 JAK ZÍSKAT URL POSTU
 
-✅ **Jednoduchá správa** - jen App ID a Secret  
-✅ **Plná kontrola** - vyber přesně které posty zobrazit  
-✅ **Žádné expirování** - credentials nevyprší  
-✅ **Rychlé** - cache 1 hodinu  
-✅ **Bezpečné** - credentials v environment variables
+1. **Otevři Instagram** (web nebo aplikace)
+2. **Najdi post** který chceš zobrazit
+3. **Klikni na tři tečky** (...) na postu
+4. **Vyber "Copy link"** (Zkopírovat odkaz)
+5. **URL vypadá:** `https://www.instagram.com/p/ABC123xyz/`
+
+---
+
+## 💡 DOPORUČENÍ
+
+- **Optimální počet:** 4-6 postů (rychlejší načítání)
+- **Layout:** 2 sloupce na desktop, 1 na mobile
+- **Aktualizace:** Přidávej nové posty každý měsíc
+
+---
+
+## 🔧 TECHNICKÉ DETAILY
+
+### **Jak to funguje:**
+1. Komponenta obsahuje pole URL Instagram postů
+2. Instagram embed script (`embed.js`) se načte ze serveru Instagramu
+3. Script najde všechny `blockquote` elementy s třídou `instagram-media`
+4. Automaticky je převede na interaktivní embeds
+
+### **Co se zobrazí:**
+- ✅ Obrázek/video z postu
+- ✅ Caption (popisek)
+- ✅ Datum publikace
+- ✅ Počet lajků
+- ✅ Tlačítko "View on Instagram"
+
+---
 
 ## ⚠️ POZNÁMKY
 
-- Instagram posty jsou **statické** - nezobrazuje automaticky nejnovější
-- Pro aktualizaci přidej nové URL do pole `INSTAGRAM_POSTS`
-- Maximálně doporučuji 8 postů (kvůli rychlosti načítání)
-- API má limit 200 požadavků/hodinu (s cache by to neměl být problém)
+- Embeds fungují **jen na veřejných postech**
+- Pokud je účet privátní, embed nebude fungovat
+- Instagram může embeds občas aktualizovat/změnit vzhled
+- Žádné environment variables nejsou potřeba!
