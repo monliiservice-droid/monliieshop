@@ -34,8 +34,8 @@ export default function AdminLoginPage() {
       const data = await response.json()
 
       if (response.ok) {
-        router.push('/admin')
-        router.refresh()
+        // Hard redirect to ensure middleware picks up the session
+        window.location.href = '/admin'
       } else {
         setError(data.error || 'Nepodařilo se přihlásit')
       }
