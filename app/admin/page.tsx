@@ -9,7 +9,7 @@ export const revalidate = 0
 
 async function getDashboardData() {
   try {
-    const [productCount, orderCount, totalRevenue] = await Promise.all([
+    const [productCount, orderCount, totalRevenue, recentOrders] = await Promise.all([
       prisma.product.count(),
       prisma.order.count(),
       prisma.order.aggregate({
@@ -19,20 +19,36 @@ async function getDashboardData() {
         where: {
           paymentStatus: 'paid'
         }
+      }),
+      prisma.order.findMany({
+        take: 5,
+        orderBy: {
+          createdAt: 'desc'
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          customerName: true,
+          totalAmount: true,
+          status: true,
+          createdAt: true
+        }
       })
     ])
 
     return {
       productCount,
       orderCount,
-      totalRevenue: totalRevenue._sum.totalAmount || 0
+      totalRevenue: totalRevenue._sum.totalAmount || 0,
+      recentOrders
     }
   } catch (error) {
     console.error('Error fetching dashboard data:', error)
     return {
       productCount: 0,
       orderCount: 0,
-      totalRevenue: 0
+      totalRevenue: 0,
+      recentOrders: []
     }
   }
 }
@@ -108,19 +124,46 @@ export default async function AdminDashboard() {
               <div className="font-medium">Zobrazit objednávky</div>
               <div className="text-sm text-gray-600">Spravovat objednávky zákazníků</div>
             </a>
-            <a href="/admin/nastaveni" className="block p-3 hover:bg-gray-50 rounded-lg border">
-              <div className="font-medium">Nastavení</div>
-              <div className="text-sm text-gray-600">Upravit platební a doručovací možnosti</div>
+            <a href="/admin/trzby" className="block p-3 hover:bg-gray-50 rounded-lg border">
+              <div className="font-medium">Tržby</div>
+              <div className="text-sm text-gray-600">Zobrazit statistiky a tržby</div>
             </a>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Poslední aktivity</CardTitle>
+            <CardTitle>Nové objednávky</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-600">Žádné nedávné aktivity</p>
+            {data.recentOrders.length === 0 ? (
+              <p className="text-sm text-gray-600">Žádné objednávky</p>
+            ) : (
+              <div className="space-y-3">
+                {data.recentOrders.map((order) => (
+                  <Link key={order.id} href={`/admin/objednavky`}>
+                    <div className="p-3 hover:bg-gray-50 rounded-lg border transition-colors cursor-pointer">
+                      <div className="flex justify-between items-start mb-1">
+                        <div className="font-medium">{order.orderNumber}</div>
+                        <div className="text-sm font-semibold text-[#931e31]">{order.totalAmount.toLocaleString('cs-CZ')} Kč</div>
+                      </div>
+                      <div className="text-sm text-gray-600">{order.customerName}</div>
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">
+                          {order.status === 'new' && 'Nová'}
+                          {order.status === 'accepted' && 'Přijato'}
+                          {order.status === 'shipped' && 'Odesláno'}
+                          {order.status === 'delivered' && 'Doručeno'}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(order.createdAt).toLocaleDateString('cs-CZ')}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -30,32 +30,32 @@ export default function ShippingPage() {
 
             <div className="space-y-4">
               <div className="p-4 border rounded-lg hover:border-[#931e31] transition-colors">
-                <h3 className="font-semibold mb-2">📦 Zásilkovna</h3>
+                <h3 className="font-semibold mb-2">📦 Zásilkovna - Odběrné místo</h3>
                 <p className="text-gray-700 mb-2">
                   Doručení na výdejní místo Zásilkovny dle vašeho výběru.
                 </p>
                 <p className="text-sm text-gray-600">
-                  Cena: <strong>59 Kč</strong> | Doba dodání: <strong>2-3 pracovní dny</strong>
+                  Cena: <strong>59 Kč</strong> | Doba dodání: <strong>3-5 pracovních dnů (skladem), až 14 dnů (na míru)</strong>
                 </p>
               </div>
 
               <div className="p-4 border rounded-lg hover:border-[#931e31] transition-colors">
-                <h3 className="font-semibold mb-2">📮 Česká pošta</h3>
+                <h3 className="font-semibold mb-2">🏠 Zásilkovna - Domů</h3>
                 <p className="text-gray-700 mb-2">
-                  Doručení na adresu prostřednictvím České pošty.
+                  Doručení kurýrem Zásilkovny přímo na vaši adresu.
                 </p>
                 <p className="text-sm text-gray-600">
-                  Cena: <strong>79 Kč</strong> | Doba dodání: <strong>3-5 pracovních dnů</strong>
+                  Cena: <strong>79 Kč</strong> | Doba dodání: <strong>3-5 pracovních dnů (skladem), až 14 dnů (na míru)</strong>
                 </p>
               </div>
 
               <div className="p-4 border rounded-lg hover:border-[#931e31] transition-colors">
-                <h3 className="font-semibold mb-2">🚚 PPL</h3>
+                <h3 className="font-semibold mb-2">🏪 Osobní odběr</h3>
                 <p className="text-gray-700 mb-2">
-                  Expresní doručení kurýrem PPL přímo na vaši adresu.
+                  Osobní odběr v <strong>Havířově</strong> nebo <strong>Frenštátě pod Radhoštěm</strong>.
                 </p>
                 <p className="text-sm text-gray-600">
-                  Cena: <strong>99 Kč</strong> | Doba dodání: <strong>1-2 pracovní dny</strong>
+                  Cena: <strong>ZDARMA</strong> | Připravíme do <strong>3-5 dnů (skladem), až 14 dnů (na míru)</strong>
                 </p>
               </div>
 
@@ -115,14 +115,10 @@ export default function ShippingPage() {
             </div>
             
             <div className="p-4 bg-pink-50 rounded-lg">
-              <p className="text-gray-700 leading-relaxed mb-3">
+              <p className="text-gray-700 leading-relaxed">
                 Všechny objednávky balíme s láskou a péčí do elegantního obalu. 
                 Zásilka je zcela <strong>diskrétní</strong> - na obalu není uvedeno, 
-                co obsahuje ani od koho pochází.
-              </p>
-              <p className="text-gray-700 leading-relaxed">
-                Každá objednávka obsahuje <strong>malý dárek</strong> od nás jako poděkování 
-                za vaši podporu! 💝
+                co obsahuje ani od koho pochází. 💝
               </p>
             </div>
           </section>
@@ -135,8 +131,9 @@ export default function ShippingPage() {
               <div className="p-4 bg-gray-50 rounded-lg">
                 <h3 className="font-semibold mb-2">📅 Jak dlouho trvá doručení?</h3>
                 <p className="text-gray-700">
-                  Standardní doba doručení je 2-5 pracovních dnů v závislosti na zvoleném 
-                  způsobu dopravy. Objednávky odesíláme denně (kromě víkendů a svátků).
+                  <strong>Zboží skladem:</strong> 3-5 pracovních dnů.<br/>
+                  <strong>Zboží na míru:</strong> až 14 pracovních dnů (záleží na složitosti výrobku).<br/>
+                  O stavu vaší objednávky vás budeme průběžně informovat e-mailem.
                 </p>
               </div>
 
