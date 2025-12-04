@@ -79,7 +79,7 @@ export async function PATCH(
       customerEmail: order.customerEmail,
       totalAmount: order.totalAmount,
       items: order.items.map(item => ({
-        name: item.product.name,
+        name: item.productName || item.product?.name || 'Unknown Product',
         quantity: item.quantity,
         price: item.price
       })),
