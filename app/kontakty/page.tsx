@@ -161,8 +161,61 @@ export default function ContactPage() {
                 Naše spodní prádlo najdete v našich prodejnách
               </p>
 
-              {/* Lokace 1 - Frenštát pod Radhoštěm */}
+              {/* Lokace 1 - Havířov */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16 animate-fade-in" style={{animationDelay: '0.4s'}}>
+                {/* Mapa - vlevo na desktopu */}
+                <div className="bg-gray-100 rounded-3xl overflow-hidden soft-shadow-lg h-[400px] lg:h-full order-2 lg:order-1 transition-all duration-300 hover:scale-105 hover:soft-shadow-xl">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2575.445678901234!2d18.41234567890123!3d49.78765432109876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4713e8f7c5d8e0c5%3A0x1234567890abcdef!2zRGxvdWjDoSB0xZVDrWRhIDk1Yy8xNjEyLCA3MzYgMDEgSGF2zIHFmW92LCBDZWNO!5e0!3m2!1scs!2scz!4v1234567890123!5m2!1scs!2scz"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="w-full h-full"
+                  ></iframe>
+                </div>
+
+                {/* Informace - vpravo na desktopu */}
+                <div className="space-y-8 order-1 lg:order-2">
+                  {/* Adresa */}
+                  <div className="bg-gradient-to-br from-pink-50/50 to-purple-50/50 rounded-3xl p-8 soft-shadow-lg transition-all duration-300 hover:scale-105 hover:soft-shadow-xl">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-r from-[#931e31] to-[#b8263d] flex items-center justify-center">
+                        <Store className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold mb-2">Havířov - Kyšky Lišky</h3>
+                        <p className="text-gray-700 leading-relaxed">
+                          Dlouhá třída 95c/1612<br />
+                          <span className="text-sm italic">vstup vedle marketu Albert</span><br />
+                          736 01 Havířov, Podlesí
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Info o obchodu */}
+                  <div className="bg-gradient-to-br from-pink-50/50 to-purple-50/50 rounded-3xl p-8 soft-shadow-lg transition-all duration-300 hover:scale-105 hover:soft-shadow-xl">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-r from-[#931e31] to-[#b8263d] flex items-center justify-center">
+                        <Clock className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold mb-2">Otevírací doba obchodu</h3>
+                        <p className="text-gray-600 text-sm">
+                          Prádlo najdete v obchodě Kyšky Lišky.<br />
+                          Otevírací doba dle provozní doby obchodu.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lokace 2 - Frenštát pod Radhoštěm */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start animate-fade-in" style={{animationDelay: '0.5s'}}>
                 {/* Informace */}
                 <div className="space-y-8">
                   {/* Adresa */}
@@ -220,59 +273,6 @@ export default function ContactPage() {
                     referrerPolicy="no-referrer-when-downgrade"
                     className="w-full h-full"
                   ></iframe>
-                </div>
-              </div>
-
-              {/* Lokace 2 - Havířov (mapa na opačné straně) */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start animate-fade-in" style={{animationDelay: '0.5s'}}>
-                {/* Mapa - vlevo na desktopu */}
-                <div className="bg-gray-100 rounded-3xl overflow-hidden soft-shadow-lg h-[400px] lg:h-full order-2 lg:order-1 transition-all duration-300 hover:scale-105 hover:soft-shadow-xl">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2575.445678901234!2d18.41234567890123!3d49.78765432109876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4713e8f7c5d8e0c5%3A0x1234567890abcdef!2zRGxvdWjDoSB0xZlDrWRhIDk1Yy8xNjEyLCA3MzYgMDEgSGF2zIHFmW92LCBDZWNO!5e0!3m2!1scs!2scz!4v1234567890123!5m2!1scs!2scz"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    className="w-full h-full"
-                  ></iframe>
-                </div>
-
-                {/* Informace - vpravo na desktopu */}
-                <div className="space-y-8 order-1 lg:order-2">
-                  {/* Adresa */}
-                  <div className="bg-gradient-to-br from-pink-50/50 to-purple-50/50 rounded-3xl p-8 soft-shadow-lg transition-all duration-300 hover:scale-105 hover:soft-shadow-xl">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-r from-[#931e31] to-[#b8263d] flex items-center justify-center">
-                        <Store className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold mb-2">Havířov - Kyšky Lišky</h3>
-                        <p className="text-gray-700 leading-relaxed">
-                          Dlouhá třída 95c/1612<br />
-                          <span className="text-sm italic">vstup vedle marketu Albert</span><br />
-                          736 01 Havířov, Podlesí
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Info o obchodu */}
-                  <div className="bg-gradient-to-br from-pink-50/50 to-purple-50/50 rounded-3xl p-8 soft-shadow-lg transition-all duration-300 hover:scale-105 hover:soft-shadow-xl">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-r from-[#931e31] to-[#b8263d] flex items-center justify-center">
-                        <Clock className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold mb-2">Otevírací doba obchodu</h3>
-                        <p className="text-gray-600 text-sm">
-                          Prádlo najdete v obchodě Kyšky Lišky.<br />
-                          Otevírací doba dle provozní doby obchodu.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
