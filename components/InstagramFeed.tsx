@@ -6,11 +6,9 @@ import { Instagram } from 'lucide-react'
 
 interface InstagramPost {
   id: string
-  media_type: string
   media_url: string
   permalink: string
   caption?: string
-  timestamp: string
 }
 
 export function InstagramFeed() {
@@ -21,17 +19,24 @@ export function InstagramFeed() {
   useEffect(() => {
     async function fetchInstagramFeed() {
       try {
+        console.log('🔍 Fetching Instagram feed...')
         const response = await fetch('/api/instagram/feed')
+        console.log('📡 Response status:', response.status)
+        
         const data = await response.json()
+        console.log('📦 API Response:', data)
 
         if (data.posts && data.posts.length > 0) {
+          console.log('✅ Instagram posts loaded:', data.posts.length)
           setPosts(data.posts)
           setError(false)
         } else {
+          console.log('⚠️ No posts in response or empty array')
+          console.log('Error message:', data.error)
           setError(true)
         }
       } catch (err) {
-        console.error('Error loading Instagram feed:', err)
+        console.error('❌ Error loading Instagram feed:', err)
         setError(true)
       } finally {
         setLoading(false)
