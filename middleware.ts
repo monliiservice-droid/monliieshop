@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 
+// Run on Edge Runtime for faster response times globally
+export const config = {
+  matcher: '/admin/:path*',
+  runtime: 'edge',
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production'
 
 export async function middleware(request: NextRequest) {
@@ -47,8 +53,4 @@ export async function middleware(request: NextRequest) {
   }
 
   return NextResponse.next()
-}
-
-export const config = {
-  matcher: '/admin/:path*',
 }
