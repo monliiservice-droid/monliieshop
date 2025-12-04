@@ -61,7 +61,10 @@ export default function ShippingPage() {
 
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-green-800 font-semibold">
-                  ✨ Doprava ZDARMA při objednávce nad 1 500 Kč
+                  ✨ Doprava ZDARMA na výdejní místo Zásilkovny při objednávce nad 2 500 Kč
+                </p>
+                <p className="text-green-700 text-sm mt-2">
+                  (Doprava domů je vždy zpoplatněna)
                 </p>
               </div>
             </div>
