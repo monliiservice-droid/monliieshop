@@ -3,6 +3,7 @@
 import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
 import { Button } from '@/components/ui/button'
+import { InstagramFeed } from '@/components/InstagramFeed'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Heart, Package, Shield, Instagram } from 'lucide-react'
@@ -374,127 +375,7 @@ export default function Home() {
             </div>
 
             {/* Instagram Feed Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {/* Instagram Post 1 */}
-              <a 
-                href="https://www.instagram.com/monlii_i/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="relative aspect-square rounded-2xl overflow-hidden soft-shadow group cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <Instagram className="h-12 w-12 text-white" />
-                </div>
-                <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                  <Instagram className="h-16 w-16 text-[#931e31]/20" />
-                </div>
-              </a>
-
-              {/* Instagram Post 2 */}
-              <a 
-                href="https://www.instagram.com/monlii_i/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="relative aspect-square rounded-2xl overflow-hidden soft-shadow group cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <Instagram className="h-12 w-12 text-white" />
-                </div>
-                <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                  <Instagram className="h-16 w-16 text-[#931e31]/20" />
-                </div>
-              </a>
-
-              {/* Instagram Post 3 */}
-              <a 
-                href="https://www.instagram.com/monlii_i/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="relative aspect-square rounded-2xl overflow-hidden soft-shadow group cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <Instagram className="h-12 w-12 text-white" />
-                </div>
-                <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                  <Instagram className="h-16 w-16 text-[#931e31]/20" />
-                </div>
-              </a>
-
-              {/* Instagram Post 4 */}
-              <a 
-                href="https://www.instagram.com/monlii_i/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="relative aspect-square rounded-2xl overflow-hidden soft-shadow group cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <Instagram className="h-12 w-12 text-white" />
-                </div>
-                <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                  <Instagram className="h-16 w-16 text-[#931e31]/20" />
-                </div>
-              </a>
-
-              {/* Instagram Post 5 - Hidden on mobile */}
-              <a 
-                href="https://www.instagram.com/monlii_i/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hidden md:block relative aspect-square rounded-2xl overflow-hidden soft-shadow group cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <Instagram className="h-12 w-12 text-white" />
-                </div>
-                <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                  <Instagram className="h-16 w-16 text-[#931e31]/20" />
-                </div>
-              </a>
-
-              {/* Instagram Post 6 - Hidden on mobile */}
-              <a 
-                href="https://www.instagram.com/monlii_i/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hidden md:block relative aspect-square rounded-2xl overflow-hidden soft-shadow group cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <Instagram className="h-12 w-12 text-white" />
-                </div>
-                <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                  <Instagram className="h-16 w-16 text-[#931e31]/20" />
-                </div>
-              </a>
-
-              {/* Instagram Post 7 - Hidden on mobile and tablet */}
-              <a 
-                href="https://www.instagram.com/monlii_i/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hidden lg:block relative aspect-square rounded-2xl overflow-hidden soft-shadow group cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <Instagram className="h-12 w-12 text-white" />
-                </div>
-                <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                  <Instagram className="h-16 w-16 text-[#931e31]/20" />
-                </div>
-              </a>
-
-              {/* Instagram Post 8 - Hidden on mobile and tablet */}
-              <a 
-                href="https://www.instagram.com/monlii_i/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hidden lg:block relative aspect-square rounded-2xl overflow-hidden soft-shadow group cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <Instagram className="h-12 w-12 text-white" />
-                </div>
-                <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                  <Instagram className="h-16 w-16 text-[#931e31]/20" />
-                </div>
-              </a>
-            </div>
+            <InstagramFeed />
 
             {/* CTA Button */}
             <div className="text-center mt-12">
@@ -706,74 +587,6 @@ export default function Home() {
               {[...Array(7)].map((_, i) => (
                 <div key={i} className="w-2 h-2 rounded-full bg-[#931e31]/30"></div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Instagram Feed Section */}
-        <section className="py-24 bg-gradient-to-b from-white to-pink-50/20 relative overflow-hidden">
-          {/* Dekorativní pozadí */}
-          <div className="absolute inset-0">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-pink-200/10 via-purple-200/10 to-rose-200/10 rounded-full blur-3xl animate-pulse"></div>
-          </div>
-          
-          <div className="container relative z-10">
-            <div className="text-center mb-12 animate-fade-in">
-              <div className="inline-flex items-center justify-center mb-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#931e31] to-[#b8263d] flex items-center justify-center">
-                  <Instagram className="h-8 w-8 text-white" />
-                </div>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight bg-gradient-to-r from-gray-900 via-[#931e31] to-gray-900 bg-clip-text text-transparent">
-                Sledujte nás na Instagramu
-              </h2>
-              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                Inspirujte se našimi nejnovějšími kolekcemi a příběhy spokojených zákaznic
-              </p>
-              <a 
-                href="https://www.instagram.com/monlii_i/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-block"
-              >
-                <Button 
-                  size="lg" 
-                  className="bg-gradient-to-r from-[#931e31] to-[#b8263d] hover:from-[#6b1623] hover:to-[#931e31] text-white px-8 py-6 rounded-full font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
-                >
-                  <Instagram className="h-5 w-5 mr-2" />
-                  @monlii_i
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-              </a>
-            </div>
-
-            {/* Instagram Embed Container */}
-            <div className="max-w-6xl mx-auto">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {/* Placeholder pro Instagram příspěvky - nahradí se dynamickým feedem */}
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                  <div key={i} className="aspect-square bg-gradient-to-br from-pink-100/50 to-purple-100/50 rounded-2xl overflow-hidden group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl relative">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center p-6">
-                        <Instagram className="h-12 w-12 text-[#931e31]/30 mx-auto mb-3" />
-                        <p className="text-xs text-gray-500">Instagram post #{i}</p>
-                      </div>
-                    </div>
-                    {/* Overlay on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#931e31]/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                      <p className="text-white text-sm font-medium">Zobrazit na Instagramu</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Info text */}
-              <div className="mt-12 text-center">
-                <p className="text-gray-600 text-sm max-w-2xl mx-auto">
-                  💡 <strong>Pro administrátory:</strong> Instagram feed lze nahradit živým feedem pomocí Instagram API nebo embed widgetu. 
-                  Aktuálně jsou zde placeholdery - můžete je nahradit ručně přidanými obrázky nebo dynamickým feedem.
-                </p>
-              </div>
             </div>
           </div>
         </section>
