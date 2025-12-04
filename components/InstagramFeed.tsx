@@ -31,12 +31,12 @@ export function InstagramFeed() {
   }, [])
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-6xl mx-auto">
       {INSTAGRAM_POSTS.map((url) => (
         <div 
           key={url}
-          className="instagram-embed-wrapper rounded-2xl overflow-hidden soft-shadow"
-          style={{ minHeight: '500px' }}
+          className="instagram-embed-wrapper rounded-xl overflow-hidden soft-shadow"
+          style={{ minHeight: '400px' }}
         >
           <blockquote
             className="instagram-media"
@@ -46,11 +46,11 @@ export function InstagramFeed() {
             style={{
               background: '#FFF',
               border: '0',
-              borderRadius: '16px',
+              borderRadius: '12px',
               boxShadow: '0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15)',
               margin: '1px',
               maxWidth: '100%',
-              minWidth: '326px',
+              minWidth: '280px',
               padding: '0',
               width: 'calc(100% - 2px)',
             }}
