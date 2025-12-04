@@ -42,7 +42,15 @@ export default function NewProductPage() {
     
     for (const file of files) {
       try {
-        const compressedFile = await imageCompression(file, compressionOptions)
+        const compressedBlob = await imageCompression(file, compressionOptions)
+        
+        // Vytvoř nový File objekt se správným názvem a příponou
+        const originalName = file.name.replace(/\.(jpg|jpeg|png|gif)$/i, '')
+        const newFileName = `${originalName}.webp`
+        const compressedFile = new File([compressedBlob], newFileName, { 
+          type: 'image/webp' 
+        })
+        
         compressedFiles.push(compressedFile)
         
         // Vytvoř náhled
