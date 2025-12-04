@@ -5,10 +5,22 @@ import { jwtVerify } from 'jose'
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production'
 
 export async function middleware(request: NextRequest) {
-  // Ochrana admin panelu
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  const hostname = request.headers.get('host') || ''
+  const pathname = request.nextUrl.pathname
+
+  // Admin routes should only be accessible on admin.monlii.cz
+  if (pathname.startsWith('/admin')) {
+    const isAdminDomain = hostname.startsWith('admin.') || hostname === 'localhost:3000'
+    
+    // If accessing /admin on main domain, redirect to admin subdomain
+    if (!isAdminDomain) {
+      const adminUrl = new URL(request.url)
+      adminUrl.host = hostname.replace(/^(www\.)?/, 'admin.')
+      return NextResponse.redirect(adminUrl)
+    }
+
     // Allow access to login page
-    if (request.nextUrl.pathname === '/admin/login') {
+    if (pathname === '/admin/login') {
       return NextResponse.next()
     }
 
