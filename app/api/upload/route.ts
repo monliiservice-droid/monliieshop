@@ -27,14 +27,28 @@ export async function POST(request: NextRequest) {
     const uploadedUrls: string[] = []
 
     for (const file of files) {
-      // Vytvoř unikátní jméno souboru
+      // Vytvoř unikátní jméno souboru s správnou příponou
       const timestamp = Date.now()
+      
+      // Zjisti příponu podle MIME typu
+      let extension = '.jpg' // default
+      if (file.type === 'image/webp') extension = '.webp'
+      else if (file.type === 'image/png') extension = '.png'
+      else if (file.type === 'image/jpeg' || file.type === 'image/jpg') extension = '.jpg'
+      else if (file.type === 'image/gif') extension = '.gif'
+      
+      // Pokud má původní soubor příponu, zachovej ji
       const originalName = file.name.replace(/\s/g, '_')
-      const filename = `products/${timestamp}_${originalName}`
+      const hasExtension = /\.(jpg|jpeg|png|webp|gif)$/i.test(originalName)
+      
+      const filename = hasExtension 
+        ? `products/${timestamp}_${originalName}`
+        : `products/${timestamp}_${originalName}${extension}`
 
       // Upload do Vercel Blob Storage
       const blob = await put(filename, file, {
         access: 'public',
+        contentType: file.type,
       })
 
       uploadedUrls.push(blob.url)
