@@ -13,8 +13,7 @@ export default function AdminLayout({
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/admin/produkty', icon: Package, label: 'Produkty' },
     { href: '/admin/objednavky', icon: ShoppingBag, label: 'Objednávky' },
-    { href: '/admin/faktury', icon: FileText, label: 'Faktury' },
-    { href: '/admin/trzby', icon: TrendingUp, label: 'Tržby' },
+    { href: '/admin/trzby', icon: TrendingUp, label: 'Tržby a faktury' },
     { href: '/admin/slevove-kody', icon: Tag, label: 'Slevové kódy' },
     { href: '/admin/nastaveni', icon: Settings, label: 'Nastavení' },
   ]

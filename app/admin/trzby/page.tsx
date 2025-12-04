@@ -212,9 +212,9 @@ export default function TrzbyPage() {
     }
   }
 
-  const handleDownloadPDF = (invoice: Invoice) => {
-    // TODO: Implementace PDF generování
-    alert('Export do PDF bude brzy k dispozici')
+  const handleViewInvoicePrintable = (invoiceId: string) => {
+    // Open invoice in new window for printing
+    window.open(`/faktury/${invoiceId}/view`, '_blank')
   }
 
   const handleEditInvoice = (invoice: Invoice) => {
@@ -406,11 +406,11 @@ export default function TrzbyPage() {
                     </Button>
                   )}
                   <Button
-                    onClick={() => handleDownloadPDF(selectedInvoice)}
+                    onClick={() => handleViewInvoicePrintable(selectedInvoice.id)}
                     className="bg-[#931e31] hover:bg-[#6b1623]"
                   >
-                    <Download className="h-4 w-4 mr-2" />
-                    Stáhnout PDF
+                    <Eye className="h-4 w-4 mr-2" />
+                    Zobrazit fakturu
                   </Button>
                 </div>
               </div>
@@ -1127,11 +1127,11 @@ export default function TrzbyPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDownloadPDF(invoice)}
+                        onClick={() => handleViewInvoicePrintable(invoice.id)}
                         className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
                       >
-                        <Download className="h-4 w-4 mr-1" />
-                        PDF
+                        <FileText className="h-4 w-4 mr-1" />
+                        Tisknout
                       </Button>
                     </div>
                   </div>
