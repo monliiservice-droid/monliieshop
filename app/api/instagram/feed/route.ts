@@ -32,8 +32,12 @@ export async function GET() {
     const appId = process.env.INSTAGRAM_APP_ID
     const appSecret = process.env.INSTAGRAM_APP_SECRET
 
+    console.log('🔍 Instagram API - Starting fetch')
+    console.log('📌 App ID exists:', !!appId)
+    console.log('📌 App Secret exists:', !!appSecret)
+
     if (!appId || !appSecret) {
-      console.warn('Instagram credentials not configured')
+      console.warn('❌ Instagram credentials not configured')
       return NextResponse.json({ 
         error: 'Instagram not configured',
         posts: [] 
@@ -42,22 +46,29 @@ export async function GET() {
 
     // Create access token from App ID and App Secret
     const accessToken = `${appId}|${appSecret}`
+    console.log('🔑 Access token created:', accessToken.substring(0, 20) + '...')
 
     // Fetch oEmbed data for each post
-    const postPromises = INSTAGRAM_POSTS.map(async (url) => {
+    const postPromises = INSTAGRAM_POSTS.map(async (url, index) => {
       try {
         const oembedUrl = `https://graph.facebook.com/v18.0/instagram_oembed?url=${encodeURIComponent(url)}&access_token=${accessToken}`
+        
+        console.log(`📡 Fetching post ${index + 1}/${INSTAGRAM_POSTS.length}: ${url}`)
         
         const response = await fetch(oembedUrl, {
           next: { revalidate: 3600 } // Cache for 1 hour
         })
 
+        console.log(`📊 Response status for post ${index + 1}:`, response.status)
+
         if (!response.ok) {
-          console.error(`Failed to fetch oEmbed for ${url}:`, response.status)
+          const errorText = await response.text()
+          console.error(`❌ Failed to fetch oEmbed for ${url}:`, response.status, errorText)
           return null
         }
 
         const data: InstagramOEmbed = await response.json()
+        console.log(`✅ Successfully fetched post ${index + 1}:`, data.thumbnail_url ? 'Has thumbnail' : 'No thumbnail')
 
         return {
           id: url.split('/p/')[1]?.split('/')[0] || Math.random().toString(),
@@ -66,7 +77,7 @@ export async function GET() {
           caption: data.title || data.author_name
         }
       } catch (error) {
-        console.error(`Error fetching post ${url}:`, error)
+        console.error(`❌ Error fetching post ${url}:`, error)
         return null
       }
     })
@@ -74,12 +85,14 @@ export async function GET() {
     const results = await Promise.all(postPromises)
     const posts = results.filter((post) => post !== null) as InstagramPost[]
 
+    console.log('📦 Final result: ', posts.length, 'posts loaded')
+
     return NextResponse.json({ 
       posts,
       success: true 
     })
   } catch (error) {
-    console.error('Error fetching Instagram feed:', error)
+    console.error('❌ Error fetching Instagram feed:', error)
     return NextResponse.json({ 
       error: 'Failed to fetch Instagram feed',
       posts: [] 
