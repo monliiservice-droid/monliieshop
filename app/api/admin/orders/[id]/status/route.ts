@@ -103,7 +103,7 @@ export async function PATCH(
             customerPhone: order.customerPhone || undefined,
             billingAddress: order.billingAddress || undefined,
             items: order.items.map(item => ({
-              name: item.product.name,
+              name: item.productName || item.product?.name || 'Unknown Product',
               quantity: item.quantity,
               price: item.price
             })),
