@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       order_number: order.orderNumber,
       order_description: `Objednávka #${order.orderNumber} - Monlii E-shop`,
       items: order.items.map((item) => ({
-        name: item.product.name,
+        name: item.productName || item.product?.name || 'Unknown Product',
         amount: item.price,
         count: item.quantity,
       })),
