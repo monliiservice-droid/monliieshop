@@ -10,7 +10,6 @@ import { CreditCard, Store, FileText } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export default function SettingsPage() {
-  const [stripeKey, setStripeKey] = useState('')
   const [saving, setSaving] = useState(false)
   const [companySettings, setCompanySettings] = useState({
     companyName: '',
@@ -88,68 +87,17 @@ export default function SettingsPage() {
         <p className="text-gray-600">Spravujte nastavení vašeho e-shopu</p>
       </div>
 
-      <Tabs defaultValue="payment" className="space-y-6">
+      <Tabs defaultValue="invoicing" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="payment">
-            <CreditCard className="h-4 w-4 mr-2" />
-            Platby
+          <TabsTrigger value="invoicing">
+            <FileText className="h-4 w-4 mr-2" />
+            Fakturace
           </TabsTrigger>
           <TabsTrigger value="store">
             <Store className="h-4 w-4 mr-2" />
             Obchod
           </TabsTrigger>
-          <TabsTrigger value="invoicing">
-            <FileText className="h-4 w-4 mr-2" />
-            Fakturace
-          </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="payment" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Stripe platby</CardTitle>
-              <CardDescription>
-                Nastavte Stripe pro příjem plateb kartou
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="stripe-public">Stripe Public Key</Label>
-                <Input
-                  id="stripe-public"
-                  placeholder="pk_live_..."
-                  value={stripeKey}
-                  onChange={(e) => setStripeKey(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="stripe-secret">Stripe Secret Key</Label>
-                <Input
-                  id="stripe-secret"
-                  type="password"
-                  placeholder="sk_live_..."
-                />
-                <p className="text-sm text-gray-500">
-                  Tento klíč bude uložen bezpečně na serveru
-                </p>
-              </div>
-              <Separator />
-              <div className="space-y-2">
-                <h4 className="font-medium">Dostupné platební metody</h4>
-                <div className="space-y-2">
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" defaultChecked />
-                    <span>Platba kartou (Stripe)</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" defaultChecked />
-                    <span>Platba na dobírku</span>
-                  </label>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="store" className="space-y-6">
           <Card>

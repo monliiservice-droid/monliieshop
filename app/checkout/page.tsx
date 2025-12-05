@@ -104,7 +104,7 @@ export default function CheckoutPage() {
     return getTotalPrice() + getShippingPrice()
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     // Validace výdejního místa pro Zásilkovnu pickup
@@ -158,11 +158,34 @@ export default function CheckoutPage() {
       totalPrice: getFinalPrice() + (paymentMethod === 'cod' ? 30 : 0)
     }
     
-    console.log('Order data:', orderData)
+    console.log('Submitting order:', orderData)
     
-    // TODO: Implement order submission to backend
-    alert('Objednávka byla odeslána! (Demo)')
-    router.push('/kosik')
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        // Vymazání košíku
+        localStorage.removeItem('cart')
+        window.dispatchEvent(new Event('cartUpdated'))
+        
+        // Přesměrování na děkovnou stránku
+        alert(`Děkujeme za objednávku! Číslo objednávky: ${result.order.orderNumber}\n\nBrzy vás budeme kontaktovat s potvrzením.`)
+        router.push('/')
+      } else {
+        throw new Error(result.message || 'Chyba při vytváření objednávky')
+      }
+    } catch (error) {
+      console.error('Error submitting order:', error)
+      alert('Chyba při odesílání objednávky. Zkuste to prosím znovu nebo nás kontaktujte.')
+    }
   }
 
   if (!isLoaded) {

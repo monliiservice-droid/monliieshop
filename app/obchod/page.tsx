@@ -94,16 +94,16 @@ export default async function ShopPage() {
                           </div>
                         </CardHeader>
                       </Link>
-                      <CardContent className="p-6">
+                      <CardContent className="p-6 text-center">
                         <Link href={`/produkt/${product.id}`} className="hover:text-[#931e31] transition-colors">
-                          <CardTitle className="text-lg mb-2 font-bold tracking-tight">{product.name}</CardTitle>
+                          <CardTitle className="text-2xl mb-3 font-bold tracking-tight">{product.name}</CardTitle>
                         </Link>
                         {product.description && (
                           <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                             {product.description}
                           </p>
                         )}
-                        <p className="text-2xl font-bold text-[#931e31]">{product.price} Kč</p>
+                        <p className="text-xl font-bold text-[#931e31]">{product.price} Kč</p>
                       </CardContent>
                       <CardFooter className="p-6 pt-0">
                         <Link href={`/produkt/${product.id}`} className="w-full">
