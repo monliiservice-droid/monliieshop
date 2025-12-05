@@ -65,7 +65,11 @@ export default function CartPage() {
   }
 
   const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return
+    // Pokud je množství 0 nebo menší, odebrat položku
+    if (newQuantity < 1) {
+      removeFromCart(id)
+      return
+    }
     const updatedCart = cartItems.map(item => 
       item.id === id ? { ...item, quantity: newQuantity } : item
     )
@@ -285,12 +289,20 @@ export default function CartPage() {
                                     <div className="flex items-center border-2 border-gray-300 rounded-2xl overflow-hidden bg-white shadow-sm hover:border-[#931e31] transition-colors">
                                       <button
                                         onClick={() => updateQuantity(item.id, (item.quantity || 1) - 1)}
-                                        className="p-3 hover:bg-pink-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                                        disabled={(item.quantity || 1) <= 1}
+                                        className="p-3 hover:bg-pink-50 transition-colors"
                                       >
                                         <Minus className="h-4 w-4" />
                                       </button>
-                                      <span className="px-6 font-bold text-lg">{item.quantity || 1}</span>
+                                      <input
+                                        type="number"
+                                        min="1"
+                                        value={item.quantity || 1}
+                                        onChange={(e) => {
+                                          const newQty = parseInt(e.target.value) || 0
+                                          updateQuantity(item.id, newQty)
+                                        }}
+                                        className="w-16 px-2 text-center font-bold text-lg border-none focus:outline-none focus:ring-0"
+                                      />
                                       <button
                                         onClick={() => updateQuantity(item.id, (item.quantity || 1) + 1)}
                                         className="p-3 hover:bg-pink-50 transition-colors"
@@ -466,17 +478,6 @@ export default function CartPage() {
                       </div>
                     </div>
                     
-                    <div className="p-5 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border-2 border-blue-200 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                          <Truck className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-blue-900 mb-1">Rychlé doručení</h4>
-                          <p className="text-sm text-blue-700">Do 2-3 pracovních dnů</p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>

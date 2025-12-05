@@ -166,9 +166,9 @@ export function getSizeOptionsForCategory(category: string): {
 // Labels pro zobrazení
 export const SIZE_LABELS = {
   // Košíčky
-  MINI: 'MINI (A)',
-  SOFT: 'SOFT (B)',
-  BALANCED: 'BALANCED (C)',
-  FULL: 'FULL (D)',
-  MAXI: 'MAXI (E+)'
+  MINI: 'MINI',
+  SOFT: 'SOFT',
+  BALANCED: 'BALANCED',
+  FULL: 'FULL',
+  MAXI: 'MAXI'
 }

@@ -20,15 +20,32 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setSubmitStatus('idle')
     
-    // Simulace odeslání (později nahradit skutečným API)
-    setTimeout(() => {
-      setIsSubmitting(false)
-      setSubmitStatus('success')
-      setFormData({ name: '', email: '', phone: '', message: '' })
-      
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        setSubmitStatus('success')
+        setFormData({ name: '', email: '', phone: '', message: '' })
+        setTimeout(() => setSubmitStatus('idle'), 5000)
+      } else {
+        setSubmitStatus('error')
+        setTimeout(() => setSubmitStatus('idle'), 5000)
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      setSubmitStatus('error')
       setTimeout(() => setSubmitStatus('idle'), 5000)
-    }, 1000)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -294,6 +311,14 @@ export default function ContactPage() {
                   <div className="mb-8 p-6 bg-green-50 border-2 border-green-500 rounded-2xl text-center animate-fade-in">
                     <p className="text-green-700 font-semibold text-lg">
                       ✅ Děkujeme! Vaše zpráva byla odeslána. Ozveme se vám co nejdříve.
+                    </p>
+                  </div>
+                )}
+
+                {submitStatus === 'error' && (
+                  <div className="mb-8 p-6 bg-red-50 border-2 border-red-500 rounded-2xl text-center animate-fade-in">
+                    <p className="text-red-700 font-semibold text-lg">
+                      ❌ Chyba při odesílání zprávy. Zkuste to prosím znovu nebo nás kontaktujte přímo na email.
                     </p>
                   </div>
                 )}
