@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
         items: {
           create: data.items.map((item: any) => ({
             productName: item.name,
-            productId: item.productId || null,
             quantity: item.quantity || 1,
             price: item.price,
             variant: item.variant ? JSON.stringify(item.variant) : null

@@ -165,8 +165,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <div className="flex items-start space-x-3">
                     <Package className="h-6 w-6 text-[#931e31] flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="font-semibold mb-1">Rychlé doručení</h3>
-                      <p className="text-sm text-gray-600">Doručení do 2-3 pracovních dnů přes Zásilkovnu</p>
+                      <h3 className="font-semibold mb-1">Doprava</h3>
+                      <p className="text-sm text-gray-600">3-5 dnů (skladem) | až 14 dnů (na míru)</p>
+                      <p className="text-sm text-green-600 font-semibold mt-1">Zásilkovna ZDARMA nad 2 500 Kč</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3">

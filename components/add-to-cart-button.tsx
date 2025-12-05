@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Ruler } from 'lucide-react'
+import { ShoppingCart, Ruler, CheckCircle } from 'lucide-react'
 import { getSizeOptionsForCategory, SIZE_LABELS } from '@/lib/product-types'
 
 interface ProductVariant {
@@ -30,6 +30,7 @@ interface AddToCartButtonProps {
 export function AddToCartButton({ product, variants, hasBra, onMeasurementClick }: AddToCartButtonProps) {
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
+  const [showToast, setShowToast] = useState(false)
 
   const images = JSON.parse(product.images)
   
@@ -88,8 +89,9 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
     // Vyslání custom eventu pro aktualizaci navbaru
     window.dispatchEvent(new Event('cartUpdated'))
 
-    // Notifikace
-    alert(`${product.name} byl přidán do košíku!`)
+    // Zobrazení toast notifikace
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), 3000)
     
     // Reset
     setQuantity(1)
@@ -97,7 +99,20 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Toast notifikace */}
+      {showToast && (
+        <div className="fixed top-24 right-4 z-50 animate-slide-in-right">
+          <div className="bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px]">
+            <CheckCircle className="h-6 w-6 flex-shrink-0" />
+            <div>
+              <p className="font-bold">Přidáno do košíku!</p>
+              <p className="text-sm opacity-90">{product.name}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tlačítko "Jak měřit" - pouze pro produkty s podprsenkou */}
       {hasBra && onMeasurementClick && (
         <div className="pb-4 border-b border-gray-200">
