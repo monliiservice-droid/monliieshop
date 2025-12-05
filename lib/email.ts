@@ -147,7 +147,6 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
-              <p>Stránku vytvořil <a href="https://nevymyslis.cz">Roman Velička z nevymyslis.cz</a></p>
             </div>
           </div>
         `
@@ -210,7 +209,6 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
-              <p>Stránku vytvořil <a href="https://nevymyslis.cz">Roman Velička z nevymyslis.cz</a></p>
             </div>
           </div>
         `
@@ -235,7 +233,6 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
-              <p>Stránku vytvořil <a href="https://nevymyslis.cz">Roman Velička z nevymyslis.cz</a></p>
             </div>
           </div>
         `
@@ -259,7 +256,6 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
-              <p>Stránku vytvořil <a href="https://nevymyslis.cz">Roman Velička z nevymyslis.cz</a></p>
             </div>
           </div>
         `
@@ -283,7 +279,6 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
-              <p>Stránku vytvořil <a href="https://nevymyslis.cz">Roman Velička z nevymyslis.cz</a></p>
             </div>
           </div>
         `
@@ -313,7 +308,6 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
-              <p>Stránku vytvořil <a href="https://nevymyslis.cz">Roman Velička z nevymyslis.cz</a></p>
             </div>
           </div>
         `
@@ -337,7 +331,6 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
-              <p>Stránku vytvořil <a href="https://nevymyslis.cz">Roman Velička z nevymyslis.cz</a></p>
             </div>
           </div>
         `
@@ -372,7 +365,6 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
-              <p>Stránku vytvořil <a href="https://nevymyslis.cz">Roman Velička z nevymyslis.cz</a></p>
             </div>
           </div>
         `
@@ -489,7 +481,6 @@ function getInvoiceEmailTemplate(data: InvoiceData): { subject: string; html: st
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
-          <p>Stránku vytvořil <a href="https://nevymyslis.cz">Roman Velička z nevymyslis.cz</a></p>
         </div>
       </div>
     `
