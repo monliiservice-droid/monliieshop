@@ -144,6 +144,7 @@ export default function CheckoutPage() {
       },
       shipping: {
         method: shippingMethod,
+        price: getShippingPrice(),
         ...(shippingMethod === 'zasilkovna_pickup' && {
           pickupPoint: selectedPickupPoint
         }),
@@ -152,40 +153,18 @@ export default function CheckoutPage() {
         })
       },
       payment: {
-        method: paymentMethod
+        method: paymentMethod,
+        fee: paymentMethod === 'cod' ? 30 : 0
       },
       items: cartItems,
       totalPrice: getFinalPrice() + (paymentMethod === 'cod' ? 30 : 0)
     }
     
-    console.log('Submitting order:', orderData)
+    // Uložení dat do sessionStorage
+    sessionStorage.setItem('orderData', JSON.stringify(orderData))
     
-    try {
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      })
-
-      const result = await response.json()
-
-      if (response.ok && result.success) {
-        // Vymazání košíku
-        localStorage.removeItem('cart')
-        window.dispatchEvent(new Event('cartUpdated'))
-        
-        // Přesměrování na děkovnou stránku
-        alert(`Děkujeme za objednávku! Číslo objednávky: ${result.order.orderNumber}\n\nBrzy vás budeme kontaktovat s potvrzením.`)
-        router.push('/')
-      } else {
-        throw new Error(result.message || 'Chyba při vytváření objednávky')
-      }
-    } catch (error) {
-      console.error('Error submitting order:', error)
-      alert('Chyba při odesílání objednávky. Zkuste to prosím znovu nebo nás kontaktujte.')
-    }
+    // Přesměrování na souhrn objednávky
+    router.push('/souhrn-objednavky')
   }
 
   if (!isLoaded) {
@@ -728,7 +707,7 @@ export default function CheckoutPage() {
                           </>
                         ) : (
                           <>
-                            Dokončit objednávku
+                            Pokračovat na souhrn
                             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                           </>
                         )}

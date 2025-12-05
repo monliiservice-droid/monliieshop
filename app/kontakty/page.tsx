@@ -183,7 +183,7 @@ export default function ContactPage() {
                 {/* Mapa - vlevo na desktopu */}
                 <div className="bg-gray-100 rounded-3xl overflow-hidden soft-shadow-lg h-[400px] lg:h-full order-2 lg:order-1 transition-all duration-300 hover:scale-105 hover:soft-shadow-xl">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2564.7822474892247!2d18.41958557679156!3d49.77833717150254!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4713e99b8d5c8d5d%3A0x5c8d5d5d5d5d5d5d!2zRGxvdWjDoSB0xZlDrWRhIDk1Yy8xNjEyLCBQb2RsZXPDrSwgNzM2IDAxIEhhdmnFmW92!5e0!3m2!1scs!2scz!4v1699999999999!5m2!1scs!2scz"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2564.8!2d18.419!3d49.778!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4713e99b8d5d5d5d%3A0x0!2sDlouh%C3%A1%20t%C5%99.%2095c%2C%20736%2001%20Hav%C3%AD%C5%99ov%201!5e0!3m2!1scs!2scz!4v1699999999999!5m2!1scs!2scz"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
@@ -205,9 +205,9 @@ export default function ContactPage() {
                       <div>
                         <h3 className="text-xl font-bold mb-2">Havířov - Kyšky Lišky</h3>
                         <p className="text-gray-700 leading-relaxed">
-                          Dlouhá třída 95c/1612<br />
+                          Dlouhá tř. 95c<br />
                           <span className="text-sm italic">vstup vedle marketu Albert</span><br />
-                          736 01 Havířov, Podlesí
+                          736 01 Havířov 1
                         </p>
                       </div>
                     </div>
