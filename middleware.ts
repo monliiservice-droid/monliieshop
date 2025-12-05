@@ -10,6 +10,13 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const pathname = request.nextUrl.pathname
 
+  // Redirect root of admin subdomain to /admin
+  const isAdminDomain = hostname.startsWith('admin.') || (hostname === 'localhost:3000' && request.nextUrl.searchParams.get('admin') === 'true')
+  if (isAdminDomain && pathname === '/') {
+    const adminUrl = new URL('/admin', request.url)
+    return NextResponse.redirect(adminUrl)
+  }
+
   // Admin routes should only be accessible on admin.monlii.cz
   if (pathname.startsWith('/admin')) {
     const isAdminDomain = hostname.startsWith('admin.') || hostname === 'localhost:3000'
@@ -52,5 +59,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/admin/:path*',
+  matcher: ['/', '/admin/:path*'],
 }
