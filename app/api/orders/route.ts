@@ -12,10 +12,11 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
     
-    console.log('Creating order with data:', data)
+    console.log('Creating order with data:', JSON.stringify(data, null, 2))
 
     // Validace
     if (!data.customer || !data.items || data.items.length === 0) {
+      console.error('Validation failed:', { hasCustomer: !!data.customer, hasItems: !!data.items, itemsLength: data.items?.length })
       return NextResponse.json(
         { message: 'Neplatná data objednávky' },
         { status: 400 }
@@ -24,50 +25,58 @@ export async function POST(request: NextRequest) {
 
     // Generování čísla objednávky
     const orderNumber = generateOrderNumber()
+    console.log('Generated order number:', orderNumber)
 
     // Vytvoření objednávky v databázi
-    const order = await prisma.order.create({
-      data: {
-        orderNumber,
-        customerName: `${data.customer.firstName} ${data.customer.lastName}`,
-        customerEmail: data.customer.email,
-        customerPhone: data.customer.phone || '',
-        shippingAddress: JSON.stringify({
-          firstName: data.customer.firstName,
-          lastName: data.customer.lastName,
-          street: data.customer.address,
-          city: data.customer.city,
-          zip: data.customer.zip,
-          ...(data.customer.isCompany && {
-            company: data.customer.company,
-            ico: data.customer.ico,
-            dic: data.customer.dic
+    console.log('Creating order in database...')
+    let order
+    try {
+      order = await prisma.order.create({
+        data: {
+          orderNumber,
+          customerName: `${data.customer.firstName} ${data.customer.lastName}`,
+          customerEmail: data.customer.email,
+          customerPhone: data.customer.phone || '',
+          shippingAddress: JSON.stringify({
+            firstName: data.customer.firstName,
+            lastName: data.customer.lastName,
+            street: data.customer.address,
+            city: data.customer.city,
+            zip: data.customer.zip,
+            ...(data.customer.isCompany && {
+              company: data.customer.company,
+              ico: data.customer.ico,
+              dic: data.customer.dic
+            }),
+            // Přidáme shipping details přímo do adresy
+            shippingDetails: {
+              ...(data.shipping.pickupPoint && { pickupPoint: data.shipping.pickupPoint }),
+              ...(data.shipping.personalLocation && { personalLocation: data.shipping.personalLocation })
+            }
           }),
-          // Přidáme shipping details přímo do adresy
-          shippingDetails: {
-            ...(data.shipping.pickupPoint && { pickupPoint: data.shipping.pickupPoint }),
-            ...(data.shipping.personalLocation && { personalLocation: data.shipping.personalLocation })
+          shippingMethod: data.shipping.method || 'zasilkovna_pickup',
+          paymentMethod: data.payment.method || 'card',
+          totalAmount: parseFloat(data.totalPrice) || 0,
+          status: 'new',
+          items: {
+            create: data.items.map((item: any) => ({
+              productName: item.name || '',
+              productId: item.productId || null,
+              quantity: parseInt(item.quantity) || 1,
+              price: parseFloat(item.price) || 0,
+              variant: item.variant ? JSON.stringify(item.variant) : null
+            }))
           }
-        }),
-        shippingMethod: data.shipping.method,
-        paymentMethod: data.payment.method,
-        totalAmount: data.totalPrice,
-        status: 'new',
-        items: {
-          create: data.items.map((item: any) => ({
-            productName: item.name,
-            quantity: item.quantity || 1,
-            price: item.price,
-            variant: item.variant ? JSON.stringify(item.variant) : null
-          }))
+        },
+        include: {
+          items: true
         }
-      },
-      include: {
-        items: true
-      }
-    })
-
-    console.log('Order created:', order)
+      })
+      console.log('Order created successfully:', order.id)
+    } catch (dbError) {
+      console.error('Database error creating order:', dbError)
+      throw dbError
+    }
 
     // Odeslání emailů
     try {
