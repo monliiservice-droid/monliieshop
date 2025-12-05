@@ -14,8 +14,13 @@ const lora = Lora({
 export const metadata: Metadata = {
   title: "Monlii | Jedinečné spodní prádlo s příběhem a českou tradicí",
   description: "Objevte krásné a pohodlné spodní prádlo, které šije zkušená švadlena. Každý kousek je unikátní a podporuje rodinnou výrobu a české ruční řemeslo.",
-  icons: {
-    icon: '/favicon.png',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'),
+  manifest: '/site.webmanifest',
+  openGraph: {
+    title: "Monlii | Jedinečné spodní prádlo",
+    description: "Objevte krásné a pohodlné spodní prádlo, které šije zkušená švadlena.",
+    type: 'website',
+    locale: 'cs_CZ',
   },
 };
 
