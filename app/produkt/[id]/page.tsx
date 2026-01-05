@@ -69,21 +69,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const isBralette = product.category === PRODUCT_CATEGORIES.BRA_BRALETTE || 
     (product.isSet && product.setOptions && JSON.parse(product.setOptions).braType === 'bralette')
 
-  // Vypočítat výchozí zobrazovací cenu (pro sety bude nejlevnější)
+  // Vypočítat zobrazovací cenu
   const baseDisplayPrice = product.isSet && product.setOptions
     ? getDisplayPrice(JSON.parse(product.setOptions))
     : product.price
   
-  // Použít aktuální cenu pokud byla změněna, jinak výchozí
-  const displayPrice = currentPrice > 0 ? currentPrice : baseDisplayPrice
-  
-  // Inicializovat aktuální cenu při načtení produktu
-  React.useEffect(() => {
-    if (product && currentPrice === 0) {
-      setCurrentPrice(baseDisplayPrice)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product])
+  // Použít aktuální cenu pokud byla nastavena, jinak výchozí
+  const displayPrice = currentPrice || baseDisplayPrice
   
   // Stabilní callback pro změnu ceny
   const handlePriceChange = useCallback((price: number) => {
