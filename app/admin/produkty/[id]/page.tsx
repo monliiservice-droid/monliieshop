@@ -158,6 +158,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         }
       }
       
+      // Pro sety vypočítat nejnižší cenu z konfigurace
+      let finalPrice = parseFloat(formData.price) || 0
+      if (formData.category === 'Set') {
+        finalPrice = Math.min(
+          setConfig.prices.braletteWithGarters || Infinity,
+          setConfig.prices.braletteWithoutGarters || Infinity,
+          setConfig.prices.wiredWithGarters || Infinity,
+          setConfig.prices.wiredWithoutGarters || Infinity
+        )
+      }
+      
       const response = await fetch(`/api/admin/products/${productId}`, {
         method: 'PUT',
         headers: {
@@ -165,7 +176,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         },
         body: JSON.stringify({
           ...formData,
-          price: parseFloat(formData.price),
+          price: finalPrice,
           stock: parseInt(formData.stock),
           images: JSON.stringify(imageUrls),
           isSet: formData.category === 'Set',
@@ -237,18 +248,21 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="price">Cena (Kč) *</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  required
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="1180.00"
-                />
-              </div>
+              {/* Pole cena se skryje pro sety - bude automaticky vypočítána */}
+              {formData.category !== 'Set' && (
+                <div className="space-y-2">
+                  <Label htmlFor="price">Cena (Kč) *</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    required
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    placeholder="1180.00"
+                  />
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="stock">Počet kusů na skladě *</Label>
