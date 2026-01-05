@@ -57,6 +57,16 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
     ? getActivePrice(setConfig, selectedBraType, selectedGarters)
     : product.price
   
+  // Vypočítat základní (nejlevnější) cenu
+  const basePrice = setConfig 
+    ? Math.min(
+        setConfig.prices.braletteWithGarters || Infinity,
+        setConfig.prices.braletteWithoutGarters || Infinity,
+        setConfig.prices.wiredWithGarters || Infinity,
+        setConfig.prices.wiredWithoutGarters || Infinity
+      ).valueOf()
+    : product.price
+  
   const availableStock = product.stock
   const isOutOfStock = availableStock === 0
   
@@ -165,7 +175,7 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
                   type="button"
                   onClick={() => setSelectedBraType('bralette')}
                   className={`
-                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300
+                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${
                       selectedBraType === 'bralette'
                         ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
@@ -174,12 +184,23 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
                   `}
                 >
                   🌸 Braletka
+                  {(() => {
+                    const bralettePrice = setConfig.hasGartersOption
+                      ? Math.min(setConfig.prices.braletteWithGarters || Infinity, setConfig.prices.braletteWithoutGarters || Infinity)
+                      : (setConfig.prices.braletteWithGarters || setConfig.prices.braletteWithoutGarters);
+                    const priceDiff = bralettePrice - basePrice;
+                    return priceDiff > 0 ? (
+                      <span className="text-xs ml-1 opacity-80">
+                        (+{priceDiff} Kč)
+                      </span>
+                    ) : null;
+                  })()}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedBraType('wired')}
                   className={`
-                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300
+                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${
                       selectedBraType === 'wired'
                         ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
@@ -188,6 +209,17 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
                   `}
                 >
                   💎 S kosticí
+                  {(() => {
+                    const wiredPrice = setConfig.hasGartersOption
+                      ? Math.min(setConfig.prices.wiredWithGarters || Infinity, setConfig.prices.wiredWithoutGarters || Infinity)
+                      : (setConfig.prices.wiredWithGarters || setConfig.prices.wiredWithoutGarters);
+                    const priceDiff = wiredPrice - basePrice;
+                    return priceDiff > 0 ? (
+                      <span className="text-xs ml-1 opacity-80">
+                        (+{priceDiff} Kč)
+                      </span>
+                    ) : null;
+                  })()}
                 </button>
               </div>
             </div>
@@ -204,7 +236,7 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
                   type="button"
                   onClick={() => setSelectedGarters(false)}
                   className={`
-                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300
+                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${
                       !selectedGarters
                         ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
@@ -213,6 +245,15 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
                   `}
                 >
                   Bez podvazků
+                  {(() => {
+                    const withoutGartersPrice = getActivePrice(setConfig, selectedBraType, false);
+                    const priceDiff = withoutGartersPrice - basePrice;
+                    return priceDiff > 0 ? (
+                      <span className="text-xs ml-1 opacity-80">
+                        (+{priceDiff} Kč)
+                      </span>
+                    ) : null;
+                  })()}
                 </button>
                 <button
                   type="button"
@@ -227,11 +268,15 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
                   `}
                 >
                   S podvazky
-                  {setConfig.hasGartersOption && (
-                    <span className="text-xs ml-1 opacity-80">
-                      (+{Math.abs(getActivePrice(setConfig, selectedBraType, true) - getActivePrice(setConfig, selectedBraType, false))} Kč)
-                    </span>
-                  )}
+                  {(() => {
+                    const withGartersPrice = getActivePrice(setConfig, selectedBraType, true);
+                    const priceDiff = withGartersPrice - basePrice;
+                    return priceDiff > 0 ? (
+                      <span className="text-xs ml-1 opacity-80">
+                        (+{priceDiff} Kč)
+                      </span>
+                    ) : null;
+                  })()}
                 </button>
               </div>
             </div>

@@ -11,6 +11,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Ruler, Package, Shield } from 'lucide-react'
 import { PRODUCT_CATEGORIES } from '@/lib/product-types'
+import { getDisplayPrice } from '@/lib/set-config-types'
 import { useEffect, useState } from 'react'
 import { notFound } from 'next/navigation'
 
@@ -65,6 +66,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   // Určit, zda je to braletka nebo s kosticí (pro staré produkty nebo produkty bez set konfigurace)
   const isBralette = product.category === PRODUCT_CATEGORIES.BRA_BRALETTE || 
     (product.isSet && product.setOptions && JSON.parse(product.setOptions).braType === 'bralette')
+
+  // Vypočítat zobrazovací cenu (pro sety bude nejlevnější)
+  const displayPrice = product.isSet && product.setOptions
+    ? getDisplayPrice(JSON.parse(product.setOptions))
+    : product.price
 
   const scrollToMeasurement = () => {
     setActiveTab('mereni')
@@ -130,7 +136,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     </Badge>
                   )}
                   <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{product.name}</h1>
-                  <p className="text-4xl font-bold text-[#931e31] mb-6">{product.price} Kč</p>
+                  <div className="mb-6">
+                    <p className="text-4xl font-bold text-[#931e31]">
+                      {displayPrice.toFixed(0)} Kč
+                      {product.isSet && product.setOptions && displayPrice < product.price && (
+                        <span className="text-lg text-gray-500 ml-2">od</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
 
                 {product.description && (
