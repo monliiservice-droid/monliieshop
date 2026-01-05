@@ -164,27 +164,27 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
 
       {/* Volby pro sety */}
       {setConfig && (
-        <div className="space-y-4 pb-4 border-b border-gray-200">
+        <div className="space-y-3 pb-4 border-b border-gray-200">
           {/* Výběr typu podprsenky (pokud je možnost) */}
           {setConfig.braType === 'both' && (
             <div>
-              <label className="block text-sm font-semibold mb-3">
+              <label className="block text-xs font-semibold mb-2 text-gray-700">
                 Typ podprsenky <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setSelectedBraType('bralette')}
                   className={`
-                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
+                    py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all duration-200 relative
                     ${
                       selectedBraType === 'bralette'
-                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
+                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-sm'
                         : 'border-gray-300 hover:border-[#931e31] hover:bg-pink-50'
                     }
                   `}
                 >
-                  🌸 Braletka
+                  Braletka
                   {(() => {
                     const bralettePrice = setConfig.hasGartersOption
                       ? Math.min(setConfig.prices.braletteWithGarters || Infinity, setConfig.prices.braletteWithoutGarters || Infinity)
@@ -201,15 +201,15 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
                   type="button"
                   onClick={() => setSelectedBraType('wired')}
                   className={`
-                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
+                    py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all duration-200 relative
                     ${
                       selectedBraType === 'wired'
-                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
+                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-sm'
                         : 'border-gray-300 hover:border-[#931e31] hover:bg-pink-50'
                     }
                   `}
                 >
-                  💎 S kosticí
+                  S kosticí
                   {(() => {
                     const wiredPrice = setConfig.hasGartersOption
                       ? Math.min(setConfig.prices.wiredWithGarters || Infinity, setConfig.prices.wiredWithoutGarters || Infinity)
@@ -229,18 +229,18 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
           {/* Výběr podvazků (pokud je možnost) */}
           {setConfig.hasGartersOption && (
             <div>
-              <label className="block text-sm font-semibold mb-3">
+              <label className="block text-xs font-semibold mb-2 text-gray-700">
                 Podvazky <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setSelectedGarters(false)}
                   className={`
-                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
+                    py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all duration-200 relative
                     ${
                       !selectedGarters
-                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
+                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-sm'
                         : 'border-gray-300 hover:border-[#931e31] hover:bg-pink-50'
                     }
                   `}
@@ -260,10 +260,10 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
                   type="button"
                   onClick={() => setSelectedGarters(true)}
                   className={`
-                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
+                    py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all duration-200 relative
                     ${
                       selectedGarters
-                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
+                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-sm'
                         : 'border-gray-300 hover:border-[#931e31] hover:bg-pink-50'
                     }
                   `}

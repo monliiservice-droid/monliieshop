@@ -136,14 +136,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     </Badge>
                   )}
                   <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{product.name}</h1>
-                  <div className="mb-6">
-                    <p className="text-4xl font-bold text-[#931e31]">
-                      {displayPrice.toFixed(0)} Kč
-                      {product.isSet && product.setOptions && displayPrice < product.price && (
-                        <span className="text-lg text-gray-500 ml-2">od</span>
-                      )}
-                    </p>
-                  </div>
                 </div>
 
                 {product.description && (
