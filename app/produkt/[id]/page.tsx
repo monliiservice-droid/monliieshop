@@ -19,6 +19,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [product, setProduct] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('popis')
+  const [selectedBraType, setSelectedBraType] = useState<'bralette' | 'wired'>('bralette')
 
   useEffect(() => {
     async function loadProduct() {
@@ -63,9 +64,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     product.category === PRODUCT_CATEGORIES.SET
   )
 
-  // Určit, zda je to braletka nebo s kosticí (pro staré produkty nebo produkty bez set konfigurace)
+  // Určit, zda je to braletka nebo s kosticí
   const isBralette = product.category === PRODUCT_CATEGORIES.BRA_BRALETTE || 
-    (product.isSet && product.setOptions && JSON.parse(product.setOptions).braType === 'bralette')
+    (product.isSet && product.setOptions && (
+      JSON.parse(product.setOptions).braType === 'bralette' || 
+      (JSON.parse(product.setOptions).braType === 'both' && selectedBraType === 'bralette')
+    ))
 
   // Vypočítat zobrazovací cenu (nejnižší cena pro sety)
   const displayPrice = product.isSet && product.setOptions
@@ -159,6 +163,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   variants={product.variants}
                   hasBra={hasBra}
                   onMeasurementClick={scrollToMeasurement}
+                  onBraTypeChange={setSelectedBraType}
                 />
 
                 {/* Výhody */}
