@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { name, description, price, stock, category, images } = body
+    const { name, description, price, stock, category, images, isSet, setOptions } = body
 
     const product = await prisma.product.create({
       data: {
@@ -14,7 +14,9 @@ export async function POST(request: Request) {
         price,
         stock,
         category,
-        images: images || '[]'
+        images: images || '[]',
+        isSet: isSet || false,
+        setOptions: setOptions || '{}'
       }
     })
 

@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Ruler, CheckCircle } from 'lucide-react'
-import { getSizeOptionsForCategory, SIZE_LABELS } from '@/lib/product-types'
+import { getSizeOptionsForCategory, SIZE_LABELS, PRODUCT_CATEGORIES } from '@/lib/product-types'
+import { SetConfiguration, getActivePrice } from '@/lib/set-config-types'
 
 interface ProductVariant {
   id: string
@@ -21,6 +22,8 @@ interface AddToCartButtonProps {
     stock: number
     images: string
     category: string | null
+    isSet?: boolean
+    setOptions?: string
   }
   variants: ProductVariant[]
   hasBra?: boolean
@@ -31,11 +34,28 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
   const [showToast, setShowToast] = useState(false)
+  const [selectedBraType, setSelectedBraType] = useState<'bralette' | 'wired'>('bralette')
+  const [selectedGarters, setSelectedGarters] = useState<boolean>(false)
 
   const images = JSON.parse(product.images)
   
+  // Zpracovat setOptions pokud je to set
+  const setConfig: SetConfiguration | null = product.isSet && product.setOptions 
+    ? JSON.parse(product.setOptions)
+    : null
+  
   // Získat konfiguraci velikostí podle kategorie produktu
-  const sizeConfig = product.category ? getSizeOptionsForCategory(product.category) : { fields: [] }
+  const sizeConfig = product.category 
+    ? getSizeOptionsForCategory(
+        product.category, 
+        setConfig?.braType === 'both' ? selectedBraType : setConfig?.braType
+      ) 
+    : { fields: [] }
+  
+  // Vypočítat aktuální cenu pro sety
+  const currentPrice = setConfig 
+    ? getActivePrice(setConfig, selectedBraType, selectedGarters)
+    : product.price
   
   const availableStock = product.stock
   const isOutOfStock = availableStock === 0
@@ -66,18 +86,36 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
       : ''
 
     // Příprava dat do košíku
+    let fullDescription = sizeDescription
+    if (setConfig) {
+      const setDetails = []
+      if (setConfig.braType === 'both') {
+        setDetails.push(selectedBraType === 'bralette' ? 'Braletka' : 'S kosticí')
+      }
+      if (setConfig.hasGartersOption) {
+        setDetails.push(selectedGarters ? 'S podvazky' : 'Bez podvazků')
+      }
+      if (setDetails.length > 0) {
+        fullDescription = setDetails.join(', ') + (sizeDescription ? ' | ' + sizeDescription : '')
+      }
+    }
+
     const cartItem = {
       id: `${product.id}_${Object.values(selectedSizes).join('_')}_${Date.now()}`,
       productId: product.id,
       name: product.name,
-      price: product.price,
+      price: currentPrice,
       quantity: quantity,
-      variant: sizeConfig.fields.length > 0 ? {
+      variant: sizeConfig.fields.length > 0 || setConfig ? {
         id: 'size_' + Date.now(),
-        name: 'Velikost',
-        value: sizeDescription
+        name: 'Varianta',
+        value: fullDescription
       } : null,
       sizes: selectedSizes,
+      setSelection: setConfig ? {
+        braType: setConfig.braType === 'both' ? selectedBraType : setConfig.braType,
+        hasGarters: setConfig.hasGartersOption ? selectedGarters : false
+      } : undefined,
       image: images.length > 0 ? images[0] : null
     }
 
@@ -110,6 +148,94 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
               <p className="text-sm opacity-90">{product.name}</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Volby pro sety */}
+      {setConfig && (
+        <div className="space-y-4 pb-4 border-b border-gray-200">
+          {/* Výběr typu podprsenky (pokud je možnost) */}
+          {setConfig.braType === 'both' && (
+            <div>
+              <label className="block text-sm font-semibold mb-3">
+                Typ podprsenky <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSelectedBraType('bralette')}
+                  className={`
+                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300
+                    ${
+                      selectedBraType === 'bralette'
+                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
+                        : 'border-gray-300 hover:border-[#931e31] hover:bg-pink-50'
+                    }
+                  `}
+                >
+                  🌸 Braletka
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedBraType('wired')}
+                  className={`
+                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300
+                    ${
+                      selectedBraType === 'wired'
+                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
+                        : 'border-gray-300 hover:border-[#931e31] hover:bg-pink-50'
+                    }
+                  `}
+                >
+                  💎 S kosticí
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {/* Výběr podvazků (pokud je možnost) */}
+          {setConfig.hasGartersOption && (
+            <div>
+              <label className="block text-sm font-semibold mb-3">
+                Podvazky <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSelectedGarters(false)}
+                  className={`
+                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300
+                    ${
+                      !selectedGarters
+                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
+                        : 'border-gray-300 hover:border-[#931e31] hover:bg-pink-50'
+                    }
+                  `}
+                >
+                  Bez podvazků
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedGarters(true)}
+                  className={`
+                    py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
+                    ${
+                      selectedGarters
+                        ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
+                        : 'border-gray-300 hover:border-[#931e31] hover:bg-pink-50'
+                    }
+                  `}
+                >
+                  S podvazky
+                  {setConfig.hasGartersOption && (
+                    <span className="text-xs ml-1 opacity-80">
+                      (+{Math.abs(getActivePrice(setConfig, selectedBraType, true) - getActivePrice(setConfig, selectedBraType, false))} Kč)
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -195,7 +321,7 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
       <div className="flex items-center justify-between py-4 border-y border-gray-200">
         <span className="text-lg font-semibold">Celková cena:</span>
         <span className="text-3xl font-bold text-[#931e31]">
-          {(product.price * quantity).toFixed(0)} Kč
+          {(currentPrice * quantity).toFixed(0)} Kč
         </span>
       </div>
 

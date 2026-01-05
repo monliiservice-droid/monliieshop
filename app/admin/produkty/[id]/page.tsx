@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { CATEGORY_GROUPS } from '@/lib/product-types'
 import imageCompression from 'browser-image-compression'
+import { DEFAULT_SET_CONFIG, SetConfiguration } from '@/lib/set-config-types'
 
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -28,6 +29,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [existingImages, setExistingImages] = useState<string[]>([])
+  const [setConfig, setSetConfig] = useState<SetConfiguration>(DEFAULT_SET_CONFIG)
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -47,6 +49,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           })
           const images = JSON.parse(product.images)
           setExistingImages(images)
+          
+          // Načíst konfiguraci setu, pokud existuje
+          if (product.isSet && product.setOptions) {
+            try {
+              const options = JSON.parse(product.setOptions)
+              setSetConfig(options)
+            } catch (e) {
+              console.error('Error parsing setOptions:', e)
+              setSetConfig(DEFAULT_SET_CONFIG)
+            }
+          }
         } else {
           alert('Produkt nenalezen')
           router.push('/admin/produkty')
@@ -154,7 +167,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           ...formData,
           price: parseFloat(formData.price),
           stock: parseInt(formData.stock),
-          images: JSON.stringify(imageUrls)
+          images: JSON.stringify(imageUrls),
+          isSet: formData.category === 'Set',
+          setOptions: formData.category === 'Set' ? JSON.stringify(setConfig) : '{}'
         }),
       })
 
@@ -272,6 +287,203 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 Kategorie určuje, jaké velikosti budou zákazníkům nabídnuty při výběru produktu.
               </p>
             </div>
+
+            {/* Konfigurace setu - zobrazí se pouze pro kategorii Set */}
+            {formData.category === 'Set' && (
+              <Card className="border-2 border-blue-200 bg-blue-50">
+                <CardHeader>
+                  <CardTitle className="text-lg">Konfigurace setu</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Možnost výběru podvazků */}
+                  <div className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      id="hasGartersOption"
+                      checked={setConfig.hasGartersOption}
+                      onChange={(e) => setSetConfig({...setConfig, hasGartersOption: e.target.checked})}
+                      className="mt-1 h-4 w-4 rounded border-gray-300"
+                    />
+                    <div>
+                      <Label htmlFor="hasGartersOption" className="font-medium cursor-pointer">
+                        Zákazník si může vybrat, zda chce podvazky
+                      </Label>
+                      <p className="text-xs text-gray-600 mt-1">
+                        Pokud je zaškrtnuto, zákazník si bude moci vybrat mezi variantou s podvazky a bez podvazků.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Výběr typu podprsenky */}
+                  <div className="space-y-2">
+                    <Label htmlFor="braType" className="font-medium">Typ podprsenky v setu</Label>
+                    <select
+                      id="braType"
+                      value={setConfig.braType}
+                      onChange={(e) => setSetConfig({...setConfig, braType: e.target.value as 'bralette' | 'wired' | 'both'})}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    >
+                      <option value="bralette">Pouze braletka</option>
+                      <option value="wired">Pouze s kosticí</option>
+                      <option value="both">Obojí - zákazník si vybere</option>
+                    </select>
+                    <p className="text-xs text-gray-600">
+                      Pokud vyberete "Obojí", zákazník si bude moci vybrat mezi braletkou a podprsenkou s kosticí.
+                    </p>
+                  </div>
+
+                  {/* Cenová matice */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold">Ceny jednotlivých variant (Kč) *</Label>
+                    
+                    {setConfig.braType === 'both' ? (
+                      <div className="space-y-6">
+                        <div>
+                          <div className="font-medium mb-3 text-sm">🌸 Braletka:</div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-4">
+                            {setConfig.hasGartersOption ? (
+                              <>
+                                <div className="space-y-2">
+                                  <Label htmlFor="braletteWithGarters">S podvazky</Label>
+                                  <Input
+                                    id="braletteWithGarters"
+                                    type="number"
+                                    step="0.01"
+                                    required
+                                    value={setConfig.prices.braletteWithGarters || ''}
+                                    onChange={(e) => setSetConfig({...setConfig, prices: {...setConfig.prices, braletteWithGarters: parseFloat(e.target.value) || 0}})}
+                                    placeholder="1890"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="braletteWithoutGarters">Bez podvazků</Label>
+                                  <Input
+                                    id="braletteWithoutGarters"
+                                    type="number"
+                                    step="0.01"
+                                    required
+                                    value={setConfig.prices.braletteWithoutGarters || ''}
+                                    onChange={(e) => setSetConfig({...setConfig, prices: {...setConfig.prices, braletteWithoutGarters: parseFloat(e.target.value) || 0}})}
+                                    placeholder="1590"
+                                  />
+                                </div>
+                              </>
+                            ) : (
+                              <div className="space-y-2">
+                                <Label htmlFor="braletteSingle">Cena</Label>
+                                <Input
+                                  id="braletteSingle"
+                                  type="number"
+                                  step="0.01"
+                                  required
+                                  value={setConfig.prices.braletteWithGarters || ''}
+                                  onChange={(e) => setSetConfig({...setConfig, prices: {...setConfig.prices, braletteWithGarters: parseFloat(e.target.value) || 0}})}
+                                  placeholder="1790"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div className="font-medium mb-3 text-sm">💎 S kosticí:</div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-4">
+                            {setConfig.hasGartersOption ? (
+                              <>
+                                <div className="space-y-2">
+                                  <Label htmlFor="wiredWithGarters">S podvazky</Label>
+                                  <Input
+                                    id="wiredWithGarters"
+                                    type="number"
+                                    step="0.01"
+                                    required
+                                    value={setConfig.prices.wiredWithGarters || ''}
+                                    onChange={(e) => setSetConfig({...setConfig, prices: {...setConfig.prices, wiredWithGarters: parseFloat(e.target.value) || 0}})}
+                                    placeholder="1990"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="wiredWithoutGarters">Bez podvazků</Label>
+                                  <Input
+                                    id="wiredWithoutGarters"
+                                    type="number"
+                                    step="0.01"
+                                    required
+                                    value={setConfig.prices.wiredWithoutGarters || ''}
+                                    onChange={(e) => setSetConfig({...setConfig, prices: {...setConfig.prices, wiredWithoutGarters: parseFloat(e.target.value) || 0}})}
+                                    placeholder="1690"
+                                  />
+                                </div>
+                              </>
+                            ) : (
+                              <div className="space-y-2">
+                                <Label htmlFor="wiredSingle">Cena</Label>
+                                <Input
+                                  id="wiredSingle"
+                                  type="number"
+                                  step="0.01"
+                                  required
+                                  value={setConfig.prices.wiredWithGarters || ''}
+                                  onChange={(e) => setSetConfig({...setConfig, prices: {...setConfig.prices, wiredWithGarters: parseFloat(e.target.value) || 0}})}
+                                  placeholder="1890"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {setConfig.hasGartersOption ? (
+                          <>
+                            <div className="space-y-2">
+                              <Label htmlFor="singleWithGarters">S podvazky</Label>
+                              <Input
+                                id="singleWithGarters"
+                                type="number"
+                                step="0.01"
+                                required
+                                value={setConfig.prices[`${setConfig.braType}WithGarters` as keyof typeof setConfig.prices] || ''}
+                                onChange={(e) => setSetConfig({...setConfig, prices: {...setConfig.prices, [`${setConfig.braType}WithGarters`]: parseFloat(e.target.value) || 0}})}
+                                placeholder="1890"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="singleWithoutGarters">Bez podvazků</Label>
+                              <Input
+                                id="singleWithoutGarters"
+                                type="number"
+                                step="0.01"
+                                required
+                                value={setConfig.prices[`${setConfig.braType}WithoutGarters` as keyof typeof setConfig.prices] || ''}
+                                onChange={(e) => setSetConfig({...setConfig, prices: {...setConfig.prices, [`${setConfig.braType}WithoutGarters`]: parseFloat(e.target.value) || 0}})}
+                                placeholder="1590"
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          <div className="space-y-2">
+                            <Label htmlFor="singlePrice">Cena</Label>
+                            <Input
+                              id="singlePrice"
+                              type="number"
+                              step="0.01"
+                              required
+                              value={setConfig.prices[`${setConfig.braType}WithGarters` as keyof typeof setConfig.prices] || ''}
+                              onChange={(e) => setSetConfig({...setConfig, prices: {...setConfig.prices, [`${setConfig.braType}WithGarters`]: parseFloat(e.target.value) || 0}})}
+                              placeholder="1790"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-600 mt-2">
+                      Nastavte ceny pro všechny dostupné kombinace. Tyto ceny se zobrazí zákazníkům při výběru.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <div className="space-y-2">
               <Label>Obrázky produktu</Label>

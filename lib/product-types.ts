@@ -4,10 +4,7 @@ export const PRODUCT_CATEGORIES = {
   BRA_BRALETTE: 'Braletka',
   PANTIES: 'Kalhotky',
   GARTERS: 'Podvazky',
-  SET_WIRED_WITH_GARTERS: 'Set s kosticí s podvazky',
-  SET_WIRED_WITHOUT_GARTERS: 'Set s kosticí bez podvazků',
-  SET_BRALETTE_WITH_GARTERS: 'Set s braletkou s podvazky',
-  SET_BRALETTE_WITHOUT_GARTERS: 'Set s braletkou bez podvazků',
+  SET: 'Set',
   OTHER: 'Ostatní'
 } as const
 
@@ -21,17 +18,9 @@ export const CATEGORY_GROUPS = [
     ]
   },
   {
-    label: 'Sety s kosticí',
+    label: 'Sety',
     categories: [
-      { key: 'SET_WIRED_WITH_GARTERS', value: PRODUCT_CATEGORIES.SET_WIRED_WITH_GARTERS },
-      { key: 'SET_WIRED_WITHOUT_GARTERS', value: PRODUCT_CATEGORIES.SET_WIRED_WITHOUT_GARTERS }
-    ]
-  },
-  {
-    label: 'Sety s braletkou',
-    categories: [
-      { key: 'SET_BRALETTE_WITH_GARTERS', value: PRODUCT_CATEGORIES.SET_BRALETTE_WITH_GARTERS },
-      { key: 'SET_BRALETTE_WITHOUT_GARTERS', value: PRODUCT_CATEGORIES.SET_BRALETTE_WITHOUT_GARTERS }
+      { key: 'SET', value: PRODUCT_CATEGORIES.SET }
     ]
   },
   {
@@ -69,7 +58,7 @@ export const SIZE_OPTIONS = {
 } as const
 
 // Funkce pro získání velikostí podle kategorie
-export function getSizeOptionsForCategory(category: string): {
+export function getSizeOptionsForCategory(category: string, braType?: 'bralette' | 'wired' | 'both'): {
   fields: Array<{
     name: string
     label: string
@@ -116,43 +105,45 @@ export function getSizeOptionsForCategory(category: string): {
         ]
       }
     
-    case PRODUCT_CATEGORIES.SET_WIRED_WITH_GARTERS:
-    case PRODUCT_CATEGORIES.SET_WIRED_WITHOUT_GARTERS:
-      return {
-        fields: [
-          {
-            name: 'braSize',
-            label: 'Velikost podprsenky',
-            options: SIZE_OPTIONS.SET_SIZES.braSize
-          },
-          {
-            name: 'braCup',
-            label: 'Velikost košíčku',
-            options: SIZE_OPTIONS.SET_SIZES.braCup
-          },
-          {
-            name: 'pantiesSize',
-            label: 'Velikost kalhotek',
-            options: SIZE_OPTIONS.SET_SIZES.pantiesSize
-          }
-        ]
-      }
-    
-    case PRODUCT_CATEGORIES.SET_BRALETTE_WITH_GARTERS:
-    case PRODUCT_CATEGORIES.SET_BRALETTE_WITHOUT_GARTERS:
-      return {
-        fields: [
-          {
-            name: 'braSize',
-            label: 'Velikost podprsenky',
-            options: SIZE_OPTIONS.SET_SIZES.braSize
-          },
-          {
-            name: 'pantiesSize',
-            label: 'Velikost kalhotek',
-            options: SIZE_OPTIONS.SET_SIZES.pantiesSize
-          }
-        ]
+    case PRODUCT_CATEGORIES.SET:
+      // Pro sety záleží na typu podprsenky (braletka vs. kostice)
+      // Pokud je braType 'both', použijeme plnou variantu s košíčky
+      if (braType === 'wired' || braType === 'both') {
+        return {
+          fields: [
+            {
+              name: 'braSize',
+              label: 'Velikost podprsenky',
+              options: SIZE_OPTIONS.SET_SIZES.braSize
+            },
+            {
+              name: 'braCup',
+              label: 'Velikost košíčku',
+              options: SIZE_OPTIONS.SET_SIZES.braCup
+            },
+            {
+              name: 'pantiesSize',
+              label: 'Velikost kalhotek',
+              options: SIZE_OPTIONS.SET_SIZES.pantiesSize
+            }
+          ]
+        }
+      } else {
+        // braletka - bez košíčků
+        return {
+          fields: [
+            {
+              name: 'braSize',
+              label: 'Velikost podprsenky',
+              options: SIZE_OPTIONS.SET_SIZES.braSize
+            },
+            {
+              name: 'pantiesSize',
+              label: 'Velikost kalhotek',
+              options: SIZE_OPTIONS.SET_SIZES.pantiesSize
+            }
+          ]
+        }
       }
     
     case PRODUCT_CATEGORIES.OTHER:

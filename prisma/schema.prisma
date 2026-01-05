@@ -19,6 +19,8 @@ model Product {
   stock       Int      @default(0)
   images      String   @default("[]") // JSON array of image URLs
   category    String?
+  isSet       Boolean  @default(false) // Označení zda je produkt set
+  setOptions  String?  @default("{}") // JSON konfigurace pro sety (podvazky, typ podprsenky, ceny)
   variants    ProductVariant[]
   orderItems  OrderItem[]
   createdAt   DateTime @default(now())

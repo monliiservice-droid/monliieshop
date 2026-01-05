@@ -59,18 +59,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const hasBra = product.category && (
     product.category === PRODUCT_CATEGORIES.BRA_WIRED ||
     product.category === PRODUCT_CATEGORIES.BRA_BRALETTE ||
-    product.category === PRODUCT_CATEGORIES.SET_WIRED_WITH_GARTERS ||
-    product.category === PRODUCT_CATEGORIES.SET_WIRED_WITHOUT_GARTERS ||
-    product.category === PRODUCT_CATEGORIES.SET_BRALETTE_WITH_GARTERS ||
-    product.category === PRODUCT_CATEGORIES.SET_BRALETTE_WITHOUT_GARTERS
+    product.category === PRODUCT_CATEGORIES.SET
   )
 
-  // Určit, zda je to braletka nebo s kosticí
-  const isBralette = product.category && (
-    product.category === PRODUCT_CATEGORIES.BRA_BRALETTE ||
-    product.category === PRODUCT_CATEGORIES.SET_BRALETTE_WITH_GARTERS ||
-    product.category === PRODUCT_CATEGORIES.SET_BRALETTE_WITHOUT_GARTERS
-  )
+  // Určit, zda je to braletka nebo s kosticí (pro staré produkty nebo produkty bez set konfigurace)
+  const isBralette = product.category === PRODUCT_CATEGORIES.BRA_BRALETTE || 
+    (product.isSet && product.setOptions && JSON.parse(product.setOptions).braType === 'bralette')
 
   const scrollToMeasurement = () => {
     setActiveTab('mereni')
@@ -153,7 +147,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     price: product.price,
                     stock: product.stock,
                     images: product.images,
-                    category: product.category
+                    category: product.category,
+                    isSet: product.isSet,
+                    setOptions: product.setOptions
                   }}
                   variants={product.variants}
                   hasBra={hasBra}
