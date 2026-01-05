@@ -69,14 +69,6 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
       ).valueOf()
     : product.price
   
-  // Notifikovat rodiče o změně ceny
-  React.useEffect(() => {
-    if (onPriceChange) {
-      onPriceChange(currentPrice)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPrice])
-  
   const availableStock = product.stock
   const isOutOfStock = availableStock === 0
   
@@ -183,7 +175,13 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setSelectedBraType('bralette')}
+                  onClick={() => {
+                    setSelectedBraType('bralette')
+                    if (onPriceChange && setConfig) {
+                      const newPrice = getActivePrice(setConfig, 'bralette', selectedGarters)
+                      onPriceChange(newPrice)
+                    }
+                  }}
                   className={`
                     py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${
@@ -208,7 +206,13 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSelectedBraType('wired')}
+                  onClick={() => {
+                    setSelectedBraType('wired')
+                    if (onPriceChange && setConfig) {
+                      const newPrice = getActivePrice(setConfig, 'wired', selectedGarters)
+                      onPriceChange(newPrice)
+                    }
+                  }}
                   className={`
                     py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${
@@ -244,7 +248,13 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setSelectedGarters(false)}
+                  onClick={() => {
+                    setSelectedGarters(false)
+                    if (onPriceChange && setConfig) {
+                      const newPrice = getActivePrice(setConfig, selectedBraType, false)
+                      onPriceChange(newPrice)
+                    }
+                  }}
                   className={`
                     py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${
@@ -267,7 +277,13 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSelectedGarters(true)}
+                  onClick={() => {
+                    setSelectedGarters(true)
+                    if (onPriceChange && setConfig) {
+                      const newPrice = getActivePrice(setConfig, selectedBraType, true)
+                      onPriceChange(newPrice)
+                    }
+                  }}
                   className={`
                     py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${
