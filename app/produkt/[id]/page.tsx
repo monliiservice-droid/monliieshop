@@ -82,7 +82,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     if (product && currentPrice === 0) {
       setCurrentPrice(baseDisplayPrice)
     }
-  }, [product, baseDisplayPrice, currentPrice])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product])
 
   const scrollToMeasurement = () => {
     setActiveTab('mereni')

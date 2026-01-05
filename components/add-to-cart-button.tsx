@@ -74,7 +74,8 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
     if (onPriceChange) {
       onPriceChange(currentPrice)
     }
-  }, [currentPrice, onPriceChange])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPrice])
   
   const availableStock = product.stock
   const isOutOfStock = availableStock === 0
