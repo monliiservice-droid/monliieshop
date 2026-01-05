@@ -13,12 +13,14 @@ import { Ruler, Package, Shield } from 'lucide-react'
 import { PRODUCT_CATEGORIES } from '@/lib/product-types'
 import { getDisplayPrice } from '@/lib/set-config-types'
 import { useEffect, useState } from 'react'
+import React from 'react'
 import { notFound } from 'next/navigation'
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [product, setProduct] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('popis')
+  const [currentPrice, setCurrentPrice] = useState<number>(0)
 
   useEffect(() => {
     async function loadProduct() {
@@ -67,10 +69,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const isBralette = product.category === PRODUCT_CATEGORIES.BRA_BRALETTE || 
     (product.isSet && product.setOptions && JSON.parse(product.setOptions).braType === 'bralette')
 
-  // Vypočítat zobrazovací cenu (pro sety bude nejlevnější)
-  const displayPrice = product.isSet && product.setOptions
+  // Vypočítat výchozí zobrazovací cenu (pro sety bude nejlevnější)
+  const baseDisplayPrice = product.isSet && product.setOptions
     ? getDisplayPrice(JSON.parse(product.setOptions))
     : product.price
+  
+  // Použít aktuální cenu pokud byla změněna, jinak výchozí
+  const displayPrice = currentPrice > 0 ? currentPrice : baseDisplayPrice
+  
+  // Inicializovat aktuální cenu při načtení produktu
+  React.useEffect(() => {
+    if (product && currentPrice === 0) {
+      setCurrentPrice(baseDisplayPrice)
+    }
+  }, [product, baseDisplayPrice, currentPrice])
 
   const scrollToMeasurement = () => {
     setActiveTab('mereni')
@@ -167,6 +179,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   variants={product.variants}
                   hasBra={hasBra}
                   onMeasurementClick={scrollToMeasurement}
+                  onPriceChange={setCurrentPrice}
                 />
 
                 {/* Výhody */}

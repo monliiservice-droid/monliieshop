@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import React from 'react'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Ruler, CheckCircle } from 'lucide-react'
 import { getSizeOptionsForCategory, SIZE_LABELS, PRODUCT_CATEGORIES } from '@/lib/product-types'
@@ -28,9 +29,10 @@ interface AddToCartButtonProps {
   variants: ProductVariant[]
   hasBra?: boolean
   onMeasurementClick?: () => void
+  onPriceChange?: (price: number) => void
 }
 
-export function AddToCartButton({ product, variants, hasBra, onMeasurementClick }: AddToCartButtonProps) {
+export function AddToCartButton({ product, variants, hasBra, onMeasurementClick, onPriceChange }: AddToCartButtonProps) {
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
   const [showToast, setShowToast] = useState(false)
@@ -66,6 +68,13 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick 
         setConfig.prices.wiredWithoutGarters || Infinity
       ).valueOf()
     : product.price
+  
+  // Notifikovat rodiče o změně ceny
+  React.useEffect(() => {
+    if (onPriceChange) {
+      onPriceChange(currentPrice)
+    }
+  }, [currentPrice, onPriceChange])
   
   const availableStock = product.stock
   const isOutOfStock = availableStock === 0
