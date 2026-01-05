@@ -29,10 +29,9 @@ interface AddToCartButtonProps {
   variants: ProductVariant[]
   hasBra?: boolean
   onMeasurementClick?: () => void
-  onPriceChange?: (price: number) => void
 }
 
-export function AddToCartButton({ product, variants, hasBra, onMeasurementClick, onPriceChange }: AddToCartButtonProps) {
+export function AddToCartButton({ product, variants, hasBra, onMeasurementClick }: AddToCartButtonProps) {
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
   const [showToast, setShowToast] = useState(false)
@@ -175,13 +174,7 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedBraType('bralette')
-                    if (onPriceChange && setConfig) {
-                      const newPrice = getActivePrice(setConfig, 'bralette', selectedGarters)
-                      onPriceChange(newPrice)
-                    }
-                  }}
+                  onClick={() => setSelectedBraType('bralette')}
                   className={`
                     py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${
@@ -206,13 +199,7 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedBraType('wired')
-                    if (onPriceChange && setConfig) {
-                      const newPrice = getActivePrice(setConfig, 'wired', selectedGarters)
-                      onPriceChange(newPrice)
-                    }
-                  }}
+                  onClick={() => setSelectedBraType('wired')}
                   className={`
                     py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${
@@ -248,13 +235,7 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedGarters(false)
-                    if (onPriceChange && setConfig) {
-                      const newPrice = getActivePrice(setConfig, selectedBraType, false)
-                      onPriceChange(newPrice)
-                    }
-                  }}
+                  onClick={() => setSelectedGarters(false)}
                   className={`
                     py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${
@@ -277,13 +258,7 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedGarters(true)
-                    if (onPriceChange && setConfig) {
-                      const newPrice = getActivePrice(setConfig, selectedBraType, true)
-                      onPriceChange(newPrice)
-                    }
-                  }}
+                  onClick={() => setSelectedGarters(true)}
                   className={`
                     py-4 px-4 rounded-xl border-2 font-semibold transition-all duration-300 relative
                     ${

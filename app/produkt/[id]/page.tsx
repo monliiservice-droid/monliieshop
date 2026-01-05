@@ -12,15 +12,13 @@ import Link from 'next/link'
 import { Ruler, Package, Shield } from 'lucide-react'
 import { PRODUCT_CATEGORIES } from '@/lib/product-types'
 import { getDisplayPrice } from '@/lib/set-config-types'
-import { useEffect, useState, useCallback } from 'react'
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { notFound } from 'next/navigation'
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [product, setProduct] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('popis')
-  const [currentPrice, setCurrentPrice] = useState<number>(0)
 
   useEffect(() => {
     async function loadProduct() {
@@ -69,18 +67,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const isBralette = product.category === PRODUCT_CATEGORIES.BRA_BRALETTE || 
     (product.isSet && product.setOptions && JSON.parse(product.setOptions).braType === 'bralette')
 
-  // Vypočítat zobrazovací cenu
-  const baseDisplayPrice = product.isSet && product.setOptions
+  // Vypočítat zobrazovací cenu (nejnižší cena pro sety)
+  const displayPrice = product.isSet && product.setOptions
     ? getDisplayPrice(JSON.parse(product.setOptions))
     : product.price
-  
-  // Použít aktuální cenu pokud byla nastavena, jinak výchozí
-  const displayPrice = currentPrice || baseDisplayPrice
-  
-  // Stabilní callback pro změnu ceny
-  const handlePriceChange = useCallback((price: number) => {
-    setCurrentPrice(price)
-  }, [])
 
   const scrollToMeasurement = () => {
     setActiveTab('mereni')
@@ -177,7 +167,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   variants={product.variants}
                   hasBra={hasBra}
                   onMeasurementClick={scrollToMeasurement}
-                  onPriceChange={handlePriceChange}
                 />
 
                 {/* Výhody */}
