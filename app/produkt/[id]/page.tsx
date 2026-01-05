@@ -12,7 +12,7 @@ import Link from 'next/link'
 import { Ruler, Package, Shield } from 'lucide-react'
 import { PRODUCT_CATEGORIES } from '@/lib/product-types'
 import { getDisplayPrice } from '@/lib/set-config-types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import React from 'react'
 import { notFound } from 'next/navigation'
 
@@ -84,6 +84,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product])
+  
+  // Stabilní callback pro změnu ceny
+  const handlePriceChange = useCallback((price: number) => {
+    setCurrentPrice(price)
+  }, [])
 
   const scrollToMeasurement = () => {
     setActiveTab('mereni')
@@ -180,7 +185,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   variants={product.variants}
                   hasBra={hasBra}
                   onMeasurementClick={scrollToMeasurement}
-                  onPriceChange={setCurrentPrice}
+                  onPriceChange={handlePriceChange}
                 />
 
                 {/* Výhody */}
