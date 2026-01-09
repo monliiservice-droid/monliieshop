@@ -153,7 +153,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   product={{
                     id: product.id,
                     name: product.name,
-                    price: product.price,
+                    price: displayPrice,
                     stock: product.stock,
                     images: product.images,
                     category: product.category,
