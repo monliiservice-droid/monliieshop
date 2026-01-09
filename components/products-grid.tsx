@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { PRODUCT_CATEGORIES } from '@/lib/product-types'
+import { getDisplayPrice } from '@/lib/set-config-types'
 
 interface Product {
   id: string
@@ -15,6 +16,8 @@ interface Product {
   stock: number
   images: string
   category: string | null
+  isSet?: boolean
+  setOptions?: string
 }
 
 interface ProductsGridProps {
@@ -75,6 +78,11 @@ export function ProductsGrid({ products }: ProductsGridProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {filteredProducts.map((product, index) => {
             const images = JSON.parse(product.images)
+            // Vypočítat zobrazovací cenu (pro sety použít nejnižší cenu z variant)
+            const displayPrice = product.isSet && product.setOptions
+              ? getDisplayPrice(JSON.parse(product.setOptions))
+              : product.price
+            
             return (
               <Card 
                 key={product.id} 
@@ -113,7 +121,7 @@ export function ProductsGrid({ products }: ProductsGridProps) {
                       {product.description}
                     </p>
                   )}
-                  <p className="text-xl font-bold text-[#931e31]">{product.price} Kč</p>
+                  <p className="text-xl font-bold text-[#931e31]">{displayPrice} Kč</p>
                 </CardContent>
                 <CardFooter className="p-6 pt-0">
                   <Link href={`/produkt/${product.id}`} className="w-full">
