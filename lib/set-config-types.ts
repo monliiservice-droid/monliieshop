@@ -21,6 +21,15 @@ export const DEFAULT_SET_CONFIG: SetConfiguration = {
 }
 
 export function getActivePrice(config: SetConfiguration, braType: 'bralette' | 'wired', withGarters: boolean): number {
+  // Pokud není možnost výběru podvazků, vzít cenu z kteréhokoli pole (admin může vyplnit kteroukoli variantu)
+  if (!config.hasGartersOption) {
+    const withGartersPrice = config.prices[`${braType}WithGarters` as keyof SetConfiguration['prices']]
+    const withoutGartersPrice = config.prices[`${braType}WithoutGarters` as keyof SetConfiguration['prices']]
+    // Vrátit první nenulovou cenu
+    return withGartersPrice || withoutGartersPrice || 0
+  }
+  
+  // Pokud je možnost výběru podvazků, použít standardní logiku
   const key = `${braType}${withGarters ? 'With' : 'Without'}Garters` as keyof SetConfiguration['prices']
   return config.prices[key]
 }
