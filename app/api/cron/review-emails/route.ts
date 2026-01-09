@@ -7,15 +7,15 @@ import { sendOrderEmail } from '@/lib/email'
 // Například přes Vercel Cron Jobs nebo externí službu jako cron-job.org
 export async function GET() {
   try {
-    // Najdi objednávky, které byly doručeny před 7 dny a ještě nebyl odeslán review email
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    // Najdi objednávky, které byly doručeny před 5 dny a ještě nebyl odeslán review email
+    const fiveDaysAgo = new Date()
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5)
 
     const ordersToReview = await prisma.order.findMany({
       where: {
         status: 'delivered',
         deliveredAt: {
-          lte: sevenDaysAgo
+          lte: fiveDaysAgo
         },
         reviewEmailSentAt: null
       },

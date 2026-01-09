@@ -357,7 +357,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             <div class="content">
               <h2>Řekni nám, co si myslíš! 💝</h2>
               <p>Ahoj ${data.customerName},</p>
-              <p>Už uplynul týden od doručení tvé objednávky <strong>#${data.orderNumber}</strong> a rádi bychom věděli, jak se ti naše produkty líbí!</p>
+              <p>Už uplynulo 5 dní od doručení tvé objednávky <strong>#${data.orderNumber}</strong> a rádi bychom věděli, jak se ti naše produkty líbí!</p>
               
               <p>Tvoje recenze nám moc pomůže a zároveň pomůžeš dalším zákaznicím se rozhodnout. 🌟</p>
               
