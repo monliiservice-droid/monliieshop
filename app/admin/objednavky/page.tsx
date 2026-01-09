@@ -104,12 +104,8 @@ export default function OrdersPage() {
     switch (status) {
       case 'new':
         return [
-          { status: 'accepted', label: 'Přijmout', icon: CheckCircle, color: 'bg-green-600' },
+          { status: 'in_production', label: 'Přijmout', icon: CheckCircle, color: 'bg-green-600' },
           { status: 'rejected', label: 'Odmítnout', icon: XCircle, color: 'bg-red-600' },
-        ]
-      case 'accepted':
-        return [
-          { status: 'in_production', label: 'Ve výrobě', icon: Package, color: 'bg-purple-600' },
         ]
       case 'in_production':
         return [

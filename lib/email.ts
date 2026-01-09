@@ -193,7 +193,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
 
     case 'order_accepted':
       return {
-        subject: `Objednávka #${data.orderNumber} byla přijata`,
+        subject: `Objednávka #${data.orderNumber} byla přijata a je ve výrobě`,
         html: `
           ${baseStyles}
           <div class="container">
@@ -201,10 +201,19 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
               <img src="${logoUrl}" alt="Monlii" width="150">
             </div>
             <div class="content">
-              <h2>Tvoje objednávka byla přijata! ✅</h2>
+              <h2>Tvoje objednávka je ve výrobě! 🎨✨</h2>
               <p>Ahoj ${data.customerName},</p>
-              <p>S radostí ti oznamujeme, že tvoje objednávka <strong>#${data.orderNumber}</strong> byla přijata a právě ji začínáme vyrábět!</p>
-              <p>Budeme tě průběžně informovat o stavu výroby.</p>
+              <p>S radostí ti oznamujeme, že tvoje objednávka <strong>#${data.orderNumber}</strong> byla přijata a už na ní pracujeme!</p>
+              
+              <div class="order-details">
+                <h3>Co se právě děje:</h3>
+                <p>✂️ S láskou vytváříme každý kousek ručně, jen pro tebe!</p>
+                <p>👗 Tvoje prádlo už je v rukách naší zkušené švadleny</p>
+                <p>💝 Pečlivě dbáme na každý detail, aby bylo dokonalé</p>
+              </div>
+              
+              <p>Budeme tě průběžně informovat o dalších krocích tvé objednávky.</p>
+              <p>Zároveň ti posíláme fakturu v samostatném emailu.</p>
               <p>S láskou,<br>Tým Monlii ❤️</p>
             </div>
             <div class="footer">

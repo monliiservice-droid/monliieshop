@@ -89,8 +89,8 @@ export async function PATCH(
 
     // Odešli příslušný email podle statusu
     switch (status) {
-      case 'accepted':
-        // Odešli email o přijetí objednávky
+      case 'in_production':
+        // Odešli email o přijetí objednávky a výrobě
         await sendOrderEmail('order_accepted', orderData)
         
         // Vytvoř fakturu
@@ -142,9 +142,6 @@ export async function PATCH(
         break
       case 'rejected':
         await sendOrderEmail('order_rejected', orderData)
-        break
-      case 'in_production':
-        await sendOrderEmail('order_in_production', orderData)
         break
       case 'ready_to_ship':
         await sendOrderEmail('order_ready_to_ship', orderData)
