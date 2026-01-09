@@ -259,7 +259,8 @@ export default function OrdersPage() {
                           'transfer': 'Bankovní převod',
                           'cod': 'Dobírka'
                         }
-                        return paymentMethods[selectedOrder.paymentMethod] || selectedOrder.paymentMethod
+                        const paymentMethod = (selectedOrder as any).paymentMethod || 'card'
+                        return paymentMethods[paymentMethod] || paymentMethod
                       })()}
                       {selectedOrder.paymentStatus === 'paid' && ' ✓'}
                     </Badge>
@@ -273,7 +274,8 @@ export default function OrdersPage() {
                           'zasilkovna_home': 'Zásilkovna - Doručení domů',
                           'personal': 'Osobní odběr'
                         }
-                        return shippingMethods[selectedOrder.shippingMethod] || selectedOrder.shippingMethod
+                        const shippingMethod = (selectedOrder as any).shippingMethod || 'zasilkovna_pickup'
+                        return shippingMethods[shippingMethod] || shippingMethod
                       })()}
                     </Badge>
                   </div>
