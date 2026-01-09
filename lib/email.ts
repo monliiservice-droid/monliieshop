@@ -398,9 +398,9 @@ function getInvoiceEmailTemplate(data: InvoiceData): { subject: string; html: st
   `
 
   const paymentMethodLabels: Record<string, string> = {
-    stripe: 'Platební karta (Online)',
-    cash_on_delivery: 'Hotově na dobírku',
-    bank_transfer: 'Bankovní převod'
+    card: 'Platba kartou',
+    transfer: 'Bankovní převod',
+    cod: 'Dobírka'
   }
 
   const items = JSON.parse(data.items)
@@ -422,11 +422,10 @@ function getInvoiceEmailTemplate(data: InvoiceData): { subject: string; html: st
             <h3>Faktura ${data.invoiceNumber}</h3>
             <p><strong>K objednávce:</strong> ${data.orderNumber}</p>
             <p><strong>Datum vystavení:</strong> ${new Date(data.issueDate).toLocaleDateString('cs-CZ')}</p>
-            <p><strong>Datum splatnosti:</strong> ${new Date(data.dueDate).toLocaleDateString('cs-CZ')}</p>
             ${data.paymentMethod ? `<p><strong>Způsob platby:</strong> ${paymentMethodLabels[data.paymentMethod] || data.paymentMethod}</p>` : ''}
-            <p><strong>Status:</strong> 
-              <span class="status-badge ${data.status === 'paid' || data.paymentStatus === 'paid' ? 'status-paid' : 'status-unpaid'}">
-                ${data.status === 'paid' || data.paymentStatus === 'paid' ? 'Zaplaceno ✓' : 'Nezaplaceno'}
+            <p><strong>Status platby:</strong> 
+              <span class="status-badge ${data.paymentMethod === 'card' || data.paymentMethod === 'transfer' || data.status === 'paid' || data.paymentStatus === 'paid' ? 'status-paid' : 'status-unpaid'}">
+                ${data.paymentMethod === 'card' || data.paymentMethod === 'transfer' || data.status === 'paid' || data.paymentStatus === 'paid' ? 'Zaplaceno ✓' : 'Bude zaplacena při přijetí'}
               </span>
             </p>
           </div>
@@ -460,21 +459,19 @@ function getInvoiceEmailTemplate(data: InvoiceData): { subject: string; html: st
             </p>
           </div>
 
-          ${data.status !== 'paid' && data.paymentStatus !== 'paid' ? `
-            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
-              <strong>⚠️ K zaplacení</strong><br>
-              Prosím uhraď fakturu do ${new Date(data.dueDate).toLocaleDateString('cs-CZ')}.
-            </div>
-          ` : `
+          ${data.paymentMethod === 'card' || data.paymentMethod === 'transfer' || data.status === 'paid' || data.paymentStatus === 'paid' ? `
             <div style="background: #d1fae5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4ade80;">
               <strong>✓ Zaplaceno</strong><br>
-              Platba byla přijata. Děkujeme!
+              Platba byla úspěšně přijata. Děkujeme!
+            </div>
+          ` : `
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+              <strong>ℹ️ Platba na dobírku</strong><br>
+              Objednávku zaplatíš při převzetí.
             </div>
           `}
 
-          <p>Fakturu najdeš také v našem systému nebo si ji můžeš vytisknout z tohoto emailu.</p>
-          
-          <a href="${process.env.NEXT_PUBLIC_URL}/admin/trzby" class="button">Zobrazit v systému</a>
+          <p>Tuto fakturu si můžeš vytisknout nebo uschovat pro své záznamy.</p>
           
           <p>Pokud máš jakékoliv dotazy, neváhej nás kontaktovat.</p>
           <p>S láskou,<br>Tým Monlii ❤️</p>
