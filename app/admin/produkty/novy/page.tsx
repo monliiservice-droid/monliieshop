@@ -114,15 +114,19 @@ export default function NewProductPage() {
         }
       }
       
-      // Pro sety vypočítat nejnižší cenu z konfigurace
-      let finalPrice = parseFloat(formData.price) || 0
+      // Pro sety ignorovat základní cenu a použít pouze cenu z variant
+      let finalPrice = 0
       if (formData.category === 'Set') {
+        // U setů se bere pouze cena z konfigurace variant
         finalPrice = Math.min(
           setConfig.prices.braletteWithGarters || Infinity,
           setConfig.prices.braletteWithoutGarters || Infinity,
           setConfig.prices.wiredWithGarters || Infinity,
           setConfig.prices.wiredWithoutGarters || Infinity
         )
+      } else {
+        // U běžných produktů se bere cena z formuláře
+        finalPrice = parseFloat(formData.price) || 0
       }
       
       const response = await fetch('/api/admin/products', {
