@@ -175,6 +175,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       // Pro sety ignorovat základní cenu a použít pouze cenu z variant
       let finalPrice = 0
       if (formData.category === 'Set') {
+        // Debug: Vypsat všechny ceny
+        console.log('🔍 SetConfig před uložením:', JSON.stringify(setConfig, null, 2))
+        
         // U setů se bere pouze cena z konfigurace variant
         // Filtrovat pouze nenulové ceny
         const validPrices = [
@@ -184,8 +187,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           setConfig.prices.wiredWithoutGarters
         ].filter(price => price && price > 0)
         
+        console.log('✅ Validní ceny:', validPrices)
+        
         if (validPrices.length > 0) {
           finalPrice = Math.min(...validPrices)
+          console.log('💰 Vypočítaná finalPrice:', finalPrice)
         } else {
           alert('Musíte nastavit alespoň jednu cenu pro varianty setu!')
           throw new Error('Žádné ceny nastavené pro set')
