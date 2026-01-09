@@ -29,7 +29,7 @@ export function CookieConsent() {
   if (!showBanner) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6 animate-fade-in">
+    <div className="fixed bottom-0 left-0 right-0 z-30 p-4 md:p-6 animate-fade-in">
       <div className="container max-w-6xl mx-auto">
         <div className="bg-white rounded-3xl shadow-2xl border border-gray-200 p-6 md:p-8 relative">
           {/* Close Button */}
