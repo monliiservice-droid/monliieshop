@@ -23,6 +23,14 @@ export async function GET(
       )
     }
 
+    // Debug: Vypsat co se vrací z databáze
+    console.log('📖 [GET API] Načítání produktu:', product.name)
+    console.log('💰 [GET API] Price z databáze:', product.price)
+    console.log('📦 [GET API] IsSet:', product.isSet)
+    if (product.isSet) {
+      console.log('⚙️ [GET API] SetOptions:', product.setOptions)
+    }
+
     return NextResponse.json(product)
   } catch (error) {
     console.error('Error fetching product:', error)
