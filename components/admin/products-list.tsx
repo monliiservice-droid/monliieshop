@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Edit, Trash2, GripVertical } from 'lucide-react'
 import Link from 'next/link'
 import { DeleteProductButton } from '@/components/admin/delete-product-button'
+import { getDisplayPrice } from '@/lib/set-config-types'
 
 interface Product {
   id: string
@@ -22,6 +23,8 @@ interface Product {
   stock: number
   category: string | null
   sortOrder: number
+  isSet?: boolean
+  setOptions?: string
 }
 
 interface ProductsListProps {
@@ -106,20 +109,26 @@ export function ProductsList({ initialProducts }: ProductsListProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {products.map((product) => (
-            <TableRow
-              key={product.id}
-              draggable
-              onDragStart={(e) => handleDragStart(e, product.id)}
-              onDragOver={(e) => handleDragOver(e, product.id)}
-              onDragEnd={handleDragEnd}
-              className={`cursor-move ${draggingId === product.id ? 'opacity-50' : ''}`}
-            >
-              <TableCell>
-                <GripVertical className="h-5 w-5 text-gray-400" />
-              </TableCell>
-              <TableCell className="font-medium">{product.name}</TableCell>
-              <TableCell>{product.price} Kč</TableCell>
+          {products.map((product) => {
+            // Vypočítat zobrazovací cenu (pro sety použít nejnižší cenu z variant)
+            const displayPrice = product.isSet && product.setOptions
+              ? getDisplayPrice(JSON.parse(product.setOptions))
+              : product.price
+            
+            return (
+              <TableRow
+                key={product.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, product.id)}
+                onDragOver={(e) => handleDragOver(e, product.id)}
+                onDragEnd={handleDragEnd}
+                className={`cursor-move ${draggingId === product.id ? 'opacity-50' : ''}`}
+              >
+                <TableCell>
+                  <GripVertical className="h-5 w-5 text-gray-400" />
+                </TableCell>
+                <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell>{displayPrice} Kč</TableCell>
               <TableCell>{product.stock}</TableCell>
               <TableCell>
                 {product.category && (
@@ -144,7 +153,8 @@ export function ProductsList({ initialProducts }: ProductsListProps) {
                 <DeleteProductButton productId={product.id} productName={product.name} />
               </TableCell>
             </TableRow>
-          ))}
+            )
+          })}
         </TableBody>
       </Table>
     </div>
