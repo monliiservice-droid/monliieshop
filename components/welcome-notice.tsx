@@ -76,7 +76,7 @@ export function WelcomeNotice() {
               <div className="space-y-3">
                 {/* Instagram */}
                 <a 
-                  href="https://www.instagram.com/monlii.cz" 
+                  href="https://www.instagram.com/monlii_i/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 p-4 bg-gradient-to-r from-pink-50 to-purple-50 hover:from-pink-100 hover:to-purple-100 rounded-xl transition-all duration-300 border border-pink-200/50 group"
@@ -86,14 +86,14 @@ export function WelcomeNotice() {
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900">Napište nám na Instagramu</p>
-                    <p className="text-sm text-gray-600">@monlii.cz</p>
+                    <p className="text-sm text-gray-600">@monlii_i</p>
                   </div>
                   <ExternalLink className="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
                 </a>
 
                 {/* Telefon */}
                 <a 
-                  href="tel:+420123456789" 
+                  href="tel:+420777014753" 
                   className="flex items-center gap-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 rounded-xl transition-all duration-300 border border-green-200/50 group"
                 >
                   <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -101,7 +101,7 @@ export function WelcomeNotice() {
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900">Zavolejte nám</p>
-                    <p className="text-sm text-gray-600">+420 123 456 789</p>
+                    <p className="text-sm text-gray-600">+420 777 014 753</p>
                   </div>
                 </a>
 
