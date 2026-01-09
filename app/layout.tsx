@@ -16,6 +16,13 @@ export const metadata: Metadata = {
   description: "Objevte krásné a pohodlné spodní prádlo, které šije zkušená švadlena. Každý kousek je unikátní a podporuje rodinnou výrobu a české ruční řemeslo.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'),
   manifest: '/site.webmanifest',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png' }
+    ],
+    apple: '/apple-icon.png',
+  },
   openGraph: {
     title: "Monlii | Jedinečné spodní prádlo",
     description: "Objevte krásné a pohodlné spodní prádlo, které šije zkušená švadlena.",
@@ -31,11 +38,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="cs">
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/icon.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-      </head>
       <body
         className={`${lora.variable} font-serif antialiased`}
       >
