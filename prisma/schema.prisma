@@ -21,6 +21,8 @@ model Product {
   category    String?
   isSet       Boolean  @default(false) // Označení zda je produkt set
   setOptions  String?  @default("{}") // JSON konfigurace pro sety (podvazky, typ podprsenky, ceny)
+  colors      String?  @default("[]") // JSON array barev: [{name: "Černá", hex: "#000000"}]
+  sortOrder   Int      @default(0) // Pořadí produktu (menší číslo = vyšší v seznamu)
   variants    ProductVariant[]
   orderItems  OrderItem[]
   createdAt   DateTime @default(now())

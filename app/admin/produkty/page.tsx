@@ -1,18 +1,9 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Plus, Edit, Trash2 } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
-import { DeleteProductButton } from '@/components/admin/delete-product-button'
+import { ProductsList } from '@/components/admin/products-list'
 
 // Force dynamic rendering - don't cache this page
 export const dynamic = 'force-dynamic'
@@ -21,8 +12,17 @@ export const revalidate = 0
 async function getProducts() {
   try {
     const products = await prisma.product.findMany({
-      orderBy: {
-        createdAt: 'desc'
+      orderBy: [
+        { sortOrder: 'asc' },
+        { createdAt: 'desc' }
+      ],
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        stock: true,
+        category: true,
+        sortOrder: true
       }
     })
     return products
@@ -66,45 +66,7 @@ export default async function ProductsPage() {
               </Link>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Název</TableHead>
-                  <TableHead>Cena</TableHead>
-                  <TableHead>Sklad</TableHead>
-                  <TableHead>Kategorie</TableHead>
-                  <TableHead>Stav</TableHead>
-                  <TableHead className="text-right">Akce</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{product.price} Kč</TableCell>
-                    <TableCell>{product.stock} ks</TableCell>
-                    <TableCell>{product.category || '-'}</TableCell>
-                    <TableCell>
-                      {product.stock > 0 ? (
-                        <Badge variant="default" className="bg-green-500">Skladem</Badge>
-                      ) : (
-                        <Badge variant="destructive">Vyprodáno</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end space-x-2">
-                        <Link href={`/admin/produkty/${product.id}`}>
-                          <Button variant="ghost" size="sm">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <DeleteProductButton productId={product.id} productName={product.name} />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <ProductsList initialProducts={products} />
           )}
         </CardContent>
       </Card>

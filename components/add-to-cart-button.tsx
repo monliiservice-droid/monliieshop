@@ -25,6 +25,7 @@ interface AddToCartButtonProps {
     category: string | null
     isSet?: boolean
     setOptions?: string
+    colors?: string
   }
   variants: ProductVariant[]
   hasBra?: boolean
@@ -38,6 +39,7 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
   const [showToast, setShowToast] = useState(false)
   const [selectedBraType, setSelectedBraType] = useState<'bralette' | 'wired'>('bralette')
   const [selectedGarters, setSelectedGarters] = useState<boolean>(false)
+  const [selectedColor, setSelectedColor] = useState<string>('')
 
   const images = JSON.parse(product.images)
   
@@ -45,6 +47,18 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
   const setConfig: SetConfiguration | null = product.isSet && product.setOptions 
     ? JSON.parse(product.setOptions)
     : null
+  
+  // Zpracovat barvy produktu
+  const productColors: Array<{name: string, hex: string}> = product.colors 
+    ? JSON.parse(product.colors)
+    : []
+  
+  // Nastavit výchozí barvu
+  React.useEffect(() => {
+    if (productColors.length > 0 && !selectedColor) {
+      setSelectedColor(productColors[0].name)
+    }
+  }, [productColors, selectedColor])
   
   // Získat konfiguraci velikostí podle kategorie produktu
   const sizeConfig = product.category 
@@ -78,6 +92,11 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
 
   const handleAddToCart = () => {
     // Validace
+    if (productColors.length > 0 && !selectedColor) {
+      alert('Prosím vyberte barvu')
+      return
+    }
+    
     if (sizeConfig.fields.length > 0 && !allSizesSelected) {
       alert('Prosím vyberte všechny velikosti')
       return
@@ -99,6 +118,12 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
 
     // Příprava dat do košíku
     let fullDescription = sizeDescription
+    
+    // Přidat barvu do popisu
+    if (selectedColor) {
+      fullDescription = fullDescription ? `Barva: ${selectedColor} | ${fullDescription}` : `Barva: ${selectedColor}`
+    }
+    
     if (setConfig) {
       const setDetails = []
       if (setConfig.braType === 'both') {
@@ -108,7 +133,12 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
         setDetails.push(selectedGarters ? 'S podvazky' : 'Bez podvazků')
       }
       if (setDetails.length > 0) {
-        fullDescription = setDetails.join(', ') + (sizeDescription ? ' | ' + sizeDescription : '')
+        const setDescription = setDetails.join(', ')
+        if (selectedColor) {
+          fullDescription = `Barva: ${selectedColor} | ${setDescription}` + (sizeDescription ? ' | ' + sizeDescription : '')
+        } else {
+          fullDescription = setDescription + (sizeDescription ? ' | ' + sizeDescription : '')
+        }
       }
     }
 
@@ -159,6 +189,38 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
               <p className="font-bold">Přidáno do košíku!</p>
               <p className="text-sm opacity-90">{product.name}</p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Výběr barvy produktu */}
+      {productColors.length > 0 && (
+        <div className="space-y-2 pb-4 border-b border-gray-200">
+          <label className="block text-xs font-semibold mb-2 text-gray-700">
+            Barva <span className="text-red-500">*</span>
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {productColors.map((color) => (
+              <button
+                key={color.name}
+                type="button"
+                onClick={() => setSelectedColor(color.name)}
+                className={`
+                  flex items-center gap-2 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all duration-200
+                  ${
+                    selectedColor === color.name
+                      ? 'border-[#931e31] bg-[#931e31] text-white shadow-sm'
+                      : 'border-gray-300 hover:border-[#931e31] hover:bg-pink-50'
+                  }
+                `}
+              >
+                <div
+                  className="w-5 h-5 rounded-full border-2 border-white shadow-sm"
+                  style={{ backgroundColor: color.hex }}
+                />
+                <span>{color.name}</span>
+              </button>
+            ))}
           </div>
         </div>
       )}

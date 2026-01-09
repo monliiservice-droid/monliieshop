@@ -158,7 +158,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     images: product.images,
                     category: product.category,
                     isSet: product.isSet,
-                    setOptions: product.setOptions
+                    setOptions: product.setOptions,
+                    colors: product.colors
                   }}
                   variants={product.variants}
                   hasBra={hasBra}

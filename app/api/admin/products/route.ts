@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { name, description, price, stock, category, images, isSet, setOptions } = body
+    const { name, description, price, stock, category, images, isSet, setOptions, colors, sortOrder } = body
 
     const product = await prisma.product.create({
       data: {
@@ -16,7 +16,9 @@ export async function POST(request: Request) {
         category,
         images: images || '[]',
         isSet: isSet || false,
-        setOptions: setOptions || '{}'
+        setOptions: setOptions || '{}',
+        colors: colors || '[]',
+        sortOrder: sortOrder !== undefined ? sortOrder : 0
       }
     })
 
@@ -33,9 +35,10 @@ export async function POST(request: Request) {
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
-      orderBy: {
-        createdAt: 'desc'
-      }
+      orderBy: [
+        { sortOrder: 'asc' },
+        { createdAt: 'desc' }
+      ]
     })
     return NextResponse.json(products)
   } catch (error) {

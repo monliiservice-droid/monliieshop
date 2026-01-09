@@ -30,6 +30,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [existingImages, setExistingImages] = useState<string[]>([])
   const [setConfig, setSetConfig] = useState<SetConfiguration>(DEFAULT_SET_CONFIG)
+  const [colors, setColors] = useState<Array<{name: string, hex: string}>>([])
+  const [newColorName, setNewColorName] = useState('')
+  const [newColorHex, setNewColorHex] = useState('#000000')
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -49,6 +52,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           })
           const images = JSON.parse(product.images)
           setExistingImages(images)
+          
+          // Načíst barvy produktu, pokud existují
+          if (product.colors) {
+            try {
+              const productColors = JSON.parse(product.colors)
+              setColors(productColors)
+            } catch (e) {
+              console.error('Error parsing colors:', e)
+              setColors([])
+            }
+          }
           
           // Načíst konfiguraci setu, pokud existuje
           if (product.isSet && product.setOptions) {
@@ -180,7 +194,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           stock: parseInt(formData.stock),
           images: JSON.stringify(imageUrls),
           isSet: formData.category === 'Set',
-          setOptions: formData.category === 'Set' ? JSON.stringify(setConfig) : '{}'
+          setOptions: formData.category === 'Set' ? JSON.stringify(setConfig) : '{}',
+          colors: JSON.stringify(colors)
         }),
       })
 
@@ -498,6 +513,89 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 </CardContent>
               </Card>
             )}
+
+            {/* Barvy produktu */}
+            <Card className="border-2 border-purple-200 bg-purple-50">
+              <CardHeader>
+                <CardTitle className="text-lg">Barvy produktu</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="colorName">Název barvy</Label>
+                    <Input
+                      id="colorName"
+                      value={newColorName}
+                      onChange={(e) => setNewColorName(e.target.value)}
+                      placeholder="Černá"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="colorHex">Barva (hex)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="colorHex"
+                        type="color"
+                        value={newColorHex}
+                        onChange={(e) => setNewColorHex(e.target.value)}
+                        className="w-20 h-10"
+                      />
+                      <Input
+                        value={newColorHex}
+                        onChange={(e) => setNewColorHex(e.target.value)}
+                        placeholder="#000000"
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-end">
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (newColorName.trim()) {
+                          setColors([...colors, { name: newColorName, hex: newColorHex }])
+                          setNewColorName('')
+                          setNewColorHex('#000000')
+                        }
+                      }}
+                      className="w-full"
+                    >
+                      Přidat barvu
+                    </Button>
+                  </div>
+                </div>
+
+                {colors.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>Přidané barvy</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {colors.map((color, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border"
+                        >
+                          <div
+                            className="w-6 h-6 rounded border border-gray-300"
+                            style={{ backgroundColor: color.hex }}
+                          />
+                          <span className="text-sm">{color.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setColors(colors.filter((_, i) => i !== index))}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <p className="text-xs text-gray-600">
+                  Pokud produkt nemá více barev, nechte tuto sekci prázdnou. Pokud má více barev, přidejte je zde.
+                </p>
+              </CardContent>
+            </Card>
 
             <div className="space-y-2">
               <Label>Obrázky produktu</Label>
