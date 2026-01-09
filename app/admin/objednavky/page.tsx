@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Eye, CheckCircle, XCircle, Package, Truck, Home, X } from 'lucide-react'
+import { Eye, CheckCircle, XCircle, Package, Truck, Home, X, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 
 interface Order {
@@ -97,6 +97,30 @@ export default function OrdersPage() {
     } catch (error) {
       console.error('Error changing status:', error)
       alert('Chyba při změně stavu objednávky')
+    }
+  }
+
+  const handleDeleteOrder = async (orderId: string, orderNumber: string) => {
+    if (!confirm(`Opravdu chcete smazat objednávku ${orderNumber}? Tato akce je nevratná.`)) {
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'DELETE'
+      })
+
+      if (res.ok) {
+        alert('Objednávka byla úspěšně smazána')
+        setShowDetail(false)
+        setSelectedOrder(null)
+        await fetchOrders()
+      } else {
+        alert('Chyba při mazání objednávky')
+      }
+    } catch (error) {
+      console.error('Error deleting order:', error)
+      alert('Chyba při mazání objednávky')
     }
   }
 
@@ -344,6 +368,21 @@ export default function OrdersPage() {
               {/* Datum vytvoření */}
               <div className="text-sm text-gray-600">
                 <p>Vytvořeno: {format(new Date(selectedOrder.createdAt), 'dd.MM.yyyy HH:mm')}</p>
+              </div>
+
+              {/* Tlačítko smazat */}
+              <div className="pt-4 border-t">
+                <Button
+                  onClick={() => handleDeleteOrder(selectedOrder.id, selectedOrder.orderNumber)}
+                  variant="destructive"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Smazat objednávku
+                </Button>
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  Tato akce je nevratná a smaže objednávku včetně všech položek
+                </p>
               </div>
             </div>
           </div>
