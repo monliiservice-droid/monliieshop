@@ -37,8 +37,6 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
   const [showToast, setShowToast] = useState(false)
-  const [selectedBraType, setSelectedBraType] = useState<'bralette' | 'wired'>('bralette')
-  const [selectedGarters, setSelectedGarters] = useState<boolean>(false)
   const [selectedColor, setSelectedColor] = useState<string>('')
 
   const images = JSON.parse(product.images)
@@ -47,6 +45,11 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
   const setConfig: SetConfiguration | null = product.isSet && product.setOptions 
     ? JSON.parse(product.setOptions)
     : null
+  
+  // Nastavit výchozí braType podle setConfig (pokud je jen jedna možnost, použít tu)
+  const initialBraType = setConfig?.braType === 'both' ? 'bralette' : (setConfig?.braType || 'bralette')
+  const [selectedBraType, setSelectedBraType] = useState<'bralette' | 'wired'>(initialBraType)
+  const [selectedGarters, setSelectedGarters] = useState<boolean>(false)
   
   // Zpracovat barvy produktu
   const productColors: Array<{name: string, hex: string}> = product.colors 
