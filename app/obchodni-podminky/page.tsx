@@ -3,8 +3,15 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 export const metadata = {
-  title: 'Obchodní podmínky | Monlii',
-  description: 'Obchodní podmínky pro Monlii e-shop',
+  title: 'Obchodní podmínky | Monlii - VOP e-shopu',
+  description: 'Všeobecné obchodní podmínky pro nákup v Monlii e-shopu. Informace o objednávání, platbě, dopravě a odstoupení od smlouvy.',
+  keywords: ['obchodní podmínky monlii', 'VOP', 'podmínky nákupu', 'odstoupení od smlouvy', 'nákupní podmínky'],
+  openGraph: {
+    title: 'Obchodní podmínky | Monlii',
+    description: 'Všeobecné obchodní podmínky pro nákup v Monlii e-shopu.',
+    url: '/obchodni-podminky',
+    images: ['/story_4.jpg'],
+  },
 }
 
 export default function TermsPage() {

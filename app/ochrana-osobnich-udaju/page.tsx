@@ -3,8 +3,15 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 export const metadata = {
-  title: 'Ochrana osobních údajů | Monlii',
-  description: 'Zásady ochrany osobních údajů pro Monlii e-shop',
+  title: 'Ochrana osobních údajů | Monlii - GDPR a soukromí',
+  description: 'Informace o zpracování a ochraně vašich osobních údajů v souladu s GDPR. Zjistěte, jak nakládáme s vašimi daty při nákupu v Monlii e-shopu.',
+  keywords: ['ochrana osobních údajů', 'GDPR', 'zpracování údajů', 'soukromí', 'cookies'],
+  openGraph: {
+    title: 'Ochrana osobních údajů | Monlii',
+    description: 'Informace o zpracování a ochraně vašich osobních údajů v souladu s GDPR.',
+    url: '/ochrana-osobnich-udaju',
+    images: ['/story_4.jpg'],
+  },
 }
 
 export default function PrivacyPolicyPage() {

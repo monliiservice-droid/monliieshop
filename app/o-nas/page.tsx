@@ -2,6 +2,19 @@ import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
 import { Heart, Scissors, Sparkles, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'O nás | Monlii - Náš příběh a tradice',
+  description: 'Seznamte se s naším příběhem. Jsme rodinná švadlenská dílna, která s láskou vytváří jedinečné spodní prádlo. Každý kousek je vyroben s péčí a podporuje českou ruční výrobu.',
+  keywords: ['o monlii', 'švadlenská dílna', 'rodinná výroba prádla', 'český výrobce prádla', 'ruční šití', 'příběh značky'],
+  openGraph: {
+    title: 'O nás | Monlii - Náš příběh a tradice',
+    description: 'Seznamte se s naším příběhem. Jsme rodinná švadlenská dílna, která s láskou vytváří jedinečné spodní prádlo.',
+    url: '/o-nas',
+    images: ['/story_4.jpg'],
+  },
+}
 
 export default function AboutPage() {
   return (

@@ -3,8 +3,15 @@ import Link from 'next/link'
 import { ArrowLeft, Package, CreditCard, Truck } from 'lucide-react'
 
 export const metadata = {
-  title: 'Doprava a platba | Monlii',
-  description: 'Informace o dopravě a platbě pro Monlii e-shop',
+  title: 'Doprava a platba | Monlii - Informace o doručení',
+  description: 'Doprava zdarma při nákupu nad 2500 Kč. Doručení na výdejní místa Zásilkovny nebo Česká pošta. Platba kartou, převodem nebo na dobírku.',
+  keywords: ['doprava monlii', 'doprava zdarma', 'zásilkovna', 'česká pošta', 'platba kartou', 'dobírka'],
+  openGraph: {
+    title: 'Doprava a platba | Monlii',
+    description: 'Doprava zdarma při nákupu nad 2500 Kč. Doručení na výdejní místa nebo poštou.',
+    url: '/doprava',
+    images: ['/story_4.jpg'],
+  },
 }
 
 export default function ShippingPage() {

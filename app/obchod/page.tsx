@@ -2,10 +2,23 @@ import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
 import { prisma } from '@/lib/prisma'
 import { ProductsGrid } from '@/components/products-grid'
+import { Metadata } from 'next'
 
 // Force dynamic rendering - don't cache this page
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+
+export const metadata: Metadata = {
+  title: 'Obchod | Monlii - Ručně šité spodní prádlo',
+  description: 'Prozkoumejte naši kolekci ručně šitého dámského prádla. Podprsenky, braletky, kalhotky a luxusní sety vyrobené s láskou v České republice.',
+  keywords: ['obchod spodní prádlo', 'koupit podprsenku', 'luxusní prádlo eshop', 'české prádlo prodej', 'braletky prodej', 'dámské kalhotky'],
+  openGraph: {
+    title: 'Obchod | Monlii - Ručně šité spodní prádlo',
+    description: 'Prozkoumejte naši kolekci ručně šitého dámského prádla. Podprsenky, braletky, kalhotky a luxusní sety vyrobené s láskou v České republice.',
+    url: '/obchod',
+    images: ['/story_4.jpg'],
+  },
+}
 
 async function getProducts() {
   try {

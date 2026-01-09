@@ -3,8 +3,15 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 export const metadata = {
-  title: 'Reklamační řád | Monlii',
-  description: 'Reklamační řád pro Monlii e-shop',
+  title: 'Reklamační řád | Monlii - Podmínky reklamace',
+  description: 'Kompletní reklamační řád pro produkty z Monlii e-shopu. Informace o záruce, postupu při reklamaci a vašich právech jako spotřebitele.',
+  keywords: ['reklamace monlii', 'reklamační řád', 'záruka', 'vrácení zboží', 'výměna produktu'],
+  openGraph: {
+    title: 'Reklamační řád | Monlii',
+    description: 'Informace o reklamacích a záruce produktů Monlii.',
+    url: '/reklamace',
+    images: ['/story_4.jpg'],
+  },
 }
 
 export default function ComplaintsPage() {
