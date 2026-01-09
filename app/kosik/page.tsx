@@ -1,6 +1,5 @@
 'use client'
 
-import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -151,7 +150,6 @@ export default function CartPage() {
   if (!isLoaded) {
     return (
       <>
-        <Navbar />
         <main className="min-h-screen bg-white flex items-center justify-center">
           <p>Načítání košíku...</p>
         </main>
@@ -162,7 +160,6 @@ export default function CartPage() {
 
   return (
     <>
-      <Navbar />
       <main className="min-h-screen bg-gradient-to-b from-white via-pink-50/10 to-white">
         <section className="py-16">
           <div className="container max-w-7xl">
