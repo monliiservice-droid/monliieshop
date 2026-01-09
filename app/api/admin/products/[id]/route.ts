@@ -44,6 +44,14 @@ export async function PUT(
     const body = await request.json()
     const { name, description, price, stock, category, images, isSet, setOptions, colors, sortOrder } = body
 
+    // Debug: Vypsat co přišlo z frontendu
+    console.log('🔧 [API] Ukládání produktu:', name)
+    console.log('💰 [API] Price z frontendu:', price)
+    console.log('📦 [API] IsSet:', isSet)
+    if (isSet) {
+      console.log('⚙️ [API] SetOptions:', setOptions)
+    }
+
     const product = await prisma.product.update({
       where: { id },
       data: {
@@ -60,6 +68,8 @@ export async function PUT(
         updatedAt: new Date()
       }
     })
+
+    console.log('✅ [API] Produkt uložen s price:', product.price)
 
     return NextResponse.json(product)
   } catch (error) {
