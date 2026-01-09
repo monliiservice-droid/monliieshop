@@ -10,6 +10,10 @@ interface OrderData {
   items: any[]
   totalAmount: number
   discountAmount: number
+  shippingCost?: number
+  codFee?: number
+  shippingMethod?: string
+  paymentMethod?: string
 }
 
 /**
@@ -56,6 +60,29 @@ export async function createInvoiceForOrder(order: OrderData) {
       quantity: item.quantity,
       price: item.price
     }))
+    
+    // Přidáme dopravné jako položku (pokud není 0)
+    if (order.shippingCost && order.shippingCost > 0) {
+      const shippingMethodNames: Record<string, string> = {
+        'zasilkovna_pickup': 'Doprava - Zásilkovna (výdejní místo)',
+        'zasilkovna_home': 'Doprava - Zásilkovna (doručení domů)',
+        'personal': 'Osobní odběr'
+      }
+      invoiceItems.push({
+        name: shippingMethodNames[order.shippingMethod || ''] || 'Doprava',
+        quantity: 1,
+        price: order.shippingCost
+      })
+    }
+    
+    // Přidáme poplatek za dobírku (pokud není 0)
+    if (order.codFee && order.codFee > 0) {
+      invoiceItems.push({
+        name: 'Poplatek za dobírku',
+        quantity: 1,
+        price: order.codFee
+      })
+    }
 
     // Vypočítáme částky
     const totalWithDiscount = order.totalAmount

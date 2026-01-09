@@ -108,7 +108,11 @@ export async function PATCH(
               price: item.price
             })),
             totalAmount: order.totalAmount,
-            discountAmount: order.discountAmount
+            discountAmount: order.discountAmount,
+            shippingCost: (order as any).shippingCost || 0,
+            codFee: (order as any).codFee || 0,
+            shippingMethod: order.shippingMethod,
+            paymentMethod: order.paymentMethod
           })
           
           // Pokud je objednávka už zaplacená, označ fakturu jako zaplacenou

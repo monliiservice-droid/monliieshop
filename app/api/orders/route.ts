@@ -57,6 +57,8 @@ export async function POST(request: NextRequest) {
           shippingMethod: data.shipping.method || 'zasilkovna_pickup',
           paymentMethod: data.payment.method || 'card',
           totalAmount: parseFloat(data.totalPrice) || 0,
+          shippingCost: parseFloat(data.shipping.price) || 0,
+          codFee: parseFloat(data.payment.fee) || 0,
           status: 'new',
           items: {
             create: data.items.map((item: any) => ({

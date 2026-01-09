@@ -1,6 +1,5 @@
 'use client'
 
-import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -62,7 +61,6 @@ export default function OrderSummaryPage() {
   if (!orderData) {
     return (
       <>
-        <Navbar />
         <main className="min-h-screen flex items-center justify-center">
           <p>Načítání...</p>
         </main>
@@ -99,7 +97,6 @@ export default function OrderSummaryPage() {
 
   return (
     <>
-      <Navbar />
       <main className="min-h-screen bg-gradient-to-b from-white via-pink-50/10 to-white">
         <section className="py-16">
           <div className="container max-w-4xl">

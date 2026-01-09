@@ -251,9 +251,30 @@ export default function OrdersPage() {
                     </Badge>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-2">Platba:</p>
-                    <Badge className={selectedOrder.paymentStatus === 'paid' ? 'bg-green-500 text-white px-4 py-2' : 'bg-yellow-500 text-white px-4 py-2'}>
-                      {selectedOrder.paymentStatus === 'paid' ? 'Zaplaceno' : 'Čeká na platbu'}
+                    <p className="text-sm text-gray-600 mb-2">Způsob platby:</p>
+                    <Badge className={selectedOrder.paymentStatus === 'paid' ? 'bg-green-500 text-white px-4 py-2' : 'bg-blue-500 text-white px-4 py-2'}>
+                      {(() => {
+                        const paymentMethods: Record<string, string> = {
+                          'card': 'Platba kartou',
+                          'transfer': 'Bankovní převod',
+                          'cod': 'Dobírka'
+                        }
+                        return paymentMethods[selectedOrder.paymentMethod] || selectedOrder.paymentMethod
+                      })()}
+                      {selectedOrder.paymentStatus === 'paid' && ' ✓'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2">Způsob dopravy:</p>
+                    <Badge className="bg-purple-500 text-white px-4 py-2">
+                      {(() => {
+                        const shippingMethods: Record<string, string> = {
+                          'zasilkovna_pickup': 'Zásilkovna - Výdejní místo',
+                          'zasilkovna_home': 'Zásilkovna - Doručení domů',
+                          'personal': 'Osobní odběr'
+                        }
+                        return shippingMethods[selectedOrder.shippingMethod] || selectedOrder.shippingMethod
+                      })()}
                     </Badge>
                   </div>
                 </div>
