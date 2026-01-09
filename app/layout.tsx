@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { CookieConsent } from "@/components/cookie-consent";
+import { WelcomeNotice } from "@/components/welcome-notice";
 
 const lora = Lora({
   subsets: ["latin", "latin-ext"],
@@ -77,6 +78,7 @@ export default function RootLayout({
       >
         {children}
         <CookieConsent />
+        <WelcomeNotice />
       </body>
     </html>
   );
