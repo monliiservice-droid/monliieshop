@@ -327,6 +327,40 @@ export default function OrdersPage() {
                       })()}
                     </p>
                   </div>
+                  {(() => {
+                    try {
+                      const addr = JSON.parse(selectedOrder.shippingAddress)
+                      const shippingMethod = (selectedOrder as any).shippingMethod
+                      
+                      // Výdejní místo Zásilkovny
+                      if (shippingMethod === 'zasilkovna_pickup' && addr.shippingDetails?.pickupPoint) {
+                        const pp = addr.shippingDetails.pickupPoint
+                        return (
+                          <div className="col-span-2">
+                            <p className="text-gray-600">Výdejní místo Zásilkovna</p>
+                            <p className="font-semibold">
+                              {pp.name}<br />
+                              {pp.street}, {pp.zip} {pp.city}
+                            </p>
+                          </div>
+                        )
+                      }
+                      
+                      // Osobní odběr
+                      if (shippingMethod === 'personal' && addr.shippingDetails?.personalLocation) {
+                        return (
+                          <div className="col-span-2">
+                            <p className="text-gray-600">Místo osobního odběru</p>
+                            <p className="font-semibold">{addr.shippingDetails.personalLocation}</p>
+                          </div>
+                        )
+                      }
+                      
+                      return null
+                    } catch {
+                      return null
+                    }
+                  })()}
                   {selectedOrder.trackingNumber && (
                     <div className="col-span-2">
                       <p className="text-gray-600">Sledovací číslo</p>
