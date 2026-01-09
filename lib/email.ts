@@ -361,12 +361,12 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
               
               <p>Tvoje recenze nám moc pomůže a zároveň pomůžeš dalším zákaznicím se rozhodnout. 🌟</p>
               
-              <a href="https://g.page/r/YOUR_GOOGLE_REVIEW_LINK/review" class="button">Napsat recenzi na Google</a>
+              <a href="https://g.page/r/CR_YdQSCYSqbEBM/review" class="button">Napsat recenzi na Google</a>
               
               <div class="order-details">
                 <h3>Máme pro tebe speciální nabídku!</h3>
-                <p>Jako poděkování za tvou přízeň ti nabízíme <strong>15% slevu</strong> na další nákup.</p>
-                <p>Použij kód: <strong>REVIEW15</strong></p>
+                <p>Jako poděkování za tvou přízeň ti nabízíme <strong>5% slevu</strong> na další nákup.</p>
+                <p>Použij kód: <strong>RECENZE5</strong> (při nákupu nad 1000 Kč)</p>
                 <a href="${process.env.NEXT_PUBLIC_URL}/obchod" class="button">Nakoupit znovu</a>
               </div>
               
