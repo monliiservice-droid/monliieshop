@@ -118,12 +118,20 @@ export default function NewProductPage() {
       let finalPrice = 0
       if (formData.category === 'Set') {
         // U setů se bere pouze cena z konfigurace variant
-        finalPrice = Math.min(
-          setConfig.prices.braletteWithGarters || Infinity,
-          setConfig.prices.braletteWithoutGarters || Infinity,
-          setConfig.prices.wiredWithGarters || Infinity,
-          setConfig.prices.wiredWithoutGarters || Infinity
-        )
+        // Filtrovat pouze nenulové ceny
+        const validPrices = [
+          setConfig.prices.braletteWithGarters,
+          setConfig.prices.braletteWithoutGarters,
+          setConfig.prices.wiredWithGarters,
+          setConfig.prices.wiredWithoutGarters
+        ].filter(price => price && price > 0)
+        
+        if (validPrices.length > 0) {
+          finalPrice = Math.min(...validPrices)
+        } else {
+          alert('Musíte nastavit alespoň jednu cenu pro varianty setu!')
+          throw new Error('Žádné ceny nastavené pro set')
+        }
       } else {
         // U běžných produktů se bere cena z formuláře
         finalPrice = parseFloat(formData.price) || 0
