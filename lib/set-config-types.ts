@@ -26,23 +26,37 @@ export function getActivePrice(config: SetConfiguration, braType: 'bralette' | '
 }
 
 export function getDisplayPrice(config: SetConfiguration): number {
-  if (config.braType === 'both') {
-    const prices = [
-      config.prices.braletteWithGarters,
-      config.prices.braletteWithoutGarters,
-      config.prices.wiredWithGarters,
-      config.prices.wiredWithoutGarters
-    ].filter(p => p > 0)
-    return Math.min(...prices)
-  } else if (config.braType === 'bralette') {
+  // Získat všechny relevantní ceny podle konfigurace
+  const allPrices = []
+  
+  if (config.braType === 'both' || config.braType === 'bralette') {
     if (config.hasGartersOption) {
-      return Math.min(config.prices.braletteWithGarters, config.prices.braletteWithoutGarters)
+      allPrices.push(config.prices.braletteWithGarters)
+      allPrices.push(config.prices.braletteWithoutGarters)
+    } else {
+      // Když není možnost podvazků, použít obě varianty (admin může vyplnit kteroukoli)
+      allPrices.push(config.prices.braletteWithGarters)
+      allPrices.push(config.prices.braletteWithoutGarters)
     }
-    return config.prices.braletteWithGarters || config.prices.braletteWithoutGarters
-  } else {
-    if (config.hasGartersOption) {
-      return Math.min(config.prices.wiredWithGarters, config.prices.wiredWithoutGarters)
-    }
-    return config.prices.wiredWithGarters || config.prices.wiredWithoutGarters
   }
+  
+  if (config.braType === 'both' || config.braType === 'wired') {
+    if (config.hasGartersOption) {
+      allPrices.push(config.prices.wiredWithGarters)
+      allPrices.push(config.prices.wiredWithoutGarters)
+    } else {
+      // Když není možnost podvazků, použít obě varianty (admin může vyplnit kteroukoli)
+      allPrices.push(config.prices.wiredWithGarters)
+      allPrices.push(config.prices.wiredWithoutGarters)
+    }
+  }
+  
+  // Filtrovat pouze nenulové ceny a vzít minimum
+  const validPrices = allPrices.filter(p => p && p > 0)
+  
+  if (validPrices.length === 0) {
+    return 0
+  }
+  
+  return Math.min(...validPrices)
 }
