@@ -93,7 +93,7 @@ export function WelcomeNotice() {
 
                 {/* Telefon */}
                 <a 
-                  href="tel:+420777014753" 
+                  href="tel:+420735823160" 
                   className="flex items-center gap-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 rounded-xl transition-all duration-300 border border-green-200/50 group"
                 >
                   <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -101,25 +101,8 @@ export function WelcomeNotice() {
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900">Zavolejte nám</p>
-                    <p className="text-sm text-gray-600">+420 777 014 753</p>
+                    <p className="text-sm text-gray-600">+420 735 823 160</p>
                   </div>
-                </a>
-
-                {/* Starý eshop */}
-                <a 
-                  href="https://monlii.shop" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 rounded-xl transition-all duration-300 border border-blue-200/50 group"
-                >
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <ExternalLink className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900">Navštivte náš původní e-shop</p>
-                    <p className="text-sm text-gray-600">monlii.shop</p>
-                  </div>
-                  <ExternalLink className="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
                 </a>
               </div>
             </div>
