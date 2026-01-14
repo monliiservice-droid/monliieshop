@@ -228,7 +228,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         <ul className="space-y-2 text-gray-600">
                           <li>• Vysoce kvalitní materiály pro maximální pohodlí</li>
                           <li>• Ruční výroba s důrazem na detail</li>
-                          <li>• Praní v ruce v chladné vodě</li>
+                          <li>• Praní v ruce nebo maximálně na 30 stupňů</li>
                           <li>• Nesušit v sušičce</li>
                         </ul>
                       </div>
