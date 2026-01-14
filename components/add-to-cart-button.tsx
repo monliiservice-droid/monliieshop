@@ -378,7 +378,7 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
           <label className="block text-sm font-semibold mb-3">
             {field.label} <span className="text-red-500">*</span>
           </label>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
             {field.options.map((option) => {
               const displayLabel = SIZE_LABELS[option as keyof typeof SIZE_LABELS] || option
               const isSelected = selectedSizes[field.name] === option
@@ -392,7 +392,7 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
                     [field.name]: option
                   }))}
                   className={`
-                    py-3 px-4 rounded-xl border-2 font-semibold transition-all duration-300
+                    py-3 px-2 sm:px-4 rounded-xl border-2 font-semibold transition-all duration-300 text-xs sm:text-base
                     ${isSelected
                       ? 'border-[#931e31] bg-[#931e31] text-white shadow-md'
                       : 'border-gray-300 hover:border-[#931e31] hover:bg-pink-50'

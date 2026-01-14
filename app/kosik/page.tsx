@@ -209,12 +209,12 @@ export default function CartPage() {
                 {/* Cart items */}
                 <div className="lg:col-span-2 space-y-5">
                   {cartItems.map((item, index) => (
-                    <Card key={item.id} className="border-0 rounded-3xl soft-shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 animate-fade-in group bg-white" style={{animationDelay: `${index * 0.1}s`}}>
+                    <Card key={item.id} className="border-0 rounded-2xl md:rounded-3xl soft-shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 animate-fade-in group bg-white" style={{animationDelay: `${index * 0.1}s`}}>
                       <CardContent className="p-0">
-                        <div className="flex gap-0">
+                        <div className="flex flex-col sm:flex-row gap-0">
                           {/* Obrázek produktu */}
                           {item.image && (
-                            <div className="flex-shrink-0 w-36 lg:w-48 h-full bg-gradient-to-br from-pink-100 via-purple-50 to-pink-50 overflow-hidden relative group">
+                            <div className="flex-shrink-0 w-full sm:w-36 lg:w-48 h-48 sm:h-full bg-gradient-to-br from-pink-100 via-purple-50 to-pink-50 overflow-hidden relative group">
                               <img 
                                 src={item.image} 
                                 alt={item.name}
@@ -225,24 +225,24 @@ export default function CartPage() {
                           )}
                           
                           {/* Informace o produktu */}
-                          <div className="flex-1 p-6 lg:p-8">
-                            <div className="flex justify-between items-start mb-4">
-                              <div className="flex-1">
-                                <h3 className="text-2xl lg:text-3xl font-bold mb-3 group-hover:text-[#931e31] transition-colors duration-300">{item.name}</h3>
+                          <div className="flex-1 p-4 sm:p-6 lg:p-8">
+                            <div className="flex justify-between items-start mb-3 sm:mb-4">
+                              <div className="flex-1 pr-2">
+                                <h3 className="text-lg sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3 group-hover:text-[#931e31] transition-colors duration-300 leading-tight">{item.name}</h3>
                                 
                                 {/* Varianta (velikost) */}
                                 {item.variant && (
-                                  <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full border-2 border-pink-200 shadow-sm">
-                                    <span className="text-sm font-semibold text-gray-700">{item.variant.name}:</span>
-                                    <span className="text-sm font-bold text-[#931e31]">{item.variant.value}</span>
+                                  <div className="inline-flex items-center gap-1 sm:gap-2 mb-2 sm:mb-4 px-2 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full border-2 border-pink-200 shadow-sm">
+                                    <span className="text-xs sm:text-sm font-semibold text-gray-700">{item.variant.name}:</span>
+                                    <span className="text-xs sm:text-sm font-bold text-[#931e31] break-all">{item.variant.value}</span>
                                   </div>
                                 )}
                                 
                                 {/* Předplatné - měření */}
                                 {item.type === 'subscription' && item.measurements && (
-                                  <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-2xl border border-pink-200/50 mb-4 shadow-sm">
+                                  <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-pink-200/50 mb-2 sm:mb-4 shadow-sm">
                                     <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Vaše míry</h4>
-                                    <div className="grid grid-cols-1 gap-2 text-sm">
+                                    <div className="grid grid-cols-1 gap-1.5 sm:gap-2 text-xs sm:text-sm">
                                       <div className="flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-[#931e31]"></span>
                                         <span className="text-gray-600">Podprsenka:</span>
@@ -270,25 +270,25 @@ export default function CartPage() {
                                 onClick={() => removeFromCart(item.id)}
                                 variant="ghost"
                                 size="sm"
-                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-300 ml-4"
+                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-300 ml-2 flex-shrink-0"
                               >
-                                <Trash2 className="h-5 w-5" />
+                                <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                               </Button>
                             </div>
                             
                             {/* Spodní část - cena a množství */}
-                            <div className="flex items-end justify-between pt-4 border-t border-gray-100">
-                              <div className="flex items-center gap-6">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between pt-3 sm:pt-4 border-t border-gray-100 gap-3 sm:gap-0">
+                              <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
                                 {/* Ovládání množství */}
                                 {item.type !== 'subscription' && (
-                                  <div className="flex flex-col gap-2">
+                                  <div className="flex flex-col gap-1 sm:gap-2">
                                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Množství</span>
-                                    <div className="flex items-center border-2 border-gray-300 rounded-2xl overflow-hidden bg-white shadow-sm hover:border-[#931e31] transition-colors">
+                                    <div className="flex items-center border-2 border-gray-300 rounded-xl sm:rounded-2xl overflow-hidden bg-white shadow-sm hover:border-[#931e31] transition-colors">
                                       <button
                                         onClick={() => updateQuantity(item.id, (item.quantity || 1) - 1)}
-                                        className="p-3 hover:bg-pink-50 transition-colors"
+                                        className="p-2 sm:p-3 hover:bg-pink-50 transition-colors"
                                       >
-                                        <Minus className="h-4 w-4" />
+                                        <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
                                       </button>
                                       <input
                                         type="number"
@@ -298,29 +298,29 @@ export default function CartPage() {
                                           const newQty = parseInt(e.target.value) || 0
                                           updateQuantity(item.id, newQty)
                                         }}
-                                        className="w-16 px-2 text-center font-bold text-lg border-none focus:outline-none focus:ring-0"
+                                        className="w-12 sm:w-16 px-1 sm:px-2 text-center font-bold text-base sm:text-lg border-none focus:outline-none focus:ring-0"
                                       />
                                       <button
                                         onClick={() => updateQuantity(item.id, (item.quantity || 1) + 1)}
-                                        className="p-3 hover:bg-pink-50 transition-colors"
+                                        className="p-2 sm:p-3 hover:bg-pink-50 transition-colors"
                                       >
-                                        <Plus className="h-4 w-4" />
+                                        <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
                                       </button>
                                     </div>
                                   </div>
                                 )}
                                 
                                 {/* Cena za kus */}
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-1 sm:gap-2">
                                   <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Cena / ks</span>
-                                  <span className="text-lg font-bold text-gray-700">{item.price} Kč</span>
+                                  <span className="text-base sm:text-lg font-bold text-gray-700">{item.price} Kč</span>
                                 </div>
                               </div>
                               
                               {/* Celková cena */}
-                              <div className="flex flex-col items-end gap-2">
+                              <div className="flex flex-col items-end gap-1 sm:gap-2 w-full sm:w-auto">
                                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Celkem</span>
-                                <p className="text-4xl lg:text-5xl font-black bg-gradient-to-r from-[#931e31] via-[#b8263d] to-[#931e31] bg-clip-text text-transparent">
+                                <p className="text-2xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-[#931e31] via-[#b8263d] to-[#931e31] bg-clip-text text-transparent">
                                   {(item.price * (item.quantity || 1)).toFixed(0)} Kč
                                 </p>
                               </div>

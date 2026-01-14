@@ -5,7 +5,7 @@ import { Footer } from '@/components/footer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Check, Gift, Package, Heart, Sparkles } from 'lucide-react'
+import { Check, Gift, Package, Heart, Sparkles, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -19,6 +19,7 @@ export default function PredplatnePage() {
     group: '',
     pantiesSize: ''
   })
+  const [showToast, setShowToast] = useState(false)
 
   const scrollToForm = () => {
     setTimeout(() => {
@@ -83,8 +84,9 @@ export default function PredplatnePage() {
       // Dispatchnout custom event pro aktualizaci navbar
       window.dispatchEvent(new Event('cartUpdated'))
 
-      // Notifikace
-      alert(`✅ Předplatné ${selectedPlan} měsíců bylo přidáno do košíku!\n\nCena: ${getPrice(selectedPlan!)} Kč`)
+      // Zobrazení toast notifikace
+      setShowToast(true)
+      setTimeout(() => setShowToast(false), 3000)
       
       // Reset formuláře
       setSelectedPlan(null)
@@ -117,6 +119,18 @@ export default function PredplatnePage() {
   return (
     <>
       <Navbar />
+      {/* Toast notifikace */}
+      {showToast && (
+        <div className="fixed top-24 right-4 z-50 animate-slide-in-right">
+          <div className="bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px]">
+            <CheckCircle className="h-6 w-6 flex-shrink-0" />
+            <div>
+              <p className="font-bold">Přidáno do košíku!</p>
+              <p className="text-sm opacity-90">Předplatné {selectedPlan} měsíců</p>
+            </div>
+          </div>
+        </div>
+      )}
       <main className="min-h-screen bg-white">
         {/* Hero Section */}
         <section className="relative py-20 overflow-hidden">
