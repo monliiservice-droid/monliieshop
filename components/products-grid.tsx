@@ -75,7 +75,7 @@ export function ProductsGrid({ products }: ProductsGridProps) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
           {filteredProducts.map((product, index) => {
             const images = JSON.parse(product.images)
             // Vypočítat zobrazovací cenu (pro sety použít nejnižší cenu z variant)
