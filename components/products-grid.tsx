@@ -86,7 +86,7 @@ export function ProductsGrid({ products }: ProductsGridProps) {
             return (
               <Card 
                 key={product.id} 
-                className="overflow-hidden border-0 bg-white transition-all duration-500 rounded-2xl group hover-lift animate-fade-in soft-shadow hover:soft-shadow-lg" 
+                className="overflow-hidden border-0 bg-white transition-all duration-500 rounded-2xl group hover-lift animate-fade-in soft-shadow hover:soft-shadow-lg flex flex-col h-full" 
                 style={{animationDelay: `${index * 0.05}s`}}
               >
                 <Link href={`/produkt/${product.id}`}>
@@ -123,7 +123,7 @@ export function ProductsGrid({ products }: ProductsGridProps) {
                   )}
                   <p className="text-xl font-bold text-[#931e31]">{displayPrice} Kč</p>
                 </CardContent>
-                <CardFooter className="p-6 pt-0">
+                <CardFooter className="p-6 pt-0 mt-auto">
                   <Link href={`/produkt/${product.id}`} className="w-full">
                     <Button className="w-full bg-gradient-to-r from-[#931e31] to-[#b8263d] hover:from-[#6b1623] hover:to-[#931e31] text-white rounded-full py-6 font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
                       {product.stock === 0 ? 'Zobrazit detail' : 'Vybrat velikost'}
