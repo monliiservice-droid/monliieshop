@@ -11,7 +11,7 @@
 - ✅ GoPay integrace (připravená pro production)
 - ✅ **Email systém (Mailtrap SMTP nastavený)**
 - ✅ Fakturační systém
-- ✅ Admin panel (admin / ***REMOVED***)
+- ✅ Admin panel (admin / 111023@Granko)
 - ✅ Company settings (Lucie Ivanková, IČO 14316242)
 - ✅ Database seed scripty
 - ✅ Kompletní dokumentace
@@ -80,7 +80,7 @@ GOPAY_CLIENT_SECRET=test_secret
 MAILTRAP_HOST=live.smtp.mailtrap.io
 MAILTRAP_PORT=587
 MAILTRAP_USER=api
-MAILTRAP_PASS=***REMOVED***
+MAILTRAP_PASS=c951d3b8ca37b7755f61cbf066438915
 EMAIL_FROM=noreply@monlii.cz
 SELLER_EMAIL=luckaivankova1@seznam.cz
 
@@ -138,7 +138,7 @@ V Cloudflare Pages:
 
 1. **Homepage:** https://monlii.cz
 2. **Admin:** https://monlii.cz/admin
-   - Login: `admin` / `***REMOVED***`
+   - Login: `admin` / `111023@Granko`
 3. **Testovací objednávka:**
    - Přidej produkt do košíku
    - Checkout
@@ -172,7 +172,7 @@ V Cloudflare Pages:
 ```
 URL: https://monlii.cz/admin
 Username: admin
-Password: ***REMOVED***
+Password: 111023@Granko
 ```
 (Automaticky z seed scriptu)
 
@@ -191,7 +191,7 @@ Prefix faktur: podle roku (2025)
 ### Email:
 ```
 ✅ SMTP: live.smtp.mailtrap.io:587
-✅ API Token: ***REMOVED***
+✅ API Token: c951d3b8ca37b7755f61cbf066438915
 ✅ From: noreply@monlii.cz
 ✅ Seller: luckaivankova1@seznam.cz
 ```

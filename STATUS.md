@@ -40,7 +40,7 @@
 - ✅ Branded email templates
 - ✅ **Mailtrap Production SMTP credentials nastaveny**
   - Host: live.smtp.mailtrap.io
-  - API Token: ***REMOVED***
+  - API Token: c951d3b8ca37b7755f61cbf066438915
 
 ### 🧾 Fakturace
 - ✅ PDF generování
@@ -49,7 +49,7 @@
 - ✅ Údaje: Lucie Ivanková, IČO: 14316242
 
 ### 👤 Admin Panel
-- ✅ Login: admin / ***REMOVED***
+- ✅ Login: admin / 111023@Granko
 - ✅ Dashboard s metrikami
 - ✅ Správa produktů
 - ✅ Správa objednávek
@@ -83,7 +83,7 @@
 - ✅ Host: live.smtp.mailtrap.io
 - ✅ Port: 587
 - ✅ User: api
-- ✅ API Token: ***REMOVED***
+- ✅ API Token: c951d3b8ca37b7755f61cbf066438915
 - ✅ Doplněno do všech ENV souborů
 
 ### 1. **První Git Push** (5 minut) - READY!
@@ -141,7 +141,7 @@ git push -u origin main
    
    # Test:
    # 1. Jdi na http://localhost:3000/admin
-   # 2. Login: admin / ***REMOVED***
+   # 2. Login: admin / 111023@Granko
    # 3. Udělej testovací objednávku
    # 4. Změň status → ověř, že email přišel
    ```
@@ -195,7 +195,7 @@ git push -u origin main
 
 ### Admin přístup:
 - **Username:** `admin`
-- **Password:** `***REMOVED***`
+- **Password:** `111023@Granko`
 - (Automaticky z seed scriptu)
 
 ### Company settings (v seed):

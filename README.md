@@ -131,14 +131,14 @@ Otevřete [http://localhost:3000](http://localhost:3000)
 - `/kontakty` - Kontaktní informace
 
 ### Admin rozhraní
-- `/admin` - Dashboard (Login: admin / ***REMOVED***)
+- `/admin` - Dashboard (Login: admin / 111023@Granko)
 - `/admin` - Přehled objednávek a metrik
 - Správa produktů, objednávek, slevových kódů
 - Generování faktur
 
 **Admin přihlášení:**
 - Username: `admin`
-- Password: `***REMOVED***`
+- Password: `111023@Granko`
 - (nastaveno automaticky při `npm run db:seed`)
 
 ## 🔑 Integrace

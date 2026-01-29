@@ -256,7 +256,7 @@ NODE_ENV=production
 
 # === ADMIN (volitelné - můžeš změnit heslo po nasazení) ===
 # Admin login: admin
-# Admin password: ***REMOVED***
+# Admin password: 111023@Granko
 # (nastaveno v seed scriptu)
 ```
 
@@ -337,7 +337,7 @@ npx prisma studio
 ```
 URL: https://monlii.cz/admin
 Username: admin
-Password: ***REMOVED***
+Password: 111023@Granko
 ```
 
 ### 3. Ověř Company Settings
