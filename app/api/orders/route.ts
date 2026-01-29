@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generování QR platby pro qr_code payment method
-    let qrPaymentData = null
+    let qrPaymentData: ReturnType<typeof generatePaymentQRCode> | undefined = undefined
     if (data.payment.method === 'qr_code') {
       qrPaymentData = generatePaymentQRCode(order.orderNumber, order.totalAmount)
     }
