@@ -649,13 +649,13 @@ export default function CheckoutPage() {
 
                       <Button 
                         type="submit"
-                        disabled={shippingMethod === 'zasilkovna_pickup' && !selectedPickupPoint}
+                        disabled={shippingMethod === 'zbox' && !nearestZBox}
                         className="w-full bg-gradient-to-r from-[#931e31] to-[#b8263d] hover:from-[#6b1623] hover:to-[#931e31] text-white py-7 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
-                        {shippingMethod === 'zasilkovna_pickup' && !selectedPickupPoint ? (
+                        {shippingMethod === 'zbox' && !nearestZBox ? (
                           <>
                             <MapPin className="mr-2 h-5 w-5" />
-                            Vyberte výdejní místo
+                            Vyplňte vaši adresu pro nalezení Z-BOXu
                           </>
                         ) : (
                           <>
@@ -664,9 +664,9 @@ export default function CheckoutPage() {
                           </>
                         )}
                       </Button>
-                      {shippingMethod === 'zasilkovna_pickup' && !selectedPickupPoint && (
+                      {shippingMethod === 'zbox' && !nearestZBox && (
                         <p className="text-xs text-red-500 text-center mt-2">
-                          ⚠️ Pro dokončení objednávky vyberte výdejní místo Zásilkovny
+                          ⚠️ Pro dokončení objednávky vyplňte vaši adresu
                         </p>
                       )}
                     </div>
