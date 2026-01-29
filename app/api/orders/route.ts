@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendOrderEmail } from '@/lib/email'
+import { generatePaymentQRCode } from '@/lib/qr-payment'
 
 function generateOrderNumber(): string {
   const timestamp = Date.now().toString().slice(-6)
@@ -80,6 +81,12 @@ export async function POST(request: NextRequest) {
       throw dbError
     }
 
+    // Generování QR platby pro qr_code payment method
+    let qrPaymentData = null
+    if (data.payment.method === 'qr_code') {
+      qrPaymentData = generatePaymentQRCode(order.orderNumber, order.totalAmount)
+    }
+
     // Odeslání emailů
     try {
       // Email zákazníkovi
@@ -93,7 +100,9 @@ export async function POST(request: NextRequest) {
           quantity: item.quantity || 1,
           price: item.price
         })),
-        shippingAddress: JSON.parse(order.shippingAddress)
+        shippingAddress: JSON.parse(order.shippingAddress),
+        paymentMethod: data.payment.method,
+        qrPaymentData
       })
 
       // Email prodejci
@@ -107,7 +116,9 @@ export async function POST(request: NextRequest) {
           quantity: item.quantity || 1,
           price: item.price
         })),
-        shippingAddress: JSON.parse(order.shippingAddress)
+        shippingAddress: JSON.parse(order.shippingAddress),
+        paymentMethod: data.payment.method,
+        qrPaymentData
       })
 
       console.log('Order emails sent successfully')
@@ -121,7 +132,8 @@ export async function POST(request: NextRequest) {
       order: {
         id: order.id,
         orderNumber: order.orderNumber
-      }
+      },
+      qrPaymentData
     })
   } catch (error) {
     console.error('Error creating order:', error)

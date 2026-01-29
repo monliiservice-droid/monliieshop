@@ -9,9 +9,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { username, password } = body
 
-    // Hardcoded credentials (same as in old middleware)
-    const validUsername = 'admin'
-    const validPassword = '***REMOVED***'
+    // Get credentials from environment variables
+    const validUsername = process.env.ADMIN_USERNAME || 'admin'
+    const validPassword = process.env.ADMIN_PASSWORD
+
+    if (!validPassword) {
+      return NextResponse.json(
+        { message: 'Admin credentials not configured' },
+        { status: 500 }
+      )
+    }
 
     if (username === validUsername && password === validPassword) {
       // Create JWT token

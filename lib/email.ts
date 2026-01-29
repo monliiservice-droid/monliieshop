@@ -34,6 +34,13 @@ interface OrderData {
   items: any[]
   shippingAddress: any
   trackingNumber?: string
+  paymentMethod?: string
+  qrPaymentData?: {
+    qrCodeURL: string
+    variableSymbol: string
+    accountNumber: string
+    bankCode: string
+  }
 }
 
 interface InvoiceData {
@@ -142,6 +149,39 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                 </div>
               </div>
               
+              ${data.paymentMethod === 'qr_code' && data.qrPaymentData ? `
+                <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; margin: 30px 0; border: 2px solid #3b82f6;">
+                  <h3 style="color: #1e40af; margin-bottom: 15px;">💳 Informace pro platbu</h3>
+                  <p style="margin-bottom: 20px;">Pro dokončení objednávky proveď platbu pomocí QR kódu nebo bankovním převodem:</p>
+                  
+                  <div style="text-align: center; margin: 20px 0;">
+                    <img src="${data.qrPaymentData.qrCodeURL}" alt="QR kód pro platbu" style="width: 250px; height: 250px; border: 4px solid #931e31; border-radius: 12px; padding: 10px; background: white;">
+                  </div>
+                  
+                  <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <p style="margin: 5px 0;"><strong>Číslo účtu:</strong> ${data.qrPaymentData.accountNumber}/${data.qrPaymentData.bankCode}</p>
+                    <p style="margin: 5px 0;"><strong>Částka:</strong> <span style="color: #931e31; font-size: 18px; font-weight: bold;">${data.totalAmount.toLocaleString('cs-CZ')} Kč</span></p>
+                    <p style="margin: 5px 0;"><strong>Variabilní symbol:</strong> ${data.qrPaymentData.variableSymbol}</p>
+                    <p style="margin: 5px 0;"><strong>Zpráva:</strong> Objednavka ${data.orderNumber}</p>
+                  </div>
+                  
+                  <p style="margin-top: 15px; font-size: 14px; color: #6b7280;">
+                    <strong>Jak zaplatit:</strong><br>
+                    1. Otevři svou mobilní bankovní aplikaci<br>
+                    2. Vyber možnost "Platba QR kódem"<br>
+                    3. Naskenuj QR kód výše<br>
+                    4. Potvrď platbu
+                  </p>
+                </div>
+              ` : ''}
+              
+              ${data.paymentMethod === 'cod' ? `
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                  <strong>💵 Platba na dobírku</strong><br>
+                  Objednávku zaplatíš při převzetí.
+                </div>
+              ` : ''}
+              
               <p>Brzy tě budeme kontaktovat s potvrzením přijetí objednávky.</p>
               <p>S láskou,<br>Tým Monlii ❤️</p>
             </div>
@@ -169,6 +209,22 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                 <p><strong>Zákazník:</strong> ${data.customerName}</p>
                 <p><strong>Email:</strong> ${data.customerEmail}</p>
                 <p><strong>Adresa:</strong> ${data.shippingAddress.street}, ${data.shippingAddress.zip} ${data.shippingAddress.city}</p>
+                
+                ${data.paymentMethod ? `
+                  <p><strong>Způsob platby:</strong> ${
+                    data.paymentMethod === 'qr_code' ? 'QR platba / Bankovní převod' : 
+                    data.paymentMethod === 'cod' ? 'Dobírka' : data.paymentMethod
+                  }</p>
+                ` : ''}
+                
+                ${data.paymentMethod === 'qr_code' && data.qrPaymentData ? `
+                  <p><strong>Variabilní symbol:</strong> ${data.qrPaymentData.variableSymbol}</p>
+                  <p style="color: #f59e0b;"><strong>⚠️ Čeká se na platbu zákazníka</strong></p>
+                ` : ''}
+                
+                ${data.paymentMethod === 'cod' ? `
+                  <p style="color: #10b981;"><strong>✓ Platba při převzetí</strong></p>
+                ` : ''}
                 
                 <h3>Položky:</h3>
                 ${data.items.map(item => `

@@ -12,6 +12,9 @@ export default function OrderSummaryPage() {
   const router = useRouter()
   const [orderData, setOrderData] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [orderSubmitted, setOrderSubmitted] = useState(false)
+  const [qrPaymentData, setQrPaymentData] = useState<any>(null)
+  const [submittedOrderNumber, setSubmittedOrderNumber] = useState<string>('')
 
   useEffect(() => {
     const data = sessionStorage.getItem('orderData')
@@ -44,9 +47,17 @@ export default function OrderSummaryPage() {
         sessionStorage.removeItem('orderData')
         window.dispatchEvent(new Event('cartUpdated'))
         
-        // Přesměrování na děkovnou stránku
-        alert(`Děkujeme za objednávku! Číslo objednávky: ${result.order.orderNumber}\n\nBrzy vás budeme kontaktovat s potvrzením.`)
-        router.push('/')
+        setSubmittedOrderNumber(result.order.orderNumber)
+        
+        // Pokud je platba QR kódem, zobrazíme QR kód
+        if (orderData.payment.method === 'qr_code' && result.qrPaymentData) {
+          setQrPaymentData(result.qrPaymentData)
+          setOrderSubmitted(true)
+        } else {
+          // Pro dobírku přesměrujeme na děkovnou stránku
+          alert(`Děkujeme za objednávku! Číslo objednávky: ${result.order.orderNumber}\n\nBrzy vás budeme kontaktovat s potvrzením.`)
+          router.push('/')
+        }
       } else {
         throw new Error(result.message || 'Chyba při vytváření objednávky')
       }
@@ -71,10 +82,8 @@ export default function OrderSummaryPage() {
 
   const getShippingMethodName = (method: string) => {
     switch (method) {
-      case 'zasilkovna_pickup':
-        return 'Zásilkovna - Výdejní místo'
-      case 'zasilkovna_home':
-        return 'Zásilkovna - Doručení domů'
+      case 'zbox':
+        return 'Zásilkovna Z-BOX'
       case 'personal':
         return 'Osobní odběr'
       default:
@@ -84,15 +93,84 @@ export default function OrderSummaryPage() {
 
   const getPaymentMethodName = (method: string) => {
     switch (method) {
-      case 'card':
-        return 'Platební karta (GoPay)'
-      case 'transfer':
-        return 'Bankovní převod'
+      case 'qr_code':
+        return 'QR platba'
       case 'cod':
         return 'Dobírka'
       default:
         return method
     }
+  }
+
+  // Pokud je objednávka odeslána a máme QR kód, zobrazíme potvrzovací stránku s QR kódem
+  if (orderSubmitted && qrPaymentData) {
+    return (
+      <>
+        <main className="min-h-screen bg-gradient-to-b from-white via-pink-50/10 to-white">
+          <section className="py-16">
+            <div className="container max-w-4xl">
+              <div className="text-center mb-8">
+                <CheckCircle className="h-20 w-20 text-green-600 mx-auto mb-4" />
+                <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight">Děkujeme za objednávku!</h1>
+                <p className="text-xl text-gray-600">Číslo objednávky: <strong className="text-[#931e31]">{submittedOrderNumber}</strong></p>
+              </div>
+
+              <Card className="border-0 rounded-3xl soft-shadow-lg mb-6">
+                <CardHeader className="bg-gradient-to-r from-[#931e31] to-[#b8263d] text-white">
+                  <CardTitle className="text-2xl text-center">Zaplaťte pomocí QR kódu</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <div className="text-center space-y-6">
+                    <p className="text-lg">Naskenujte QR kód ve vaší bankovní aplikaci</p>
+                    
+                    <div className="flex justify-center">
+                      <div className="bg-white p-6 rounded-2xl shadow-xl border-4 border-[#931e31]">
+                        <img 
+                          src={qrPaymentData.qrCodeURL} 
+                          alt="QR kód pro platbu" 
+                          className="w-64 h-64"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-2xl border-2 border-pink-200">
+                      <h3 className="font-bold text-lg mb-4">Platební údaje</h3>
+                      <div className="space-y-2 text-left max-w-md mx-auto">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Číslo účtu:</span>
+                          <span className="font-semibold">{qrPaymentData.accountNumber}/{qrPaymentData.bankCode}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Částka:</span>
+                          <span className="font-semibold text-[#931e31] text-xl">{orderData.totalPrice} Kč</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Variabilní symbol:</span>
+                          <span className="font-semibold">{qrPaymentData.variableSymbol}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                      <p className="text-sm text-blue-800">
+                        ℹ️ QR kód a platební údaje jsme vám také zaslali emailem na <strong>{orderData.customer.email}</strong>
+                      </p>
+                    </div>
+
+                    <Link href="/">
+                      <Button className="bg-gradient-to-r from-[#931e31] to-[#b8263d] hover:from-[#6b1623] hover:to-[#931e31] text-white py-6 px-8 rounded-full font-bold text-lg">
+                        Zpět na hlavní stránku
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+        </main>
+        <Footer />
+      </>
+    )
   }
 
   return (
@@ -182,11 +260,12 @@ export default function OrderSummaryPage() {
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-semibold text-lg">{getShippingMethodName(orderData.shipping.method)}</p>
-                      {orderData.shipping.method === 'zasilkovna_pickup' && orderData.shipping.pickupPoint && (
+                      {orderData.shipping.method === 'zbox' && orderData.shipping.zbox && (
                         <div className="mt-2 p-3 bg-green-50 rounded-xl border border-green-200">
-                          <p className="text-sm font-medium text-green-800">Výdejní místo:</p>
-                          <p className="text-sm text-green-700">{orderData.shipping.pickupPoint.name}</p>
-                          <p className="text-xs text-green-600">{orderData.shipping.pickupPoint.street}, {orderData.shipping.pickupPoint.city}</p>
+                          <p className="text-sm font-medium text-green-800">Z-BOX:</p>
+                          <p className="text-sm font-semibold text-green-900">{orderData.shipping.zbox.name}</p>
+                          <p className="text-xs text-green-700">{orderData.shipping.zbox.street}</p>
+                          <p className="text-xs text-green-700">{orderData.shipping.zbox.city}, {orderData.shipping.zbox.zip}</p>
                         </div>
                       )}
                       {orderData.shipping.method === 'personal' && orderData.shipping.personalLocation && (

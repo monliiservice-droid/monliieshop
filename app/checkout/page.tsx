@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Script from 'next/script'
-import { ZASILKOVNA_CONFIG, type ZasilkovnaPickupPoint } from '@/lib/zasilkovna-config'
+import { ZASILKOVNA_CONFIG, type ZBoxPoint } from '@/lib/zasilkovna-zbox'
 
 interface CartItem {
   id: string
@@ -23,11 +23,12 @@ export default function CheckoutPage() {
   const router = useRouter()
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
-  const [shippingMethod, setShippingMethod] = useState('zasilkovna_pickup')
-  const [paymentMethod, setPaymentMethod] = useState('card')
+  const [shippingMethod, setShippingMethod] = useState('zbox')
+  const [paymentMethod, setPaymentMethod] = useState('qr_code')
   const [isCompany, setIsCompany] = useState(false)
-  const [selectedPickupPoint, setSelectedPickupPoint] = useState<ZasilkovnaPickupPoint | null>(null)
   const [personalPickupLocation, setPersonalPickupLocation] = useState<'havirov' | 'frenstat' | null>(null)
+  const [nearestZBox, setNearestZBox] = useState<ZBoxPoint | null>(null)
+  const [isLoadingZBox, setIsLoadingZBox] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     phone: '',
@@ -58,19 +59,49 @@ export default function CheckoutPage() {
     loadCart()
   }, [])
 
-  const openPacketaWidget = () => {
-    if (typeof window !== 'undefined' && (window as any).Packeta) {
-      (window as any).Packeta.Widget.pick(ZASILKOVNA_CONFIG.apiKey, (point: any) => {
-        if (point) {
-          setSelectedPickupPoint(point)
-          console.log('Selected pickup point:', point)
+  // Auto-find nearest Z-BOX when address is complete
+  useEffect(() => {
+    const findZBox = async () => {
+      if (
+        shippingMethod === 'zbox' &&
+        formData.address &&
+        formData.city &&
+        formData.zip &&
+        formData.address.length > 3 &&
+        formData.city.length > 2 &&
+        formData.zip.length >= 5
+      ) {
+        setIsLoadingZBox(true)
+        try {
+          const response = await fetch('/api/zasilkovna/nearest-zbox', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              street: formData.address,
+              city: formData.city,
+              zip: formData.zip,
+            }),
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            if (data.success && data.zbox) {
+              setNearestZBox(data.zbox)
+            }
+          }
+        } catch (error) {
+          console.error('Error finding Z-BOX:', error)
+        } finally {
+          setIsLoadingZBox(false)
         }
-      }, {
-        country: ZASILKOVNA_CONFIG.defaultCountry,
-        language: ZASILKOVNA_CONFIG.defaultLanguage
-      })
+      }
     }
-  }
+
+    // Debounce the search
+    const timeoutId = setTimeout(findZBox, 1000)
+    return () => clearTimeout(timeoutId)
+  }, [formData.address, formData.city, formData.zip, shippingMethod])
+
 
   const getTotalPrice = () => {
     return cartItems.reduce((total, item) => {
@@ -83,15 +114,12 @@ export default function CheckoutPage() {
     const total = getTotalPrice()
     
     switch (shippingMethod) {
-      case 'zasilkovna_pickup':
-        // Doprava zdarma nad 2500 Kč pouze pro výdejní místo
+      case 'zbox':
+        // Free shipping over threshold
         if (total >= ZASILKOVNA_CONFIG.freeShippingThreshold) {
           return 0
         }
-        return ZASILKOVNA_CONFIG.pickupPointPrice
-      case 'zasilkovna_home':
-        // Doručení domů - bez free shipping
-        return ZASILKOVNA_CONFIG.homeDeliveryPrice
+        return ZASILKOVNA_CONFIG.zboxDeliveryPrice
       case 'personal':
         return 0
       default:
@@ -106,12 +134,12 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Validace výdejního místa pro Zásilkovnu pickup
-    if (shippingMethod === 'zasilkovna_pickup' && !selectedPickupPoint) {
-      alert('Prosím vyberte výdejní místo Zásilkovny')
+    // Validace Z-BOX
+    if (shippingMethod === 'zbox' && !nearestZBox) {
+      alert('Nejbližší Z-BOX nebyl nalezen. Prosím zkontrolujte vaši adresu.')
       return
     }
-
+    
     // Validace místa osobního odběru
     if (shippingMethod === 'personal' && !personalPickupLocation) {
       alert('Prosím vyberte místo osobního odběru (Havířov nebo Frenštát)')
@@ -144,10 +172,10 @@ export default function CheckoutPage() {
       shipping: {
         method: shippingMethod,
         price: getShippingPrice(),
-        ...(shippingMethod === 'zasilkovna_pickup' && {
-          pickupPoint: selectedPickupPoint
+        ...(shippingMethod === 'zbox' && nearestZBox && {
+          zbox: nearestZBox
         }),
-        ...(shippingMethod === 'personal' && {
+        ...(shippingMethod === 'personal' && personalPickupLocation && {
           personalLocation: personalPickupLocation
         })
       },
@@ -184,10 +212,6 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <Script 
-        src="https://widget.packeta.com/v6/www/js/library.js" 
-        strategy="lazyOnload"
-      />
       <main className="min-h-screen bg-gradient-to-b from-white via-pink-50/10 to-white">
         <section className="py-16">
           <div className="container max-w-6xl">
@@ -375,11 +399,11 @@ export default function CheckoutPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {/* Zásilkovna - výdejní místo */}
+                    {/* Zásilkovna Z-BOX */}
                     <div 
-                      onClick={() => setShippingMethod('zasilkovna_pickup')}
+                      onClick={() => setShippingMethod('zbox')}
                       className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
-                        shippingMethod === 'zasilkovna_pickup' 
+                        shippingMethod === 'zbox' 
                           ? 'border-[#931e31] bg-pink-50' 
                           : 'border-gray-200 hover:border-pink-300'
                       }`}
@@ -387,91 +411,45 @@ export default function CheckoutPage() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-4">
                           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                            shippingMethod === 'zasilkovna_pickup' ? 'border-[#931e31]' : 'border-gray-300'
+                            shippingMethod === 'zbox' ? 'border-[#931e31]' : 'border-gray-300'
                           }`}>
-                            {shippingMethod === 'zasilkovna_pickup' && (
+                            {shippingMethod === 'zbox' && (
                               <div className="w-3 h-3 rounded-full bg-[#931e31]"></div>
                             )}
                           </div>
                           <div>
-                            <h3 className="font-semibold">Zásilkovna - výdejní místo</h3>
-                            <p className="text-sm text-gray-600">Doručení do 2-3 pracovních dnů</p>
+                            <h3 className="font-semibold">Zásilkovna Z-BOX</h3>
+                            <p className="text-sm text-gray-600">Automatický výdejní box nejblíže vaší adrese</p>
                           </div>
                         </div>
                         <span className="font-bold text-[#931e31]">
-                          {getTotalPrice() >= ZASILKOVNA_CONFIG.freeShippingThreshold ? 'ZDARMA' : `${ZASILKOVNA_CONFIG.pickupPointPrice} Kč`}
+                          {getTotalPrice() >= ZASILKOVNA_CONFIG.freeShippingThreshold ? 'ZDARMA' : `${ZASILKOVNA_CONFIG.zboxDeliveryPrice} Kč`}
                         </span>
                       </div>
-                      
-                      {/* Výběr výdejního místa */}
-                      {shippingMethod === 'zasilkovna_pickup' && (
+
+                      {/* Nearest Z-BOX Display */}
+                      {shippingMethod === 'zbox' && (
                         <div className="mt-3 pt-3 border-t border-pink-200">
-                          {selectedPickupPoint ? (
-                            <div className="bg-white p-3 rounded-xl border border-green-200">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <p className="font-semibold text-green-900">{selectedPickupPoint.name}</p>
-                                  <p className="text-sm text-gray-600">{selectedPickupPoint.street}</p>
-                                  <p className="text-sm text-gray-600">{selectedPickupPoint.city}, {selectedPickupPoint.zip}</p>
-                                </div>
-                                <Button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    openPacketaWidget()
-                                  }}
-                                  variant="outline"
-                                  size="sm"
-                                  className="ml-2"
-                                >
-                                  Změnit
-                                </Button>
-                              </div>
+                          {isLoadingZBox ? (
+                            <div className="p-3 bg-blue-50 rounded-xl border border-blue-200 text-center">
+                              <p className="text-sm text-blue-700">🔍 Hledám nejbližší Z-BOX...</p>
+                            </div>
+                          ) : nearestZBox ? (
+                            <div className="p-3 bg-green-50 rounded-xl border border-green-200">
+                              <p className="text-sm font-medium text-green-800">✓ Nejbližší Z-BOX:</p>
+                              <p className="text-sm font-semibold text-green-900 mt-1">{nearestZBox.name}</p>
+                              <p className="text-xs text-green-700">{nearestZBox.street}</p>
+                              <p className="text-xs text-green-700">{nearestZBox.city}, {nearestZBox.zip}</p>
                             </div>
                           ) : (
-                            <Button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                openPacketaWidget()
-                              }}
-                              className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl"
-                            >
-                              <MapPin className="mr-2 h-4 w-4" />
-                              Vybrat výdejní místo
-                            </Button>
+                            <div className="p-3 bg-yellow-50 rounded-xl border border-yellow-200">
+                              <p className="text-sm text-yellow-800">
+                                ℹ️ Vyplňte vaši adresu výše a automaticky najdeme nejbližší Z-BOX
+                              </p>
+                            </div>
                           )}
                         </div>
                       )}
-                    </div>
-
-                    {/* Zásilkovna - doručení na adresu */}
-                    <div 
-                      onClick={() => setShippingMethod('zasilkovna_home')}
-                      className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
-                        shippingMethod === 'zasilkovna_home' 
-                          ? 'border-[#931e31] bg-pink-50' 
-                          : 'border-gray-200 hover:border-pink-300'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                            shippingMethod === 'zasilkovna_home' ? 'border-[#931e31]' : 'border-gray-300'
-                          }`}>
-                            {shippingMethod === 'zasilkovna_home' && (
-                              <div className="w-3 h-3 rounded-full bg-[#931e31]"></div>
-                            )}
-                          </div>
-                          <div>
-                            <h3 className="font-semibold">Zásilkovna - doručení na adresu</h3>
-                            <p className="text-sm text-gray-600">Doručení přímo na zadanou adresu</p>
-                          </div>
-                        </div>
-                        <span className="font-bold text-[#931e31]">
-                          {ZASILKOVNA_CONFIG.homeDeliveryPrice} Kč
-                        </span>
-                      </div>
                     </div>
 
                     {/* Osobní odběr */}
@@ -575,47 +553,24 @@ export default function CheckoutPage() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div 
-                      onClick={() => setPaymentMethod('card')}
+                      onClick={() => setPaymentMethod('qr_code')}
                       className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
-                        paymentMethod === 'card' 
+                        paymentMethod === 'qr_code' 
                           ? 'border-[#931e31] bg-pink-50' 
                           : 'border-gray-200 hover:border-pink-300'
                       }`}
                     >
                       <div className="flex items-center gap-4">
                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === 'card' ? 'border-[#931e31]' : 'border-gray-300'
+                          paymentMethod === 'qr_code' ? 'border-[#931e31]' : 'border-gray-300'
                         }`}>
-                          {paymentMethod === 'card' && (
+                          {paymentMethod === 'qr_code' && (
                             <div className="w-3 h-3 rounded-full bg-[#931e31]"></div>
                           )}
                         </div>
                         <div>
-                          <h3 className="font-semibold">Platební karta</h3>
-                          <p className="text-sm text-gray-600">Visa, Mastercard, Apple Pay, Google Pay</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div 
-                      onClick={() => setPaymentMethod('transfer')}
-                      className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
-                        paymentMethod === 'transfer' 
-                          ? 'border-[#931e31] bg-pink-50' 
-                          : 'border-gray-200 hover:border-pink-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === 'transfer' ? 'border-[#931e31]' : 'border-gray-300'
-                        }`}>
-                          {paymentMethod === 'transfer' && (
-                            <div className="w-3 h-3 rounded-full bg-[#931e31]"></div>
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">Bankovní převod</h3>
-                          <p className="text-sm text-gray-600">Platba předem na účet</p>
+                          <h3 className="font-semibold">QR platba</h3>
+                          <p className="text-sm text-gray-600">Bankovní převod pomocí QR kódu</p>
                         </div>
                       </div>
                     </div>

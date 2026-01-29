@@ -4,11 +4,11 @@ import { ArrowLeft, Package, CreditCard, Truck } from 'lucide-react'
 
 export const metadata = {
   title: 'Doprava a platba | Monlii - Informace o doručení',
-  description: 'Doprava zdarma při nákupu nad 2500 Kč. Doručení na výdejní místa Zásilkovny nebo Česká pošta. Platba kartou, převodem nebo na dobírku.',
-  keywords: ['doprava monlii', 'doprava zdarma', 'zásilkovna', 'česká pošta', 'platba kartou', 'dobírka'],
+  description: 'Doprava zdarma nad 2500 Kč do Z-BOXu Zásilkovny. Osobní odběr zdarma v Havířově nebo Frenštátě. Platba QR kódem nebo na dobírku.',
+  keywords: ['doprava monlii', 'zásilkovna', 'z-box', 'osobní odběr', 'QR platba', 'dobírka', 'havířov', 'frenštát'],
   openGraph: {
     title: 'Doprava a platba | Monlii',
-    description: 'Doprava zdarma při nákupu nad 2500 Kč. Doručení na výdejní místa nebo poštou.',
+    description: 'Doprava zdarma nad 2500 Kč do Z-BOXu. Platba QR kódem nebo na dobírku.',
     url: '/doprava',
     images: ['/story_4.jpg'],
   },
@@ -36,23 +36,13 @@ export default function ShippingPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 border rounded-lg hover:border-[#931e31] transition-colors">
-                <h3 className="font-semibold mb-2">📦 Zásilkovna - Odběrné místo</h3>
+              <div className="p-4 border-2 border-[#931e31] rounded-lg bg-pink-50">
+                <h3 className="font-semibold mb-2">📦 Zásilkovna Z-BOX</h3>
                 <p className="text-gray-700 mb-2">
-                  Doručení na výdejní místo Zásilkovny dle vašeho výběru.
+                  Automatické výdejní boxy dostupné 24/7. Při objednávce automaticky najdeme nejbližší Z-BOX k vaší adrese.
                 </p>
                 <p className="text-sm text-gray-600">
-                  Cena: <strong>59 Kč</strong> | Doba dodání: <strong>3-5 pracovních dnů (skladem), až 14 dnů (na míru)</strong>
-                </p>
-              </div>
-
-              <div className="p-4 border rounded-lg hover:border-[#931e31] transition-colors">
-                <h3 className="font-semibold mb-2">🏠 Zásilkovna - Domů</h3>
-                <p className="text-gray-700 mb-2">
-                  Doručení kurýrem Zásilkovny přímo na vaši adresu.
-                </p>
-                <p className="text-sm text-gray-600">
-                  Cena: <strong>79 Kč</strong> | Doba dodání: <strong>3-5 pracovních dnů (skladem), až 14 dnů (na míru)</strong>
+                  Cena: <strong>69 Kč</strong> | Doba dodání: <strong>2-3 pracovní dny</strong>
                 </p>
               </div>
 
@@ -68,10 +58,7 @@ export default function ShippingPage() {
 
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-green-800 font-semibold">
-                  ✨ Doprava ZDARMA na výdejní místo Zásilkovny při objednávce nad 2 500 Kč
-                </p>
-                <p className="text-green-700 text-sm mt-2">
-                  (Doprava domů je vždy zpoplatněna)
+                  ✨ Doprava Z-BOXem ZDARMA při objednávce nad 2 500 Kč
                 </p>
               </div>
             </div>
@@ -86,21 +73,15 @@ export default function ShippingPage() {
 
             <div className="space-y-4">
               <div className="p-4 border rounded-lg hover:border-[#931e31] transition-colors">
-                <h3 className="font-semibold mb-2">💳 Platební karta (GoPay)</h3>
+                <h3 className="font-semibold mb-2">📱 QR platba</h3>
                 <p className="text-gray-700 mb-2">
-                  Bezpečná online platba kartou přes platební bránu GoPay.
+                  Rychlá a bezpečná platba bankovním převodem pomocí QR kódu.
                 </p>
                 <p className="text-sm text-gray-600">
-                  Přijímáme: Visa, Mastercard, Maestro
+                  Po potvrzení objednávky obdržíte QR kód, který naskenujete ve své bankovní aplikaci. 
+                  Všechny údaje (částka, číslo účtu, variabilní symbol) se vyplní automaticky.
                 </p>
-              </div>
-
-              <div className="p-4 border rounded-lg hover:border-[#931e31] transition-colors">
-                <h3 className="font-semibold mb-2">🏦 Bankovní převod</h3>
-                <p className="text-gray-700 mb-2">
-                  Platba předem bankovním převodem.
-                </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 mt-2">
                   Zboží odesíláme po připsání platby na účet (1-2 pracovní dny)
                 </p>
               </div>
@@ -108,7 +89,7 @@ export default function ShippingPage() {
               <div className="p-4 border rounded-lg hover:border-[#931e31] transition-colors">
                 <h3 className="font-semibold mb-2">💵 Dobírka</h3>
                 <p className="text-gray-700 mb-2">
-                  Platba při převzetí zásilky.
+                  Platba při převzetí zásilky v hotovosti nebo kartou u dopravce.
                 </p>
                 <p className="text-sm text-gray-600">
                   Poplatek za dobírku: <strong>+30 Kč</strong>

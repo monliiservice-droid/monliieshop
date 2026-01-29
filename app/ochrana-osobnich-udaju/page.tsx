@@ -81,11 +81,12 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
               <li>Dopravním společnostem (za účelem doručení zboží)</li>
-              <li>Platebním branám (za účelem zpracování platby)</li>
               <li>Účetní společnosti (za účelem vedení účetnictví)</li>
             </ul>
             <p className="text-gray-700 leading-relaxed mt-3">
-              Všechny třetí strany jsou smluvně zavázány k ochraně vašich osobních údajů.
+              Všechny třetí strany jsou smluvně zavázány k ochraně vašich osobních údajů. 
+              Pro zpracování QR plateb nejsou vaše údaje předávány třetím stranám - platba probíhá 
+              standardním bankovním převodem přímo na účet prodávajícího.
             </p>
           </section>
 

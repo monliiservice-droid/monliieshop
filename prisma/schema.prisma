@@ -55,12 +55,12 @@ model Order {
   discountCode         String?     // Použitý slevový kód
   discountAmount       Float       @default(0) // Částka slevy
   status               String      @default("new") // new, accepted, rejected, in_production, ready_to_ship, shipped, delivered, cancelled
-  paymentMethod        String      // gopay, cash_on_delivery
+  paymentMethod        String      // qr_code, cod (cash_on_delivery)
   paymentStatus        String      @default("pending") // pending, paid, failed
-  shippingMethod       String      // zasilkovna_pickup, zasilkovna_home, personal_pickup
+  shippingMethod       String      // zbox (Zásilkovna Z-BOX), personal (personal_pickup)
   trackingNumber       String?
-  gopayPaymentId       String?     // GoPay payment ID
-  gopayState           String?     // GoPay payment state
+  gopayPaymentId       String?     // Legacy field - no longer used (kept for old orders)
+  gopayState           String?     // Legacy field - no longer used (kept for old orders)
   reviewEmailSentAt    DateTime?   // Kdy byl odeslán email s žádostí o recenzi
   deliveredAt          DateTime?   // Kdy byla objednávka doručena
   createdAt            DateTime    @default(now())

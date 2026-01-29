@@ -255,11 +255,10 @@ export default function OrdersPage() {
                     <Badge className={selectedOrder.paymentStatus === 'paid' ? 'bg-green-500 text-white px-4 py-2' : 'bg-blue-500 text-white px-4 py-2'}>
                       {(() => {
                         const paymentMethods: Record<string, string> = {
-                          'card': 'Platba kartou',
-                          'transfer': 'Bankovní převod',
+                          'qr_code': 'QR platba',
                           'cod': 'Dobírka'
                         }
-                        const paymentMethod = (selectedOrder as any).paymentMethod || 'card'
+                        const paymentMethod = (selectedOrder as any).paymentMethod || 'qr_code'
                         return paymentMethods[paymentMethod] || paymentMethod
                       })()}
                       {selectedOrder.paymentStatus === 'paid' && ' ✓'}
@@ -270,11 +269,10 @@ export default function OrdersPage() {
                     <Badge className="bg-purple-500 text-white px-4 py-2">
                       {(() => {
                         const shippingMethods: Record<string, string> = {
-                          'zasilkovna_pickup': 'Zásilkovna - Výdejní místo',
-                          'zasilkovna_home': 'Zásilkovna - Doručení domů',
+                          'zbox': 'Zásilkovna Z-BOX',
                           'personal': 'Osobní odběr'
                         }
-                        const shippingMethod = (selectedOrder as any).shippingMethod || 'zasilkovna_pickup'
+                        const shippingMethod = (selectedOrder as any).shippingMethod || 'zbox'
                         return shippingMethods[shippingMethod] || shippingMethod
                       })()}
                     </Badge>
@@ -332,15 +330,15 @@ export default function OrdersPage() {
                       const addr = JSON.parse(selectedOrder.shippingAddress)
                       const shippingMethod = (selectedOrder as any).shippingMethod
                       
-                      // Výdejní místo Zásilkovny
-                      if (shippingMethod === 'zasilkovna_pickup' && addr.shippingDetails?.pickupPoint) {
-                        const pp = addr.shippingDetails.pickupPoint
+                      // Z-BOX delivery
+                      if (shippingMethod === 'zbox' && addr.shippingDetails?.zbox) {
+                        const zbox = addr.shippingDetails.zbox
                         return (
                           <div className="col-span-2">
-                            <p className="text-gray-600">Výdejní místo Zásilkovna</p>
+                            <p className="text-gray-600">Z-BOX Zásilkovna</p>
                             <p className="font-semibold">
-                              {pp.name}<br />
-                              {pp.street}, {pp.zip} {pp.city}
+                              {zbox.name}<br />
+                              {zbox.street}, {zbox.zip} {zbox.city}
                             </p>
                           </div>
                         )

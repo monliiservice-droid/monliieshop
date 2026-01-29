@@ -51,10 +51,13 @@ export default function TermsPage() {
               Ceny jsou uvedeny včetně DPH a všech poplatků. Platba je možná:
             </p>
             <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-              <li>Platební kartou online (prostřednictvím GoPay)</li>
-              <li>Bankovním převodem</li>
-              <li>Na dobírku (při doručení)</li>
+              <li>QR platbou (bankovním převodem pomocí QR kódu)</li>
+              <li>Na dobírku (při doručení, poplatek +30 Kč)</li>
             </ul>
+            <p className="text-gray-700 leading-relaxed mt-3">
+              Po potvrzení objednávky s platbou QR kódem obdržíte e-mail s QR kódem a platebními údaji 
+              (číslo účtu, variabilní symbol, částka). Zboží bude odesláno po připsání platby na účet.
+            </p>
           </section>
 
           <section>
