@@ -16,7 +16,7 @@ export async function PATCH(
   try {
     const { id } = await params
     const body = await request.json()
-    const { status } = body
+    const { status, trackingNumber: newTrackingNumber } = body
 
     // Validace statusu
     const validStatuses = [
@@ -63,6 +63,16 @@ export async function PATCH(
     if (status === 'delivered' && !order.deliveredAt) {
       updateData.deliveredAt = new Date()
     }
+    
+    // Update tracking number if provided (for shipped status)
+    if (newTrackingNumber) {
+      updateData.trackingNumber = newTrackingNumber
+    }
+    
+    // For QR payments, mark as paid when accepting (admin confirms payment received)
+    if (status === 'in_production' && order.paymentMethod === 'qr_code') {
+      updateData.paymentStatus = 'paid'
+    }
 
     const updatedOrder = await prisma.order.update({
       where: { id },
@@ -95,58 +105,77 @@ export async function PATCH(
     // Odešli příslušný email podle statusu
     switch (status) {
       case 'in_production':
-        // Odešli email o přijetí objednávky a výrobě
-        await sendOrderEmail('order_accepted', orderData)
-        
-        // Vytvoř fakturu
-        try {
-          const invoice = await createInvoiceForOrder({
-            id: order.id,
-            orderNumber: order.orderNumber,
-            customerName: order.customerName,
-            customerEmail: order.customerEmail,
-            customerPhone: order.customerPhone || undefined,
-            billingAddress: order.billingAddress || undefined,
-            items: order.items.map(item => ({
-              name: item.productName || item.product?.name || 'Unknown Product',
-              quantity: item.quantity,
-              price: item.price
-            })),
-            totalAmount: order.totalAmount,
-            discountAmount: order.discountAmount,
-            shippingCost: (order as any).shippingCost || 0,
-            codFee: (order as any).codFee || 0,
-            shippingMethod: order.shippingMethod,
+        // Different logic for QR vs COD payments
+        if (order.paymentMethod === 'qr_code') {
+          // QR payment: Invoice was already sent at order creation
+          // Just send "payment received + in production" email
+          await sendOrderEmail('order_accepted', {
+            ...orderData,
+            paymentMethod: order.paymentMethod // Pass payment method for email customization
+          })
+          
+          // Mark existing invoice as paid
+          try {
+            const existingInvoice = await prisma.invoice.findFirst({
+              where: { orderId: order.id }
+            })
+            if (existingInvoice) {
+              await markInvoiceAsPaid(existingInvoice.id)
+            }
+          } catch (invoiceError) {
+            console.error('Error marking invoice as paid:', invoiceError)
+          }
+        } else {
+          // COD payment: Create invoice now and send it with "in production" email
+          await sendOrderEmail('order_accepted', {
+            ...orderData,
             paymentMethod: order.paymentMethod
           })
           
-          // Pokud je objednávka už zaplacená, označ fakturu jako zaplacenou
-          if (order.paymentStatus === 'paid') {
-            await markInvoiceAsPaid(invoice.id)
+          // Create and send invoice for COD orders
+          try {
+            const invoice = await createInvoiceForOrder({
+              id: order.id,
+              orderNumber: order.orderNumber,
+              customerName: order.customerName,
+              customerEmail: order.customerEmail,
+              customerPhone: order.customerPhone || undefined,
+              billingAddress: order.billingAddress || undefined,
+              items: order.items.map(item => ({
+                name: item.productName || item.product?.name || 'Unknown Product',
+                quantity: item.quantity,
+                price: item.price
+              })),
+              totalAmount: order.totalAmount,
+              discountAmount: order.discountAmount,
+              shippingCost: (order as any).shippingCost || 0,
+              codFee: (order as any).codFee || 0,
+              shippingMethod: order.shippingMethod,
+              paymentMethod: order.paymentMethod
+            })
+            
+            // Send invoice email (COD - payment upon delivery)
+            await sendInvoiceEmail({
+              invoiceNumber: invoice.invoiceNumber,
+              orderNumber: order.orderNumber,
+              customerName: order.customerName,
+              customerEmail: order.customerEmail,
+              totalAmount: invoice.totalAmount,
+              subtotal: invoice.subtotal,
+              vatAmount: invoice.vatAmount,
+              vatRate: invoice.vatRate,
+              items: invoice.items,
+              issueDate: invoice.issueDate.toISOString(),
+              dueDate: invoice.dueDate.toISOString(),
+              status: 'unpaid',
+              paymentMethod: order.paymentMethod,
+              paymentStatus: 'pending'
+            })
+            
+            console.log(`Invoice ${invoice.invoiceNumber} created and sent for COD order ${order.orderNumber}`)
+          } catch (invoiceError) {
+            console.error('Error creating invoice:', invoiceError)
           }
-          
-          // Odešli fakturu emailem
-          await sendInvoiceEmail({
-            invoiceNumber: invoice.invoiceNumber,
-            orderNumber: order.orderNumber,
-            customerName: order.customerName,
-            customerEmail: order.customerEmail,
-            totalAmount: invoice.totalAmount,
-            subtotal: invoice.subtotal,
-            vatAmount: invoice.vatAmount,
-            vatRate: invoice.vatRate,
-            items: invoice.items,
-            issueDate: invoice.issueDate.toISOString(),
-            dueDate: invoice.dueDate.toISOString(),
-            status: order.paymentStatus === 'paid' ? 'paid' : invoice.status,
-            paymentMethod: order.paymentMethod,
-            paymentStatus: order.paymentStatus
-          })
-          
-          console.log(`Invoice ${invoice.invoiceNumber} created and sent for order ${order.orderNumber}`)
-        } catch (invoiceError) {
-          console.error('Error creating invoice:', invoiceError)
-          // Nepřerušuj process i když faktura selže
         }
         break
       case 'rejected':

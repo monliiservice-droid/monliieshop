@@ -104,6 +104,131 @@ export async function sendInvoiceEmail(invoiceData: InvoiceData) {
   }
 }
 
+// Combined order + invoice + QR code email (for QR payments at order creation)
+interface OrderWithInvoiceData extends OrderData {
+  invoice: {
+    invoiceNumber: string
+    subtotal: number
+    vatAmount: number
+    vatRate: number
+    items: string
+  }
+}
+
+export async function sendOrderWithInvoiceEmail(data: OrderWithInvoiceData) {
+  const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo_wide_black.png`
+  
+  const baseStyles = `
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { text-align: center; padding: 30px 0; border-bottom: 3px solid #931e31; }
+      .content { padding: 30px 20px; }
+      .footer { text-align: center; padding: 20px; background: #f5f5f5; color: #666; font-size: 12px; }
+      .order-details { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; }
+      .item { border-bottom: 1px solid #eee; padding: 10px 0; }
+      .total { font-size: 18px; font-weight: bold; color: #931e31; margin-top: 15px; }
+    </style>
+  `
+
+  const items = JSON.parse(data.invoice.items)
+
+  const html = `
+    ${baseStyles}
+    <div class="container">
+      <div class="header">
+        <img src="${logoUrl}" alt="Monlii" width="150">
+      </div>
+      <div class="content">
+        <h2>Děkujeme za objednávku! 🎉</h2>
+        <p>Ahoj ${data.customerName},</p>
+        <p>Právě jsme obdrželi tvou objednávku <strong>#${data.orderNumber}</strong>.</p>
+        
+        <div style="background: #f0f9ff; padding: 20px; border-radius: 12px; margin: 30px 0; border: 2px solid #3b82f6;">
+          <h3 style="color: #1e40af; margin-bottom: 15px;">💳 Zaplatit objednávku</h3>
+          <p style="margin-bottom: 20px;">Pro dokončení objednávky proveď platbu pomocí QR kódu nebo bankovním převodem:</p>
+          
+          ${data.qrPaymentData ? `
+            <div style="text-align: center; margin: 20px 0;">
+              <img src="${data.qrPaymentData.qrCodeURL}" alt="QR kód pro platbu" style="width: 250px; height: 250px; border: 4px solid #931e31; border-radius: 12px; padding: 10px; background: white;">
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 20px;">
+              <p style="margin: 5px 0;"><strong>Číslo účtu:</strong> ${data.qrPaymentData.accountNumber}/${data.qrPaymentData.bankCode}</p>
+              <p style="margin: 5px 0;"><strong>Částka:</strong> <span style="color: #931e31; font-size: 18px; font-weight: bold;">${data.totalAmount.toLocaleString('cs-CZ')} Kč</span></p>
+              <p style="margin: 5px 0;"><strong>Variabilní symbol:</strong> ${data.qrPaymentData.variableSymbol}</p>
+              <p style="margin: 5px 0;"><strong>Zpráva:</strong> Objednavka ${data.orderNumber}</p>
+            </div>
+          ` : ''}
+        </div>
+
+        ${data.shippingAddress?.shippingDetails?.pickupPoint ? `
+          <div style="background: #f3e8ff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #9333ea;">
+            <h3 style="color: #7c3aed; margin: 0 0 15px 0;">📦 Výdejní místo Zásilkovna</h3>
+            <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">${data.shippingAddress.shippingDetails.pickupPoint.name}</p>
+            <p style="margin: 0; color: #374151;">
+              ${data.shippingAddress.shippingDetails.pickupPoint.street}<br>
+              ${data.shippingAddress.shippingDetails.pickupPoint.zip} ${data.shippingAddress.shippingDetails.pickupPoint.city}
+            </p>
+          </div>
+        ` : ''}
+
+        <div style="background: #fef3c7; padding: 20px; border-radius: 12px; margin: 30px 0; border: 2px solid #f59e0b;">
+          <h3 style="color: #92400e; margin: 0 0 15px 0;">📄 Faktura ${data.invoice.invoiceNumber}</h3>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+            <thead>
+              <tr style="background: #931e31; color: white;">
+                <th style="padding: 10px; text-align: left;">Položka</th>
+                <th style="padding: 10px; text-align: right;">Ks</th>
+                <th style="padding: 10px; text-align: right;">Cena</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map((item: any) => `
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 10px;">${item.name}</td>
+                  <td style="padding: 10px; text-align: right;">${item.quantity}</td>
+                  <td style="padding: 10px; text-align: right;">${(item.quantity * item.price).toLocaleString('cs-CZ')} Kč</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          
+          <div style="text-align: right; padding-top: 15px; border-top: 2px solid #f59e0b;">
+            <p style="margin: 5px 0;">Mezisoučet: ${data.invoice.subtotal.toLocaleString('cs-CZ')} Kč</p>
+            ${data.invoice.vatAmount > 0 ? `<p style="margin: 5px 0;">DPH (${data.invoice.vatRate}%): ${data.invoice.vatAmount.toLocaleString('cs-CZ')} Kč</p>` : ''}
+            <p style="margin: 15px 0 0 0; font-size: 24px; font-weight: bold; color: #931e31;">
+              Celkem: ${data.totalAmount.toLocaleString('cs-CZ')} Kč
+            </p>
+          </div>
+        </div>
+
+        <p>Jakmile obdržíme platbu, začneme na tvé objednávce pracovat! 🎨</p>
+        <p>S láskou,<br>Tým Monlii ❤️</p>
+      </div>
+      <div class="footer">
+        <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
+      </div>
+    </div>
+  `
+
+  try {
+    await transporter.sendMail({
+      from: `"Monlii" <${process.env.EMAIL_FROM || 'noreply@monlii.cz'}>`,
+      to: data.customerEmail,
+      subject: `Faktura a platební údaje - Objednávka #${data.orderNumber}`,
+      html,
+    })
+    
+    console.log(`Order with invoice email sent to ${data.customerEmail}`)
+    return { success: true }
+  } catch (error) {
+    console.error('Order with invoice email sending failed:', error)
+    return { success: false, error }
+  }
+}
+
 function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; html: string } {
   const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo_wide_black.png`
   
@@ -283,7 +408,15 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             <div class="content">
               <h2>Tvoje objednávka je ve výrobě! 🎨✨</h2>
               <p>Ahoj ${data.customerName},</p>
-              <p>S radostí ti oznamujeme, že tvoje objednávka <strong>#${data.orderNumber}</strong> byla přijata a už na ní pracujeme!</p>
+              
+              ${data.paymentMethod === 'qr_code' ? `
+                <div style="background: #d1fae5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+                  <strong>✅ Platba přijata!</strong><br>
+                  Děkujeme, tvá platba za objednávku <strong>#${data.orderNumber}</strong> byla úspěšně přijata.
+                </div>
+              ` : ''}
+              
+              <p>S radostí ti oznamujeme, že tvoje objednávka už je ve výrobě!</p>
               
               <div class="order-details">
                 <h3>Co se právě děje:</h3>
@@ -292,8 +425,19 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                 <p>💝 Pečlivě dbáme na každý detail, aby bylo dokonalé</p>
               </div>
               
+              ${data.shippingAddress?.shippingDetails?.pickupPoint ? `
+                <div style="background: #f3e8ff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #9333ea;">
+                  <h3 style="color: #7c3aed; margin: 0 0 15px 0;">📦 Balíček bude k vyzvednutí na:</h3>
+                  <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">${data.shippingAddress.shippingDetails.pickupPoint.name}</p>
+                  <p style="margin: 0; color: #374151;">
+                    ${data.shippingAddress.shippingDetails.pickupPoint.street}<br>
+                    ${data.shippingAddress.shippingDetails.pickupPoint.zip} ${data.shippingAddress.shippingDetails.pickupPoint.city}
+                  </p>
+                </div>
+              ` : ''}
+              
               <p>Budeme tě průběžně informovat o dalších krocích tvé objednávky.</p>
-              <p>Zároveň ti posíláme fakturu v samostatném emailu.</p>
+              ${data.paymentMethod === 'cod' ? `<p>Zároveň ti posíláme fakturu v samostatném emailu.</p>` : ''}
               <p>S láskou,<br>Tým Monlii ❤️</p>
             </div>
             <div class="footer">

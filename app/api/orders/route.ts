@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { sendOrderEmail } from '@/lib/email'
+import { sendOrderEmail, sendOrderWithInvoiceEmail } from '@/lib/email'
 import { generatePaymentQRCode } from '@/lib/qr-payment'
+import { createInvoiceForOrder } from '@/lib/invoice-generator'
 
 function generateOrderNumber(): string {
   const timestamp = Date.now().toString().slice(-6)
@@ -92,8 +93,7 @@ export async function POST(request: NextRequest) {
 
     // Odeslání emailů
     try {
-      // Email zákazníkovi
-      await sendOrderEmail('order_received_customer', {
+      const orderEmailData = {
         orderNumber: order.orderNumber,
         customerName: order.customerName,
         customerEmail: order.customerEmail,
@@ -106,23 +106,54 @@ export async function POST(request: NextRequest) {
         shippingAddress: JSON.parse(order.shippingAddress),
         paymentMethod: data.payment.method,
         qrPaymentData
-      })
+      }
 
-      // Email prodejci
-      await sendOrderEmail('order_received_seller', {
-        orderNumber: order.orderNumber,
-        customerName: order.customerName,
-        customerEmail: order.customerEmail,
-        totalAmount: order.totalAmount,
-        items: data.items.map((item: any) => ({
-          name: item.name,
-          quantity: item.quantity || 1,
-          price: item.price
-        })),
-        shippingAddress: JSON.parse(order.shippingAddress),
-        paymentMethod: data.payment.method,
-        qrPaymentData
-      })
+      // QR payment: Create invoice immediately and send combined email with QR + invoice
+      if (data.payment.method === 'qr_code') {
+        try {
+          const invoice = await createInvoiceForOrder({
+            id: order.id,
+            orderNumber: order.orderNumber,
+            customerName: order.customerName,
+            customerEmail: order.customerEmail,
+            customerPhone: order.customerPhone || undefined,
+            billingAddress: order.billingAddress || undefined,
+            items: data.items.map((item: any) => ({
+              name: item.name,
+              quantity: item.quantity || 1,
+              price: item.price
+            })),
+            totalAmount: order.totalAmount,
+            discountAmount: order.discountAmount,
+            shippingCost: order.shippingCost,
+            codFee: order.codFee,
+            shippingMethod: order.shippingMethod,
+            paymentMethod: order.paymentMethod
+          })
+          
+          // Send combined invoice + QR code email
+          await sendOrderWithInvoiceEmail({
+            ...orderEmailData,
+            invoice: {
+              invoiceNumber: invoice.invoiceNumber,
+              subtotal: invoice.subtotal,
+              vatAmount: invoice.vatAmount,
+              vatRate: invoice.vatRate,
+              items: invoice.items
+            }
+          })
+        } catch (invoiceError) {
+          console.error('Error creating invoice for QR order:', invoiceError)
+          // Fallback to regular email if invoice fails
+          await sendOrderEmail('order_received_customer', orderEmailData)
+        }
+      } else {
+        // COD: Just send order confirmation (invoice will be sent after admin accepts)
+        await sendOrderEmail('order_received_customer', orderEmailData)
+      }
+
+      // Email prodejci (always)
+      await sendOrderEmail('order_received_seller', orderEmailData)
 
       console.log('Order emails sent successfully')
     } catch (emailError) {

@@ -59,6 +59,8 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [showDetail, setShowDetail] = useState(false)
+  const [trackingNumber, setTrackingNumber] = useState('')
+  const [showTrackingInput, setShowTrackingInput] = useState(false)
 
   useEffect(() => {
     fetchOrders()
@@ -78,16 +80,21 @@ export default function OrdersPage() {
     }
   }
 
-  const handleStatusChange = async (orderId: string, newStatus: string) => {
+  const handleStatusChange = async (orderId: string, newStatus: string, trackingNum?: string) => {
     try {
       const res = await fetch(`/api/admin/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ 
+          status: newStatus,
+          ...(trackingNum && { trackingNumber: trackingNum })
+        })
       })
 
       if (res.ok) {
         alert(`Stav objednávky byl změněn na: ${statusLabels[newStatus]}`)
+        setShowTrackingInput(false)
+        setTrackingNumber('')
         await fetchOrders()
         if (selectedOrder && selectedOrder.id === orderId) {
           const updated = await res.json()
@@ -99,6 +106,16 @@ export default function OrdersPage() {
     } catch (error) {
       console.error('Error changing status:', error)
       alert('Chyba při změně stavu objednávky')
+    }
+  }
+
+  const handleShipOrder = (orderId: string) => {
+    setShowTrackingInput(true)
+  }
+
+  const confirmShipOrder = () => {
+    if (selectedOrder) {
+      handleStatusChange(selectedOrder.id, 'shipped', trackingNumber || undefined)
     }
   }
 
@@ -284,16 +301,61 @@ export default function OrdersPage() {
                 {/* Akční tlačítka */}
                 <div className="flex flex-wrap gap-2">
                   {getAvailableActions(selectedOrder.status).map((action) => (
-                    <Button
-                      key={action.status}
-                      onClick={() => handleStatusChange(selectedOrder.id, action.status)}
-                      className={`${action.color} hover:opacity-90 text-white`}
-                    >
-                      <action.icon className="h-4 w-4 mr-2" />
-                      {action.label}
-                    </Button>
+                    action.status === 'shipped' ? (
+                      <Button
+                        key={action.status}
+                        onClick={() => handleShipOrder(selectedOrder.id)}
+                        className={`${action.color} hover:opacity-90 text-white`}
+                      >
+                        <action.icon className="h-4 w-4 mr-2" />
+                        {action.label}
+                      </Button>
+                    ) : (
+                      <Button
+                        key={action.status}
+                        onClick={() => handleStatusChange(selectedOrder.id, action.status)}
+                        className={`${action.color} hover:opacity-90 text-white`}
+                      >
+                        <action.icon className="h-4 w-4 mr-2" />
+                        {action.label}
+                      </Button>
+                    )
                   ))}
                 </div>
+                
+                {/* Tracking number input for shipping */}
+                {showTrackingInput && selectedOrder.status === 'ready_to_ship' && (
+                  <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Sledovací číslo zásilky (volitelné)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={trackingNumber}
+                        onChange={(e) => setTrackingNumber(e.target.value)}
+                        placeholder="např. Z1234567890"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                      <Button
+                        onClick={confirmShipOrder}
+                        className="bg-orange-600 hover:bg-orange-700 text-white"
+                      >
+                        <Truck className="h-4 w-4 mr-2" />
+                        Potvrdit odeslání
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setShowTrackingInput(false)
+                          setTrackingNumber('')
+                        }}
+                      >
+                        Zrušit
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Údaje zákazníka */}
