@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
           await sendOrderEmail('order_received_customer', orderEmailData)
         }
       } else {
-        // COD: Just send order confirmation (invoice will be sent after admin accepts)
+        // COD or store_payment: Just send order confirmation (invoice will be sent after admin accepts)
         await sendOrderEmail('order_received_customer', orderEmailData)
       }
 

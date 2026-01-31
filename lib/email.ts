@@ -307,6 +307,13 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                 </div>
               ` : ''}
               
+              ${data.paymentMethod === 'store_payment' ? `
+                <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+                  <strong>🏪 Platba na prodejně</strong><br>
+                  Objednávku zaplatíš při vyzvednutí na prodejně. Žádné příplatky!
+                </div>
+              ` : ''}
+              
               ${data.shippingAddress?.shippingDetails?.pickupPoint ? `
                 <div style="background: #f3e8ff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #9333ea;">
                   <h3 style="color: #7c3aed; margin: 0 0 15px 0;">📦 Výdejní místo Zásilkovna</h3>
@@ -320,6 +327,20 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                       Otevírací doba: ${data.shippingAddress.shippingDetails.pickupPoint.openingHours}
                     </p>
                   ` : ''}
+                </div>
+              ` : ''}
+              
+              ${data.shippingAddress?.shippingDetails?.personalLocation ? `
+                <div style="background: #ecfdf5; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #10b981;">
+                  <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Osobní odběr na prodejně</h3>
+                  <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">
+                    ${data.shippingAddress.shippingDetails.personalLocation === 'havirov' ? 'Havířov' : 'Frenštát pod Radhoštěm'}
+                  </p>
+                  <p style="margin: 0; color: #374151;">
+                    ${data.shippingAddress.shippingDetails.personalLocation === 'havirov' 
+                      ? 'Hlavní 1234, 736 01 Havířov' 
+                      : 'Hlavní 5678, 744 01 Frenštát p. R.'}
+                  </p>
                 </div>
               ` : ''}
               
@@ -436,8 +457,25 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                 </div>
               ` : ''}
               
+              ${data.shippingAddress?.shippingDetails?.personalLocation ? `
+                <div style="background: #ecfdf5; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #10b981;">
+                  <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Osobní odběr na prodejně:</h3>
+                  <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">
+                    ${data.shippingAddress.shippingDetails.personalLocation === 'havirov' ? 'Havířov' : 'Frenštát pod Radhoštěm'}
+                  </p>
+                  <p style="margin: 0; color: #374151;">
+                    ${data.shippingAddress.shippingDetails.personalLocation === 'havirov' 
+                      ? 'Hlavní 1234, 736 01 Havířov' 
+                      : 'Hlavní 5678, 744 01 Frenštát p. R.'}
+                  </p>
+                  ${data.paymentMethod === 'store_payment' ? `
+                    <p style="margin-top: 10px; color: #059669; font-weight: bold;">💳 Platba při vyzvednutí</p>
+                  ` : ''}
+                </div>
+              ` : ''}
+              
               <p>Budeme tě průběžně informovat o dalších krocích tvé objednávky.</p>
-              ${data.paymentMethod === 'cod' ? `<p>Zároveň ti posíláme fakturu v samostatném emailu.</p>` : ''}
+              ${data.paymentMethod === 'cod' || data.paymentMethod === 'store_payment' ? `<p>Zároveň ti posíláme fakturu v samostatném emailu.</p>` : ''}
               <p>S láskou,<br>Tým Monlii ❤️</p>
             </div>
             <div class="footer">

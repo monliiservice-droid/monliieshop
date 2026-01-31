@@ -275,7 +275,8 @@ export default function OrdersPage() {
                       {(() => {
                         const paymentMethods: Record<string, string> = {
                           'qr_code': 'QR platba',
-                          'cod': 'Dobírka'
+                          'cod': 'Dobírka',
+                          'store_payment': 'Platba na prodejně'
                         }
                         const paymentMethod = (selectedOrder as any).paymentMethod || 'qr_code'
                         return paymentMethods[paymentMethod] || paymentMethod

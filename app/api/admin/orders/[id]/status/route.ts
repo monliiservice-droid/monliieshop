@@ -105,13 +105,13 @@ export async function PATCH(
     // Odešli příslušný email podle statusu
     switch (status) {
       case 'in_production':
-        // Different logic for QR vs COD payments
+        // Different logic based on payment method
         if (order.paymentMethod === 'qr_code') {
           // QR payment: Invoice was already sent at order creation
           // Just send "payment received + in production" email
           await sendOrderEmail('order_accepted', {
             ...orderData,
-            paymentMethod: order.paymentMethod // Pass payment method for email customization
+            paymentMethod: order.paymentMethod
           })
           
           // Mark existing invoice as paid
@@ -126,13 +126,13 @@ export async function PATCH(
             console.error('Error marking invoice as paid:', invoiceError)
           }
         } else {
-          // COD payment: Create invoice now and send it with "in production" email
+          // COD or store_payment: Create invoice now and send it with "in production" email
           await sendOrderEmail('order_accepted', {
             ...orderData,
             paymentMethod: order.paymentMethod
           })
           
-          // Create and send invoice for COD orders
+          // Create and send invoice for COD/store_payment orders
           try {
             const invoice = await createInvoiceForOrder({
               id: order.id,
@@ -154,7 +154,7 @@ export async function PATCH(
               paymentMethod: order.paymentMethod
             })
             
-            // Send invoice email (COD - payment upon delivery)
+            // Send invoice email (payment upon delivery/pickup)
             await sendInvoiceEmail({
               invoiceNumber: invoice.invoiceNumber,
               orderNumber: order.orderNumber,
@@ -172,7 +172,7 @@ export async function PATCH(
               paymentStatus: 'pending'
             })
             
-            console.log(`Invoice ${invoice.invoiceNumber} created and sent for COD order ${order.orderNumber}`)
+            console.log(`Invoice ${invoice.invoiceNumber} created and sent for ${order.paymentMethod} order ${order.orderNumber}`)
           } catch (invoiceError) {
             console.error('Error creating invoice:', invoiceError)
           }

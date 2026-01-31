@@ -127,9 +127,32 @@ export default function CheckoutPage() {
     }
   }
 
-  const getFinalPrice = () => {
-    return getTotalPrice() + getShippingPrice()
+  const getCodFee = () => {
+    // No COD fee for store_payment or qr_code
+    if (paymentMethod === 'cod') {
+      return 30
+    }
+    return 0
   }
+
+  const getFinalPrice = () => {
+    return getTotalPrice() + getShippingPrice() + getCodFee()
+  }
+
+  // Reset payment method when shipping method changes to avoid invalid combinations
+  useEffect(() => {
+    if (shippingMethod === 'personal') {
+      // If switching to personal pickup and COD is selected, switch to qr_code
+      if (paymentMethod === 'cod') {
+        setPaymentMethod('qr_code')
+      }
+    } else {
+      // If switching away from personal pickup and store_payment is selected, switch to qr_code
+      if (paymentMethod === 'store_payment') {
+        setPaymentMethod('qr_code')
+      }
+    }
+  }, [shippingMethod])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -552,6 +575,7 @@ export default function CheckoutPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
+                    {/* QR platba - always available */}
                     <div 
                       onClick={() => setPaymentMethod('qr_code')}
                       className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
@@ -575,31 +599,63 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    <div 
-                      onClick={() => setPaymentMethod('cod')}
-                      className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
-                        paymentMethod === 'cod' 
-                          ? 'border-[#931e31] bg-pink-50' 
-                          : 'border-gray-200 hover:border-pink-300'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                            paymentMethod === 'cod' ? 'border-[#931e31]' : 'border-gray-300'
-                          }`}>
-                            {paymentMethod === 'cod' && (
-                              <div className="w-3 h-3 rounded-full bg-[#931e31]"></div>
-                            )}
+                    {/* Platba na prodejně - only for personal pickup */}
+                    {shippingMethod === 'personal' && (
+                      <div 
+                        onClick={() => setPaymentMethod('store_payment')}
+                        className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
+                          paymentMethod === 'store_payment' 
+                            ? 'border-[#931e31] bg-pink-50' 
+                            : 'border-gray-200 hover:border-pink-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                              paymentMethod === 'store_payment' ? 'border-[#931e31]' : 'border-gray-300'
+                            }`}>
+                              {paymentMethod === 'store_payment' && (
+                                <div className="w-3 h-3 rounded-full bg-[#931e31]"></div>
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">Platba na prodejně</h3>
+                              <p className="text-sm text-gray-600">Zaplatíte při vyzvednutí</p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-semibold">Dobírka</h3>
-                            <p className="text-sm text-gray-600">Platba při převzetí</p>
-                          </div>
+                          <span className="font-bold text-green-600">Zdarma</span>
                         </div>
-                        <span className="text-sm text-gray-600">+30 Kč</span>
                       </div>
-                    </div>
+                    )}
+
+                    {/* Dobírka - only for delivery (not personal pickup) */}
+                    {shippingMethod !== 'personal' && (
+                      <div 
+                        onClick={() => setPaymentMethod('cod')}
+                        className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
+                          paymentMethod === 'cod' 
+                            ? 'border-[#931e31] bg-pink-50' 
+                            : 'border-gray-200 hover:border-pink-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                              paymentMethod === 'cod' ? 'border-[#931e31]' : 'border-gray-300'
+                            }`}>
+                              {paymentMethod === 'cod' && (
+                                <div className="w-3 h-3 rounded-full bg-[#931e31]"></div>
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">Dobírka</h3>
+                              <p className="text-sm text-gray-600">Platba při převzetí</p>
+                            </div>
+                          </div>
+                          <span className="text-sm text-gray-600">+30 Kč</span>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
