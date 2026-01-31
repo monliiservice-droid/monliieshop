@@ -51,7 +51,10 @@ export async function POST(request: NextRequest) {
             }),
             // Přidáme shipping details přímo do adresy
             shippingDetails: {
-              ...(data.shipping.pickupPoint && { pickupPoint: data.shipping.pickupPoint }),
+              // Support both 'zbox' (from checkout) and 'pickupPoint' naming
+              ...((data.shipping.zbox || data.shipping.pickupPoint) && { 
+                pickupPoint: data.shipping.zbox || data.shipping.pickupPoint 
+              }),
               ...(data.shipping.personalLocation && { personalLocation: data.shipping.personalLocation })
             }
           }),
