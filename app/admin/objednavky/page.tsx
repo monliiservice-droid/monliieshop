@@ -54,6 +54,25 @@ const statusLabels: Record<string, string> = {
   cancelled: 'Zrušeno',
 }
 
+// Status labels for personal pickup orders
+const pickupStatusLabels: Record<string, string> = {
+  new: 'Nová objednávka',
+  accepted: 'Přijato',
+  rejected: 'Odmítnuto',
+  in_production: 'Ve výrobě',
+  ready_to_ship: 'Výrobek hotov',
+  shipped: 'Připraveno k vyzvednutí',
+  delivered: 'Vyzvednuto',
+  cancelled: 'Zrušeno',
+}
+
+const getStatusLabel = (status: string, shippingMethod: string) => {
+  if (shippingMethod === 'personal') {
+    return pickupStatusLabels[status] || status
+  }
+  return statusLabels[status] || status
+}
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -143,7 +162,9 @@ export default function OrdersPage() {
     }
   }
 
-  const getAvailableActions = (status: string) => {
+  const getAvailableActions = (status: string, shippingMethod?: string) => {
+    const isPersonalPickup = shippingMethod === 'personal'
+    
     switch (status) {
       case 'new':
         return [
@@ -152,18 +173,42 @@ export default function OrdersPage() {
         ]
       case 'in_production':
         return [
-          { status: 'ready_to_ship', label: 'Připraveno', icon: CheckCircle, color: 'bg-yellow-600' },
+          { status: 'ready_to_ship', label: isPersonalPickup ? 'Hotovo' : 'Připraveno', icon: CheckCircle, color: 'bg-yellow-600' },
         ]
       case 'ready_to_ship':
         return [
-          { status: 'shipped', label: 'Odeslat', icon: Truck, color: 'bg-orange-600' },
+          { status: 'shipped', label: isPersonalPickup ? 'K vyzvednutí' : 'Odeslat', icon: isPersonalPickup ? Package : Truck, color: 'bg-orange-600' },
         ]
       case 'shipped':
         return [
-          { status: 'delivered', label: 'Doručeno', icon: Home, color: 'bg-green-700' },
+          { status: 'delivered', label: isPersonalPickup ? 'Vyzvednuto' : 'Doručeno', icon: Home, color: 'bg-green-700' },
         ]
       default:
         return []
+    }
+  }
+
+  const handlePaymentStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}/payment-status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentStatus: newStatus })
+      })
+
+      if (res.ok) {
+        alert(`Stav platby byl změněn na: ${newStatus === 'paid' ? 'Zaplaceno' : 'Čeká na platbu'}`)
+        await fetchOrders()
+        if (selectedOrder && selectedOrder.id === orderId) {
+          const updated = await res.json()
+          setSelectedOrder(updated)
+        }
+      } else {
+        alert('Chyba při změně stavu platby')
+      }
+    } catch (error) {
+      console.error('Error changing payment status:', error)
+      alert('Chyba při změně stavu platby')
     }
   }
 
@@ -262,16 +307,16 @@ export default function OrdersPage() {
             <div className="p-6 space-y-6">
               {/* Status a akce */}
               <div className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
                   <div>
                     <p className="text-sm text-gray-600 mb-2">Aktuální stav:</p>
                     <Badge className={`${statusColors[selectedOrder.status]} text-white px-4 py-2 text-base`}>
-                      {statusLabels[selectedOrder.status]}
+                      {getStatusLabel(selectedOrder.status, selectedOrder.shippingMethod)}
                     </Badge>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600 mb-2">Způsob platby:</p>
-                    <Badge className={selectedOrder.paymentStatus === 'paid' ? 'bg-green-500 text-white px-4 py-2' : 'bg-blue-500 text-white px-4 py-2'}>
+                    <Badge className={selectedOrder.paymentStatus === 'paid' ? 'bg-green-500 text-white px-4 py-2' : 'bg-yellow-500 text-white px-4 py-2'}>
                       {(() => {
                         const paymentMethods: Record<string, string> = {
                           'qr_code': 'QR platba',
@@ -281,7 +326,7 @@ export default function OrdersPage() {
                         const paymentMethod = (selectedOrder as any).paymentMethod || 'qr_code'
                         return paymentMethods[paymentMethod] || paymentMethod
                       })()}
-                      {selectedOrder.paymentStatus === 'paid' && ' ✓'}
+                      {selectedOrder.paymentStatus === 'paid' ? ' ✓' : ' (čeká)'}
                     </Badge>
                   </div>
                   <div>
@@ -299,10 +344,37 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
+                {/* Payment status toggle for COD/store_payment */}
+                {(selectedOrder.paymentMethod === 'cod' || selectedOrder.paymentMethod === 'store_payment') && (
+                  <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-amber-800">
+                          💰 Stav platby: {selectedOrder.paymentStatus === 'paid' ? 'Zaplaceno' : 'Čeká na platbu'}
+                        </p>
+                        <p className="text-sm text-amber-600">
+                          {selectedOrder.paymentMethod === 'cod' ? 'Platba na dobírku' : 'Platba při vyzvednutí na prodejně'}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => handlePaymentStatusChange(
+                          selectedOrder.id, 
+                          selectedOrder.paymentStatus === 'paid' ? 'pending' : 'paid'
+                        )}
+                        className={selectedOrder.paymentStatus === 'paid' 
+                          ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
+                          : 'bg-green-500 hover:bg-green-600 text-white'}
+                      >
+                        {selectedOrder.paymentStatus === 'paid' ? 'Označit jako nezaplaceno' : 'Označit jako zaplaceno'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Akční tlačítka */}
                 <div className="flex flex-wrap gap-2">
-                  {getAvailableActions(selectedOrder.status).map((action) => (
-                    action.status === 'shipped' ? (
+                  {getAvailableActions(selectedOrder.status, selectedOrder.shippingMethod).map((action) => (
+                    action.status === 'shipped' && selectedOrder.shippingMethod !== 'personal' ? (
                       <Button
                         key={action.status}
                         onClick={() => handleShipOrder(selectedOrder.id)}
@@ -420,11 +492,48 @@ export default function OrdersPage() {
                       
                       // Osobní odběr
                       if (addr.shippingDetails?.personalLocation) {
+                        const location = addr.shippingDetails.personalLocation
+                        const locationDetails = {
+                          havirov: {
+                            name: 'Havířov',
+                            address: 'Hlavní 1234',
+                            zip: '736 01',
+                            city: 'Havířov'
+                          },
+                          frenstat: {
+                            name: 'Frenštát pod Radhoštěm',
+                            address: 'Hlavní 5678',
+                            zip: '744 01',
+                            city: 'Frenštát p. R.'
+                          }
+                        }
+                        const loc = locationDetails[location as keyof typeof locationDetails]
+                        
                         return (
                           <div className="col-span-2 mt-2">
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                              <p className="text-blue-700 font-semibold mb-2">🏠 Osobní odběr</p>
-                              <p className="font-semibold">{addr.shippingDetails.personalLocation}</p>
+                            <div className="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-5">
+                              <div className="flex items-center gap-2 mb-3">
+                                <span className="text-2xl">🏪</span>
+                                <p className="text-emerald-700 font-bold text-lg">Osobní odběr na prodejně</p>
+                              </div>
+                              {loc ? (
+                                <>
+                                  <p className="font-bold text-xl text-gray-900 mb-1">{loc.name}</p>
+                                  <p className="text-gray-700 text-base">
+                                    {loc.address}<br />
+                                    {loc.zip} {loc.city}
+                                  </p>
+                                  {selectedOrder.paymentMethod === 'store_payment' && (
+                                    <div className="mt-3 pt-3 border-t border-emerald-200">
+                                      <p className="text-emerald-600 font-semibold flex items-center gap-2">
+                                        💳 Platba při vyzvednutí
+                                      </p>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <p className="font-semibold text-gray-900">{location}</p>
+                              )}
                             </div>
                           </div>
                         )

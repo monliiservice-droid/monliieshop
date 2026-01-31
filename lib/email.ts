@@ -533,6 +533,50 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
       }
 
     case 'order_ready_to_ship':
+      // Different content for personal pickup vs delivery
+      const isPersonalPickup = data.shippingAddress?.shippingDetails?.personalLocation
+      
+      if (isPersonalPickup) {
+        // Personal pickup - product is finished
+        const pickupLocation = data.shippingAddress.shippingDetails.personalLocation
+        const locationInfo = pickupLocation === 'havirov' 
+          ? { name: 'Havířov', address: 'Hlavní 1234', zip: '736 01', city: 'Havířov' }
+          : { name: 'Frenštát pod Radhoštěm', address: 'Hlavní 5678', zip: '744 01', city: 'Frenštát p. R.' }
+        
+        return {
+          subject: `Objednávka #${data.orderNumber} - výrobek je hotov! ✨`,
+          html: `
+            ${baseStyles}
+            <div class="container">
+              <div class="header">
+                <img src="${logoUrl}" alt="Monlii" width="150">
+              </div>
+              <div class="content">
+                <h2>Tvůj výrobek je hotový! ✨🎉</h2>
+                <p>Ahoj ${data.customerName},</p>
+                <p>S radostí ti oznamujeme, že tvoje objednávka <strong>#${data.orderNumber}</strong> je kompletně dokončena!</p>
+                <p>Nyní ji připravujeme pro vyzvednutí na prodejně. Jakmile bude připravena, dáme ti vědět. 💝</p>
+                
+                <div style="background: #ecfdf5; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #10b981;">
+                  <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Místo vyzvednutí:</h3>
+                  <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">${locationInfo.name}</p>
+                  <p style="margin: 0; color: #374151;">
+                    ${locationInfo.address}<br>
+                    ${locationInfo.zip} ${locationInfo.city}
+                  </p>
+                </div>
+                
+                <p>S láskou,<br>Tým Monlii ❤️</p>
+              </div>
+              <div class="footer">
+                <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
+              </div>
+            </div>
+          `
+        }
+      }
+      
+      // Regular delivery - ready to ship
       return {
         subject: `Objednávka #${data.orderNumber} je připravena k odeslání`,
         html: `
@@ -568,6 +612,55 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
       }
 
     case 'order_shipped':
+      // Different content for personal pickup vs delivery
+      const isPickupShipped = data.shippingAddress?.shippingDetails?.personalLocation
+      
+      if (isPickupShipped) {
+        // Personal pickup - ready for pickup
+        const pickupLoc = data.shippingAddress.shippingDetails.personalLocation
+        const locDetails = pickupLoc === 'havirov' 
+          ? { name: 'Havířov', address: 'Hlavní 1234', zip: '736 01', city: 'Havířov' }
+          : { name: 'Frenštát pod Radhoštěm', address: 'Hlavní 5678', zip: '744 01', city: 'Frenštát p. R.' }
+        
+        return {
+          subject: `Objednávka #${data.orderNumber} - připraveno k vyzvednutí! 🎉`,
+          html: `
+            ${baseStyles}
+            <div class="container">
+              <div class="header">
+                <img src="${logoUrl}" alt="Monlii" width="150">
+              </div>
+              <div class="content">
+                <h2>Tvoje objednávka je připravena k vyzvednutí! 🎉</h2>
+                <p>Ahoj ${data.customerName},</p>
+                <p>Skvělá zpráva! Tvoje objednávka <strong>#${data.orderNumber}</strong> je připravena a čeká na tebe na prodejně!</p>
+                
+                <div style="background: #ecfdf5; padding: 25px; border-radius: 12px; margin: 25px 0; border: 2px solid #10b981;">
+                  <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Přijď si pro ni na:</h3>
+                  <p style="font-weight: bold; font-size: 20px; margin: 0 0 10px 0;">${locDetails.name}</p>
+                  <p style="margin: 0; color: #374151; font-size: 16px;">
+                    ${locDetails.address}<br>
+                    ${locDetails.zip} ${locDetails.city}
+                  </p>
+                  ${data.paymentMethod === 'store_payment' ? `
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #10b981;">
+                      <p style="color: #059669; font-weight: bold; margin: 0;">💳 Platba při vyzvednutí: ${data.totalAmount?.toLocaleString('cs-CZ') || ''} Kč</p>
+                    </div>
+                  ` : ''}
+                </div>
+                
+                <p>Těšíme se na tebe! 💝</p>
+                <p>S láskou,<br>Tým Monlii ❤️</p>
+              </div>
+              <div class="footer">
+                <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
+              </div>
+            </div>
+          `
+        }
+      }
+      
+      // Regular delivery - shipped
       return {
         subject: `Objednávka #${data.orderNumber} byla odeslána`,
         html: `
@@ -614,8 +707,13 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
       }
 
     case 'order_delivered':
+      // Different content for personal pickup vs delivery
+      const isPickupDelivered = data.shippingAddress?.shippingDetails?.personalLocation
+      
       return {
-        subject: `Objednávka #${data.orderNumber} byla doručena`,
+        subject: isPickupDelivered 
+          ? `Objednávka #${data.orderNumber} - děkujeme za vyzvednutí! 💝`
+          : `Objednávka #${data.orderNumber} byla doručena`,
         html: `
           ${baseStyles}
           <div class="container">
@@ -623,9 +721,9 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
               <img src="${logoUrl}" alt="Monlii" width="150">
             </div>
             <div class="content">
-              <h2>Tvoje objednávka dorazila! 🎉</h2>
+              <h2>${isPickupDelivered ? 'Děkujeme za vyzvednutí! 💝' : 'Tvoje objednávka dorazila! 🎉'}</h2>
               <p>Ahoj ${data.customerName},</p>
-              <p>Tvoje objednávka <strong>#${data.orderNumber}</strong> byla úspěšně doručena!</p>
+              <p>Tvoje objednávka <strong>#${data.orderNumber}</strong> byla úspěšně ${isPickupDelivered ? 'vyzvednuta' : 'doručena'}!</p>
               <p>Doufáme, že se ti naše produkty líbí a budou ti sloužit dlouho a s radostí.</p>
               <p>S láskou,<br>Tým Monlii ❤️</p>
             </div>
