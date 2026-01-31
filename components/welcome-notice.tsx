@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Construction, Instagram, Phone, ExternalLink, X } from 'lucide-react'
+import { ShoppingBag, CreditCard, QrCode, Truck, X } from 'lucide-react'
 import Link from 'next/link'
 
 export function WelcomeNotice() {
@@ -45,13 +45,13 @@ export function WelcomeNotice() {
           
           <div className="relative z-10">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mb-4">
-              <Construction className="h-8 w-8 text-white" />
+              <ShoppingBag className="h-8 w-8 text-white" />
             </div>
             <DialogTitle className="text-3xl font-bold text-white mb-2">
-              Vítejte v novém Monlii! 👋
+              Objednávky jsou spuštěny! 🎉
             </DialogTitle>
             <DialogDescription className="text-pink-50 text-lg">
-              Právě dokončujeme poslední úpravy
+              Vítejte v novém Monlii e-shopu
             </DialogDescription>
           </div>
         </div>
@@ -62,48 +62,53 @@ export function WelcomeNotice() {
             {/* Hlavní zpráva */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <p className="text-gray-700 text-lg leading-relaxed">
-                Náš nový e-shop se právě připravuje na váš příchod. Zatím zde můžete procházet produkty a seznamovat se s naší nabídkou, ale <strong>objednávky ještě nejsou aktivní</strong>.
+                Náš nový e-shop je nyní plně funkční a <strong>můžete si objednat</strong>! Platby kartou jsou zatím ve vývoji, ale máme pro vás další možnosti.
               </p>
             </div>
 
-            {/* Možnosti nákupu */}
+            {/* Možnosti platby */}
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="text-2xl">💝</span>
-                Chcete si objednat hned?
+                <span className="text-2xl">�</span>
+                Jak můžete platit?
               </h3>
               
               <div className="space-y-3">
-                {/* Instagram */}
-                <a 
-                  href="https://www.instagram.com/monlii_i/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 bg-gradient-to-r from-pink-50 to-purple-50 hover:from-pink-100 hover:to-purple-100 rounded-xl transition-all duration-300 border border-pink-200/50 group"
-                >
-                  <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <Instagram className="h-5 w-5 text-white" />
+                {/* QR platba */}
+                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200/50">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <QrCode className="h-5 w-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">Napište nám na Instagramu</p>
-                    <p className="text-sm text-gray-600">@monlii_i</p>
+                    <p className="font-semibold text-gray-900">QR platba / Bankovní převod</p>
+                    <p className="text-sm text-gray-600">Rychlá platba přes mobilní bankovnictví</p>
                   </div>
-                  <ExternalLink className="h-5 w-5 text-gray-400 group-hover:text-gray-600" />
-                </a>
+                  <span className="text-green-600 font-semibold text-sm">✓ Dostupné</span>
+                </div>
 
-                {/* Telefon */}
-                <a 
-                  href="tel:+420735823160" 
-                  className="flex items-center gap-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 rounded-xl transition-all duration-300 border border-green-200/50 group"
-                >
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <Phone className="h-5 w-5 text-white" />
+                {/* Dobírka */}
+                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/50">
+                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Truck className="h-5 w-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">Zavolejte nám</p>
-                    <p className="text-sm text-gray-600">+420 735 823 160</p>
+                    <p className="font-semibold text-gray-900">Dobírka</p>
+                    <p className="text-sm text-gray-600">Platba při převzetí zásilky</p>
                   </div>
-                </a>
+                  <span className="text-green-600 font-semibold text-sm">✓ Dostupné</span>
+                </div>
+
+                {/* Kartou - brzy */}
+                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200/50 opacity-70">
+                  <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-slate-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <CreditCard className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900">Platba kartou</p>
+                    <p className="text-sm text-gray-600">Visa, Mastercard, Apple Pay...</p>
+                  </div>
+                  <span className="text-amber-600 font-semibold text-sm">Již brzy</span>
+                </div>
               </div>
             </div>
 

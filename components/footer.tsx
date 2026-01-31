@@ -131,26 +131,19 @@ export function Footer() {
 
           {/* Payment Methods */}
           <div className="flex flex-col items-center space-y-3">
-            <p className="text-xs text-gray-600 font-medium">Přijímáme platební karty:</p>
+            <p className="text-xs text-gray-600 font-medium">Možnosti platby:</p>
             <div className="flex items-center gap-4 flex-wrap justify-center">
-              {/* Visa */}
-              <div className="h-8 px-3 bg-white rounded border border-gray-200 flex items-center">
-                <span className="text-sm font-bold text-[#1A1F71]">VISA</span>
+              {/* QR platba */}
+              <div className="h-8 px-3 bg-blue-50 rounded border border-blue-200 flex items-center gap-2">
+                <span className="text-sm font-semibold text-blue-700">QR platba</span>
               </div>
-              {/* Mastercard */}
-              <div className="h-8 px-3 bg-white rounded border border-gray-200 flex items-center">
-                <div className="flex items-center gap-[-4px]">
-                  <div className="w-5 h-5 rounded-full bg-[#EB001B]"></div>
-                  <div className="w-5 h-5 rounded-full bg-[#FF5F00] -ml-2"></div>
-                </div>
+              {/* Dobírka */}
+              <div className="h-8 px-3 bg-amber-50 rounded border border-amber-200 flex items-center">
+                <span className="text-sm font-semibold text-amber-700">Dobírka</span>
               </div>
-              {/* GoPay */}
-              <div className="h-8 px-3 bg-[#00C9A5] rounded flex items-center">
-                <span className="text-sm font-bold text-white">GoPay</span>
-              </div>
-              {/* 3D Secure */}
-              <div className="h-8 px-3 bg-white rounded border border-gray-200 flex items-center">
-                <span className="text-xs font-semibold text-gray-700">3D Secure</span>
+              {/* Zásilkovna */}
+              <div className="h-8 px-3 bg-[#ba1b02] rounded flex items-center">
+                <span className="text-sm font-bold text-white">Zásilkovna</span>
               </div>
             </div>
           </div>
