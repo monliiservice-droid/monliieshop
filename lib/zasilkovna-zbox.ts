@@ -163,7 +163,7 @@ export async function findNearestZBox(
     let nearestZBox: ZBoxPoint | null = null
     let minDistance = Infinity
 
-    zboxPoints.forEach((zbox) => {
+    for (const zbox of zboxPoints) {
       const distance = calculateDistance(
         customerCoords.lat,
         customerCoords.lon,
@@ -175,7 +175,7 @@ export async function findNearestZBox(
         minDistance = distance
         nearestZBox = zbox
       }
-    })
+    }
 
     console.log(`Found nearest Z-BOX: ${nearestZBox?.name} (${minDistance.toFixed(2)} km away)`)
     
