@@ -182,6 +182,22 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                 </div>
               ` : ''}
               
+              ${data.shippingAddress?.shippingDetails?.pickupPoint ? `
+                <div style="background: #f3e8ff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #9333ea;">
+                  <h3 style="color: #7c3aed; margin: 0 0 15px 0;">📦 Výdejní místo Zásilkovna</h3>
+                  <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">${data.shippingAddress.shippingDetails.pickupPoint.name}</p>
+                  <p style="margin: 0; color: #374151;">
+                    ${data.shippingAddress.shippingDetails.pickupPoint.street}<br>
+                    ${data.shippingAddress.shippingDetails.pickupPoint.zip} ${data.shippingAddress.shippingDetails.pickupPoint.city}
+                  </p>
+                  ${data.shippingAddress.shippingDetails.pickupPoint.openingHours ? `
+                    <p style="margin: 10px 0 0 0; font-size: 14px; color: #6b7280;">
+                      Otevírací doba: ${data.shippingAddress.shippingDetails.pickupPoint.openingHours}
+                    </p>
+                  ` : ''}
+                </div>
+              ` : ''}
+              
               <p>Brzy tě budeme kontaktovat s potvrzením přijetí objednávky.</p>
               <p>S láskou,<br>Tým Monlii ❤️</p>
             </div>
@@ -224,6 +240,14 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                 
                 ${data.paymentMethod === 'cod' ? `
                   <p style="color: #10b981;"><strong>✓ Platba při převzetí</strong></p>
+                ` : ''}
+                
+                ${data.shippingAddress?.shippingDetails?.pickupPoint ? `
+                  <div style="background: #f3e8ff; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #9333ea;">
+                    <strong>📦 Výdejní místo:</strong><br>
+                    <strong>${data.shippingAddress.shippingDetails.pickupPoint.name}</strong><br>
+                    ${data.shippingAddress.shippingDetails.pickupPoint.street}, ${data.shippingAddress.shippingDetails.pickupPoint.zip} ${data.shippingAddress.shippingDetails.pickupPoint.city}
+                  </div>
                 ` : ''}
                 
                 <h3>Položky:</h3>
@@ -340,6 +364,18 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
               <p>Ahoj ${data.customerName},</p>
               <p>Tvoje objednávka <strong>#${data.orderNumber}</strong> je hotová a připravená k odeslání!</p>
               <p>V nejbližších dnech ji odešleme a dostaneš informace o sledování zásilky.</p>
+              
+              ${data.shippingAddress?.shippingDetails?.pickupPoint ? `
+                <div style="background: #f3e8ff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #9333ea;">
+                  <h3 style="color: #7c3aed; margin: 0 0 15px 0;">📦 Balíček bude k vyzvednutí na:</h3>
+                  <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">${data.shippingAddress.shippingDetails.pickupPoint.name}</p>
+                  <p style="margin: 0; color: #374151;">
+                    ${data.shippingAddress.shippingDetails.pickupPoint.street}<br>
+                    ${data.shippingAddress.shippingDetails.pickupPoint.zip} ${data.shippingAddress.shippingDetails.pickupPoint.city}
+                  </p>
+                </div>
+              ` : ''}
+              
               <p>S láskou,<br>Tým Monlii ❤️</p>
             </div>
             <div class="footer">
@@ -362,6 +398,23 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
               <h2>Tvoje objednávka je na cestě! 🚚</h2>
               <p>Ahoj ${data.customerName},</p>
               <p>Tvoje objednávka <strong>#${data.orderNumber}</strong> byla odeslána!</p>
+              
+              ${data.shippingAddress?.shippingDetails?.pickupPoint ? `
+                <div style="background: #f3e8ff; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #9333ea;">
+                  <h3 style="color: #7c3aed; margin: 0 0 15px 0;">📦 Vyzvedni si balíček na:</h3>
+                  <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">${data.shippingAddress.shippingDetails.pickupPoint.name}</p>
+                  <p style="margin: 0; color: #374151;">
+                    ${data.shippingAddress.shippingDetails.pickupPoint.street}<br>
+                    ${data.shippingAddress.shippingDetails.pickupPoint.zip} ${data.shippingAddress.shippingDetails.pickupPoint.city}
+                  </p>
+                  ${data.shippingAddress.shippingDetails.pickupPoint.openingHours ? `
+                    <p style="margin: 10px 0 0 0; font-size: 14px; color: #6b7280;">
+                      Otevírací doba: ${data.shippingAddress.shippingDetails.pickupPoint.openingHours}
+                    </p>
+                  ` : ''}
+                </div>
+              ` : ''}
+              
               ${data.trackingNumber ? `
                 <div class="order-details">
                   <p><strong>Sledovací číslo:</strong> ${data.trackingNumber}</p>

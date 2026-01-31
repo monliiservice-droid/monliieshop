@@ -22,6 +22,8 @@ interface Order {
   customerEmail: string
   customerPhone: string | null
   shippingAddress: string
+  shippingMethod: string
+  paymentMethod: string
   totalAmount: number
   status: string
   paymentStatus: string
@@ -328,28 +330,39 @@ export default function OrdersPage() {
                   {(() => {
                     try {
                       const addr = JSON.parse(selectedOrder.shippingAddress)
-                      const shippingMethod = (selectedOrder as any).shippingMethod
+                      const pickupPoint = addr.shippingDetails?.pickupPoint
                       
-                      // Z-BOX delivery
-                      if (shippingMethod === 'zbox' && addr.shippingDetails?.zbox) {
-                        const zbox = addr.shippingDetails.zbox
+                      // Z-BOX / Zásilkovna pickup point
+                      if (pickupPoint) {
                         return (
-                          <div className="col-span-2">
-                            <p className="text-gray-600">Z-BOX Zásilkovna</p>
-                            <p className="font-semibold">
-                              {zbox.name}<br />
-                              {zbox.street}, {zbox.zip} {zbox.city}
-                            </p>
+                          <div className="col-span-2 mt-2">
+                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                              <p className="text-purple-700 font-semibold mb-2 flex items-center gap-2">
+                                📦 Výdejní místo Zásilkovna
+                              </p>
+                              <p className="font-bold text-lg">{pickupPoint.name}</p>
+                              <p className="text-gray-700">
+                                {pickupPoint.street}<br />
+                                {pickupPoint.zip} {pickupPoint.city}
+                              </p>
+                              {pickupPoint.openingHours && (
+                                <p className="text-sm text-gray-500 mt-2">
+                                  Otevírací doba: {pickupPoint.openingHours}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         )
                       }
                       
                       // Osobní odběr
-                      if (shippingMethod === 'personal' && addr.shippingDetails?.personalLocation) {
+                      if (addr.shippingDetails?.personalLocation) {
                         return (
-                          <div className="col-span-2">
-                            <p className="text-gray-600">Místo osobního odběru</p>
-                            <p className="font-semibold">{addr.shippingDetails.personalLocation}</p>
+                          <div className="col-span-2 mt-2">
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                              <p className="text-blue-700 font-semibold mb-2">🏠 Osobní odběr</p>
+                              <p className="font-semibold">{addr.shippingDetails.personalLocation}</p>
+                            </div>
                           </div>
                         )
                       }
@@ -392,7 +405,16 @@ export default function OrdersPage() {
                                   {(() => {
                                     try {
                                       const variant = JSON.parse(item.variant)
-                                      return Object.entries(variant).map(([key, value]) => `${key}: ${value}`).join(', ')
+                                      // Extract only the meaningful value, removing id/name prefixes
+                                      if (variant.value) {
+                                        return variant.value
+                                      }
+                                      // Fallback: filter out technical fields and show only useful info
+                                      const skipKeys = ['id', 'name']
+                                      return Object.entries(variant)
+                                        .filter(([key]) => !skipKeys.includes(key.toLowerCase()))
+                                        .map(([, value]) => value)
+                                        .join(', ')
                                     } catch {
                                       return item.variant
                                     }
