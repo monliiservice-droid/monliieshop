@@ -1,11 +1,21 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendOrderEmail } from '@/lib/email'
 
-
 // Tento endpoint by měl být volán cronem každý den
 // Například přes Vercel Cron Jobs nebo externí službu jako cron-job.org
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Verify the request is from Vercel Cron
+  const authHeader = request.headers.get('authorization')
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    // Allow in development without secret
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+  }
   try {
     // Najdi objednávky, které byly doručeny před 5 dny a ještě nebyl odeslán review email
     const fiveDaysAgo = new Date()

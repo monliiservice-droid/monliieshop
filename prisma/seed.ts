@@ -7,7 +7,11 @@ async function main() {
   console.log('🌱 Starting database seed...')
 
   // 1. Vytvoř admin uživatele
-  const adminPassword = await bcrypt.hash('111023@Granko', 10)
+  const adminPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'CHANGE_THIS_PASSWORD', 10)
+  
+  if (!process.env.ADMIN_PASSWORD) {
+    console.warn('⚠️  WARNING: ADMIN_PASSWORD not set in environment. Using default password - CHANGE THIS IN PRODUCTION!')
+  }
   
   const admin = await prisma.admin.upsert({
     where: { email: 'admin' },

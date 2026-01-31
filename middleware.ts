@@ -4,7 +4,10 @@ import { jwtVerify } from 'jose'
 
 // Middleware runs on Edge Runtime by default - no need to specify
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production'
+const JWT_SECRET = process.env.JWT_SECRET
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required')
+}
 
 export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''

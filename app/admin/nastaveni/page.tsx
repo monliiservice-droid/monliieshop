@@ -72,12 +72,9 @@ export default function SettingsPage() {
   }
 
   const handleSave = async () => {
-    setSaving(true)
-    // TODO: Implement save functionality
-    setTimeout(() => {
-      setSaving(false)
-      alert('Nastavení uloženo')
-    }, 1000)
+    // Store settings are saved via saveCompanySettings
+    // This button can be used for future additional settings
+    await saveCompanySettings()
   }
 
   return (

@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-
+import { requireAdminAuth } from '@/lib/auth'
 
 // GET - načíst všechny slevové kódy
 export async function GET() {
+  const isAuthed = await requireAdminAuth()
+  if (!isAuthed) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const codes = await prisma.discountCode.findMany({
       orderBy: { createdAt: 'desc' }
@@ -21,6 +26,11 @@ export async function GET() {
 
 // POST - vytvořit nový slevový kód
 export async function POST(request: NextRequest) {
+  const isAuthed = await requireAdminAuth()
+  if (!isAuthed) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const data = await request.json()
 

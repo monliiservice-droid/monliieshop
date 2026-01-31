@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
 
-// Zvýšit limit pro upload obrázků
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
-}
-
+// App Router route segment config
 export const maxDuration = 60 // 60 seconds timeout
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {

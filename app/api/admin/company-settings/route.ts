@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-
+import { requireAdminAuth } from '@/lib/auth'
 
 // GET - načíst fakturační údaje
 export async function GET() {
+  const isAuthed = await requireAdminAuth()
+  if (!isAuthed) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const settings = await prisma.companySettings.findFirst()
     
@@ -23,6 +28,11 @@ export async function GET() {
 
 // POST - uložit/aktualizovat fakturační údaje
 export async function POST(request: NextRequest) {
+  const isAuthed = await requireAdminAuth()
+  if (!isAuthed) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const data = await request.json()
 
