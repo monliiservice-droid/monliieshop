@@ -1026,7 +1026,7 @@ export default function TrzbyPage() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip formatter={(value: number) => `${value.toLocaleString('cs-CZ')} Kč`} />
+                <Tooltip formatter={(value) => typeof value === 'number' ? `${value.toLocaleString('cs-CZ')} Kč` : value} />
                 <Legend />
                 <Bar 
                   dataKey="revenue" 
