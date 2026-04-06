@@ -139,7 +139,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       {product.category}
                     </Badge>
                   )}
-                  <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{product.name}</h1>
+                  <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-4 tracking-tight">{product.name}</h1>
                 </div>
 
                 {product.description && (
@@ -198,19 +198,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {/* Tabs s dalšími informacemi */}
             <div id="product-tabs" className="mt-16">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="w-full justify-start bg-gradient-to-r from-pink-50/50 to-rose-50/50 rounded-2xl h-auto p-2">
+                <TabsList className="w-full justify-start bg-gradient-to-r from-pink-50/50 to-rose-50/50 rounded-2xl h-auto p-1.5 sm:p-2">
                   <TabsTrigger 
                     value="popis" 
-                    className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#931e31] data-[state=active]:shadow-md px-6 py-3 transition-all duration-300"
+                    className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#931e31] data-[state=active]:shadow-md px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base transition-all duration-300"
                   >
                     Popis
                   </TabsTrigger>
                   {hasBra && (
                     <TabsTrigger 
                       value="mereni" 
-                      className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#931e31] data-[state=active]:shadow-md px-6 py-3 transition-all duration-300"
+                      className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#931e31] data-[state=active]:shadow-md px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base transition-all duration-300"
                     >
-                      <Ruler className="mr-2 h-4 w-4" />
+                      <Ruler className="mr-1.5 sm:mr-2 h-4 w-4" />
                       Jak měřit
                     </TabsTrigger>
                   )}
@@ -218,9 +218,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 
                 <TabsContent value="popis" className="py-8">
                   <Card className="border-0 rounded-3xl soft-shadow-lg bg-white">
-                    <CardContent className="p-8">
+                    <CardContent className="p-5 sm:p-8">
                       <div className="prose prose-lg max-w-none">
-                        <h3 className="text-2xl font-bold mb-4">O produktu</h3>
+                        <h3 className="text-xl sm:text-2xl font-bold mb-4">O produktu</h3>
                         <p className="text-gray-600 leading-relaxed">
                           {product.description || 'Detailní popis produktu bude doplněn.'}
                         </p>
@@ -239,8 +239,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 {hasBra && (
                   <TabsContent value="mereni" className="py-8">
                     <Card className="border-0 rounded-3xl soft-shadow-lg bg-white">
-                      <CardContent className="p-8">
-                        <h3 className="text-2xl font-bold mb-6">
+                      <CardContent className="p-5 sm:p-8">
+                        <h3 className="text-xl sm:text-2xl font-bold mb-6">
                           Návod k měření - {isBralette ? 'Braletková podprsenka' : 'Podprsenka s kosticemi'}
                         </h3>
                         <p className="text-gray-600 mb-6 leading-relaxed">

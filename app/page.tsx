@@ -66,7 +66,7 @@ export default function Home() {
               </div>
               
               {/* Heading */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light text-white tracking-wide leading-tight uppercase text-center whitespace-nowrap">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light text-white tracking-wide leading-tight uppercase text-center">
                 Jedinečné spodní prádlo
               </h1>
               

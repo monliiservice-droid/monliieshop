@@ -698,7 +698,7 @@ export default function CheckoutPage() {
                     <div className="border-t-2 border-dashed border-gray-200 pt-4">
                       <div className="flex justify-between items-center mb-6">
                         <span className="text-2xl font-bold">Celkem:</span>
-                        <div className="text-4xl font-bold bg-gradient-to-r from-[#931e31] to-[#b8263d] bg-clip-text text-transparent">
+                        <div className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-[#931e31] to-[#b8263d] bg-clip-text text-transparent">
                           {getFinalPrice() + (paymentMethod === 'cod' ? 30 : 0)} Kč
                         </div>
                       </div>

@@ -185,8 +185,8 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
     <div className="space-y-6 relative">
       {/* Toast notifikace */}
       {showToast && (
-        <div className="fixed top-24 right-4 z-50 animate-slide-in-right">
-          <div className="bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px]">
+        <div className="fixed top-24 left-4 right-4 sm:left-auto sm:right-4 z-50 animate-slide-in-right">
+          <div className="bg-green-500 text-white px-4 sm:px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 sm:min-w-[300px]">
             <CheckCircle className="h-6 w-6 flex-shrink-0" />
             <div>
               <p className="font-bold">Přidáno do košíku!</p>

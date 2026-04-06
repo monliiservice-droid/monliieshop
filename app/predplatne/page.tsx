@@ -121,8 +121,8 @@ export default function PredplatnePage() {
       <Navbar />
       {/* Toast notifikace */}
       {showToast && (
-        <div className="fixed top-24 right-4 z-50 animate-slide-in-right">
-          <div className="bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[300px]">
+        <div className="fixed top-24 left-4 right-4 sm:left-auto sm:right-4 z-50 animate-slide-in-right">
+          <div className="bg-green-500 text-white px-4 sm:px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 sm:min-w-[300px]">
             <CheckCircle className="h-6 w-6 flex-shrink-0" />
             <div>
               <p className="font-bold">Přidáno do košíku!</p>
@@ -150,7 +150,7 @@ export default function PredplatnePage() {
           </div>
           
           <div className="container max-w-4xl text-center relative z-10">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight uppercase text-white animate-fade-in">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 tracking-tight uppercase text-white animate-fade-in">
               Předplatné
             </h1>
             <p className="text-lg md:text-xl text-white/90 leading-relaxed animate-fade-in" style={{animationDelay: '0.2s'}}>
@@ -318,7 +318,7 @@ export default function PredplatnePage() {
               <div className="inline-flex rounded-full bg-gray-100 p-1">
                 <button
                   onClick={() => setBraType('wired')}
-                  className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 active:scale-95 ${
+                  className={`px-5 sm:px-8 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all duration-300 hover:scale-105 active:scale-95 ${
                     braType === 'wired'
                       ? 'bg-gradient-to-r from-[#931e31] to-[#b8263d] text-white shadow-md scale-105' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
@@ -328,7 +328,7 @@ export default function PredplatnePage() {
                 </button>
                 <button
                   onClick={() => setBraType('bralette')}
-                  className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 active:scale-95 ${
+                  className={`px-5 sm:px-8 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all duration-300 hover:scale-105 active:scale-95 ${
                     braType === 'bralette'
                       ? 'bg-gradient-to-r from-[#931e31] to-[#b8263d] text-white shadow-md scale-105' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
@@ -344,7 +344,7 @@ export default function PredplatnePage() {
               <div className="inline-flex rounded-full bg-gray-100 p-1">
                 <button
                   onClick={() => setWithGarters(false)}
-                  className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 active:scale-95 ${
+                  className={`px-5 sm:px-8 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all duration-300 hover:scale-105 active:scale-95 ${
                     !withGarters 
                       ? 'bg-gradient-to-r from-[#931e31] to-[#b8263d] text-white shadow-md scale-105' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
@@ -354,7 +354,7 @@ export default function PredplatnePage() {
                 </button>
                 <button
                   onClick={() => setWithGarters(true)}
-                  className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 active:scale-95 ${
+                  className={`px-5 sm:px-8 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all duration-300 hover:scale-105 active:scale-95 ${
                     withGarters 
                       ? 'bg-gradient-to-r from-[#931e31] to-[#b8263d] text-white shadow-md scale-105' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'

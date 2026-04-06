@@ -176,7 +176,7 @@ export default function CartPage() {
                   )}
                 </div>
               </div>
-              <h1 className="text-5xl md:text-7xl font-black tracking-tight animate-fade-in bg-gradient-to-r from-gray-900 via-[#931e31] to-gray-900 bg-clip-text text-transparent" style={{animationDelay: '0.1s'}}>
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tight animate-fade-in bg-gradient-to-r from-gray-900 via-[#931e31] to-gray-900 bg-clip-text text-transparent" style={{animationDelay: '0.1s'}}>
                 Nákupní košík
               </h1>
             </div>
@@ -320,7 +320,7 @@ export default function CartPage() {
                               {/* Celková cena */}
                               <div className="flex flex-col items-end gap-1 sm:gap-2 w-full sm:w-auto">
                                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Celkem</span>
-                                <p className="text-2xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-[#931e31] via-[#b8263d] to-[#931e31] bg-clip-text text-transparent">
+                                <p className="text-xl sm:text-3xl lg:text-4xl font-black bg-gradient-to-r from-[#931e31] via-[#b8263d] to-[#931e31] bg-clip-text text-transparent">
                                   {(item.price * (item.quantity || 1)).toFixed(0)} Kč
                                 </p>
                               </div>
@@ -427,10 +427,10 @@ export default function CartPage() {
                               <div className="flex justify-between items-baseline">
                                 <span className="text-2xl font-bold text-gray-900">K úhradě:</span>
                                 <div className="text-right">
-                                  <div className="text-5xl font-black bg-gradient-to-r from-[#931e31] via-[#b8263d] to-[#931e31] bg-clip-text text-transparent">
+                                  <div className="text-3xl sm:text-5xl font-black bg-gradient-to-r from-[#931e31] via-[#b8263d] to-[#931e31] bg-clip-text text-transparent">
                                     {getFinalPrice()}
                                   </div>
-                                  <span className="text-3xl font-black text-gray-400">Kč</span>
+                                  <span className="text-xl sm:text-3xl font-black text-gray-400">Kč</span>
                                 </div>
                               </div>
                             </div>
