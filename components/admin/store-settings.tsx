@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { ProductCardStyle, ShopSettings } from '@/lib/site-settings'
 import { toastNetworkError, toastResponseError } from '@/lib/admin-client'
+import { BODY_FONTS, FONT_OPTIONS, HEADING_FONTS, type FontKey } from '@/lib/font-options'
 
 const CARD_STYLES: { value: ProductCardStyle; label: string; description: string }[] = [
   { value: 'classic', label: 'Klasické', description: 'Fotka, pod ní název a cena' },
@@ -81,6 +82,47 @@ export function StoreSettings() {
               ))}
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Písma</CardTitle>
+          <CardDescription>Písmo nadpisů a běžného textu na celém e-shopu. Administrace zůstává beze změny.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          {([
+            ['headingFont', 'Nadpisy', HEADING_FONTS, 'Šité s láskou k tělu i přírodě'],
+            ['bodyFont', 'Text', BODY_FONTS, 'Prádlo a oblečení pro ženy, muže i děti. Příliš žluťoučký kůň úpěl ďábelské ódy.'],
+          ] as const).map(([key, label, fonts, sample]) => (
+            <div key={key} className="space-y-3">
+              <Label>{label}</Label>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {fonts.map((fontKey: FontKey) => {
+                  const font = FONT_OPTIONS[fontKey]
+                  const active = settings[key] === fontKey
+                  return (
+                    <button
+                      key={fontKey}
+                      type="button"
+                      onClick={() => setSettings({ ...settings, [key]: fontKey })}
+                      aria-pressed={active}
+                      className={`rounded-lg border p-4 text-left ${active ? 'border-[#931e31] ring-1 ring-[#931e31]' : 'hover:bg-gray-50'}`}
+                    >
+                      <span
+                        className={key === 'headingFont' ? 'block text-2xl leading-tight' : 'block text-sm leading-relaxed'}
+                        style={{ fontFamily: `var(${font.cssVar})`, fontVariantNumeric: 'lining-nums' }}
+                      >
+                        {sample}
+                      </span>
+                      <span className="mt-3 block text-sm font-medium">{font.label}</span>
+                      <span className="text-xs text-gray-500">{font.style}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
 

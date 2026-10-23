@@ -13,6 +13,7 @@ export interface ProductFormValues {
   setConfig: SetConfiguration
   isVisible: boolean
   isFeatured: boolean
+  hideWhenSoldOut: boolean
 }
 
 export const EMPTY_PRODUCT_VALUES: ProductFormValues = {
@@ -26,6 +27,7 @@ export const EMPTY_PRODUCT_VALUES: ProductFormValues = {
   setConfig: DEFAULT_SET_CONFIG,
   isVisible: true,
   isFeatured: false,
+  hideWhenSoldOut: false,
 }
 
 function parseJson<T>(value: unknown, fallback: T): T {
@@ -50,6 +52,7 @@ export function productToFormValues(product: any): ProductFormValues {
     setConfig: product.isSet ? { ...DEFAULT_SET_CONFIG, ...parseJson(product.setOptions, {}) } : DEFAULT_SET_CONFIG,
     isVisible: product.isVisible !== false,
     isFeatured: product.isFeatured === true,
+    hideWhenSoldOut: product.hideWhenSoldOut === true,
   }
 }
 

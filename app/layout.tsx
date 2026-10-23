@@ -1,21 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
+import { fontVariables } from "@/lib/fonts";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-
-const manrope = Manrope({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-manrope",
-  display: "swap",
-});
-
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-cormorant",
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  display: "swap",
-});
 
 const TITLE = "Monlii | Šité s láskou k tělu i přírodě";
 const DESCRIPTION =
@@ -78,7 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs" className={`${manrope.variable} ${cormorant.variable}`}>
+    <html lang="cs" className={fontVariables}>
       <body>
         {children}
         <Toaster theme="light" position="top-center" richColors closeButton />

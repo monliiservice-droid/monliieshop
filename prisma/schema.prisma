@@ -12,26 +12,27 @@ datasource db {
 }
 
 model Product {
-  id          String           @id @default(cuid())
-  name        String
-  description String?
-  price       Float
-  stock       Int              @default(0)
-  images      String           @default("[]") // JSON array of image URLs
-  category    String? // Legacy textová kategorie (před stromem kategorií) – nepoužívá se, ponecháno kvůli historii
-  categoryId  String?
-  categoryRef Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  isSet       Boolean          @default(false) // Označení zda je produkt set
-  setOptions  String?          @default("{}") // JSON konfigurace pro sety (podvazky, typ podprsenky, ceny)
-  colors      String?          @default("[]") // JSON array barev: [{name: "Černá", hex: "#000000"}]
-  sortOrder   Int              @default(0) // Pořadí produktu (menší číslo = vyšší v seznamu)
-  isVisible   Boolean          @default(true) // Skrytý produkt se v obchodě nezobrazuje
-  isFeatured  Boolean          @default(false) // Doporučený produkt (sekce na homepage)
-  variants    ProductVariant[]
-  orderItems  OrderItem[]
-  saleEvents  SaleEvent[]      @relation("SaleEventProducts")
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id              String           @id @default(cuid())
+  name            String
+  description     String?
+  price           Float
+  stock           Int              @default(0)
+  images          String           @default("[]") // JSON array of image URLs
+  category        String? // Legacy textová kategorie (před stromem kategorií) – nepoužívá se, ponecháno kvůli historii
+  categoryId      String?
+  categoryRef     Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  isSet           Boolean          @default(false) // Označení zda je produkt set
+  setOptions      String?          @default("{}") // JSON konfigurace pro sety (podvazky, typ podprsenky, ceny)
+  colors          String?          @default("[]") // JSON array barev: [{name: "Černá", hex: "#000000"}]
+  sortOrder       Int              @default(0) // Pořadí produktu (menší číslo = vyšší v seznamu)
+  isVisible       Boolean          @default(true) // Skrytý produkt se v obchodě nezobrazuje
+  isFeatured      Boolean          @default(false) // Doporučený produkt (sekce na homepage)
+  hideWhenSoldOut Boolean          @default(false) // Při nulovém skladu se produkt na e-shopu nezobrazí
+  variants        ProductVariant[]
+  orderItems      OrderItem[]
+  saleEvents      SaleEvent[]      @relation("SaleEventProducts")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@index([categoryId])
 }
@@ -72,6 +73,8 @@ model SaleEvent {
   isActive        Boolean    @default(true)
   scope           String     @default("all") // all | categories | products
   showInMenu      Boolean    @default(true)
+  // true = produkty v akci se ukazují jen ve výprodeji, ne mezi běžnými produkty a ve své kategorii
+  separateListing Boolean    @default(false)
   products        Product[]  @relation("SaleEventProducts")
   categories      Category[] @relation("SaleEventCategories")
   createdAt       DateTime   @default(now())

@@ -67,7 +67,8 @@ Vzor je v [`.env.example`](.env.example). Na Vercelu se nastavují v *Settings �
 **Před nasazením verze, která přidává migraci, ji nejdřív spusťte na produkční databázi** (`npm run db:migrate`
 s produkčními `DATABASE_URL` / `DIRECT_URL`). Nový kód počítá s novými sloupci a tabulkami – bez migrace by obchod
 nefungoval. Migrace `1_shop_builder` přidává kategorie, výprodeje a sekce stránek a stávající produkty sama zařadí
-do nového stromu kategorií (podle jejich dosavadní kategorie).
+do nového stromu kategorií (podle jejich dosavadní kategorie). Migrace `2_sold_out_and_sale_listing` přidává
+volbu „skrýt vyprodaný produkt“ a „produkty jen ve výprodeji“.
 
 ### Migrace – jednorázový přechod na novou historii
 
@@ -89,11 +90,11 @@ Pokud krok 1 vypíše rozdíly, nejdřív je vyřeš (neaplikuj migraci naslepo)
 
 | Sekce | K čemu slouží |
 | --- | --- |
-| **Produkty** | Produkty, fotky (první = hlavní, druhá se ukáže po najetí), barvy, sklad, skrytí, „doporučený“ |
-| **Kategorie** | Strom kategorií. Nejvyšší úroveň (Ženy / Muži / Děti…) je v hlavním menu, podkategorie v megamenu. U kategorie se nastavuje **typ velikostí** (podprsenka, braletka, set, prádlo XS–XL, oblečení XS–XXL, dětské 86–164, bez velikostí) – podkategorie ho může zdědit. |
+| **Produkty** | Produkty, fotky (první = hlavní, druhá se ukáže po najetí), barvy, sklad, skrytí, „doporučený“, **Skrýt, když je vyprodáno** (produkt s nulovým skladem zmizí z webu) |
+| **Kategorie** | Strom kategorií. Nejvyšší úroveň (Ženy / Muži / Děti…) je v hlavním menu, podkategorie v megamenu. U kategorie se nastavuje **typ velikostí** (podprsenka, braletka, set, prádlo XS–XL, oblečení XS–XXL, dětské 86–164, bez velikostí) – podkategorie ho může zdědit. **Pořadí** se mění šipkami a platí všude (menu, dlaždice, filtry, admin). |
 | **Obsah webu** | Shop builder homepage: sekce (úvodní banner, dlaždice kategorií, produkty, fotka + text, hodnoty, výprodej, příběhy, recenze, Instagram, text) – pořadí, viditelnost, texty, fotky. Záložka *Hlavičky stránek* upravuje hlavičky Obchodu, O nás, Kontaktů… |
-| **Výprodeje** | Časově omezené akce (sezóna, doprodej skladu…) se slevou v %, na celý obchod / kategorie / produkty. Akce má vlastní stránku `/vyprodej/<slug>`, odkaz v menu a banner. Sleva se automaticky promítne do cen i objednávek. |
-| **Nastavení → Obchod** | Vzhled produktových karet (klasické / minimalistické / přes fotku), počet sloupců, informační lišta nad menu, **zapnutí/skrytí předplatného** |
+| **Výprodeje** | Časově omezené akce (sezóna, doprodej skladu…) se slevou v %, na celý obchod / kategorie / produkty. Akce má vlastní stránku `/vyprodej/<slug>`, odkaz v menu a banner. Sleva se automaticky promítne do cen i objednávek. Volba **Zobrazovat produkty jen ve výprodeji** je po dobu akce schová z jejich kategorie a z Obchodu – ukážou se jen na stránce výprodeje; po skončení akce se samy vrátí. |
+| **Nastavení → Obchod** | Vzhled produktových karet (klasické / minimalistické / přes fotku), počet sloupců, informační lišta nad menu, **písma** nadpisů a textu, **zapnutí/skrytí předplatného** |
 | **Nastavení → Fakturace** | Firemní údaje a číselná řada faktur |
 
 Změny z administrace se na webu projeví okamžitě (stránky se po uložení přegenerují).
@@ -145,7 +146,8 @@ Server kontroluje platnost, minimální částku i maximální počet použití.
 ### Design
 
 - Barvy a písma jsou v `app/globals.css` (`@theme`): vínová `wine`, tmavá `ink` (barva loga), lněný podklad `linen`,
-  písma Cormorant Garamond (nadpisy) a Manrope (text). Logo je `public/logo.svg` (tmavé) a `public/logo-light.svg`
+  výchozí písma Cormorant Garamond (nadpisy) a Manrope (text) – lze je změnit v administraci; nabídka písem je
+  v `lib/font-options.ts`, načítání v `lib/fonts.ts`. Logo je `public/logo.svg` (tmavé) a `public/logo-light.svg`
   (světlé); pro e-maily `public/logo-email.png`.
 - Stránky obchodu sdílí layout `app/(shop)/layout.tsx` (lišta, hlavička s megamenu, patička). Hlavička i menu se
   skládají z kategorií, výprodejů a nastavení (`lib/navigation.ts`).

@@ -27,6 +27,7 @@ interface Sale {
   endsAt: string | null
   isActive: boolean
   showInMenu: boolean
+  separateListing: boolean
   scope: Scope
   productIds: string[]
   categoryIds: string[]
@@ -43,6 +44,7 @@ interface SaleForm {
   endsAt: string
   isActive: boolean
   showInMenu: boolean
+  separateListing: boolean
   scope: Scope
   productIds: string[]
   categoryIds: string[]
@@ -87,6 +89,7 @@ function emptyForm(): SaleForm {
     endsAt: '',
     isActive: true,
     showInMenu: true,
+    separateListing: false,
     scope: 'all',
     productIds: [],
     categoryIds: [],
@@ -201,6 +204,7 @@ export default function SalesPage() {
                   </div>
                   <p className="mt-1 text-sm text-gray-500">
                     {SCOPE_LABELS[sale.scope]}
+                    {sale.separateListing && ' · jen ve výprodeji'}
                     {sale.scope === 'products' && ` (${sale.productIds.length})`}
                     {sale.scope === 'categories' && ` (${sale.categoryIds.length})`}
                     {' · '}
@@ -228,6 +232,7 @@ export default function SalesPage() {
                         endsAt: toLocalInput(sale.endsAt),
                         isActive: sale.isActive,
                         showInMenu: sale.showInMenu,
+                        separateListing: sale.separateListing,
                         scope: sale.scope,
                         productIds: sale.productIds,
                         categoryIds: sale.categoryIds,
@@ -329,6 +334,17 @@ export default function SalesPage() {
               )}
 
               <ImageField label="Banner akce" value={form.bannerImage} onChange={(bannerImage) => setForm({ ...form, bannerImage })} hint="Zobrazí se na stránce akce a v sekci Výprodej na homepage." />
+
+              <label className="flex items-start gap-3 rounded-lg border p-4 text-sm">
+                <input type="checkbox" className="mt-1" checked={form.separateListing} onChange={(e) => setForm({ ...form, separateListing: e.target.checked })} />
+                <span>
+                  <span className="font-medium">Zobrazovat produkty jen ve výprodeji</span>
+                  <span className="block text-gray-500">
+                    Po dobu akce se zlevněné produkty přesunou do Výprodeje – nebudou mezi běžnými produkty ani ve své
+                    původní kategorii. Po skončení akce se samy vrátí zpět.
+                  </span>
+                </span>
+              </label>
 
               <div className="flex flex-wrap gap-6 text-sm">
                 <label className="flex items-center gap-2">

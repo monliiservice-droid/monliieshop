@@ -109,6 +109,7 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
           setOptions: isSet ? JSON.stringify(values.setConfig) : '{}',
           isVisible: values.isVisible,
           isFeatured: values.isFeatured,
+          hideWhenSoldOut: values.hideWhenSoldOut,
         }),
       })
       const result = await response.json().catch(() => ({}))
@@ -340,6 +341,13 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
                 <span className="text-sm">
                   <span className="font-medium">Doporučený produkt</span>
                   <span className="block text-gray-500">Pro sekci „Doporučené“ na homepage.</span>
+                </span>
+              </label>
+              <label className="flex items-start gap-3">
+                <input type="checkbox" className="mt-1 h-4 w-4" checked={values.hideWhenSoldOut} onChange={(e) => update('hideWhenSoldOut', e.target.checked)} />
+                <span className="text-sm">
+                  <span className="font-medium">Skrýt, když je vyprodáno</span>
+                  <span className="block text-gray-500">Při nulovém skladu produkt z e-shopu zmizí. Jinak zůstane vidět s označením „Vyprodáno“.</span>
                 </span>
               </label>
               <div className="flex gap-2 pt-2">

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getProductCards } from '@/lib/catalog'
 import { parseSort } from '@/lib/catalog-params'
 import { getCategoryTree, visibleChildren } from '@/lib/categories'
+import { getActiveSales } from '@/lib/sales'
 import { getPageHeaders, getShopSettings } from '@/lib/site-settings-server'
 import { PageHero } from '@/components/site/page-hero'
 import { CatalogToolbar } from '@/components/site/catalog-toolbar'
@@ -16,12 +17,14 @@ export const metadata: Metadata = {
 
 export default async function ShopPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sort = parseSort((await searchParams).razeni)
-  const [headers, settings, tree, products] = await Promise.all([
+  const [headers, settings, tree, products, sales] = await Promise.all([
     getPageHeaders(),
     getShopSettings(),
     getCategoryTree(),
     getProductCards({ sort }),
+    getActiveSales(),
   ])
+  const menuSales = sales.filter((s) => s.showInMenu)
   const header = headers.obchod
 
   return (
@@ -34,6 +37,9 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           filters={[
             { label: 'Vše', href: '/obchod', active: true },
             ...visibleChildren(tree.roots).map((c) => ({ label: c.name, href: `/obchod/${c.slug}`, active: false })),
+            ...(menuSales.length > 0
+              ? [{ label: 'Výprodej', href: menuSales.length === 1 ? `/vyprodej/${menuSales[0].slug}` : '/vyprodej', active: false }]
+              : []),
           ]}
         />
         {products.length > 0 ? (

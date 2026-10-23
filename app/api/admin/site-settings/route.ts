@@ -7,6 +7,7 @@ import {
   mergeShopSettings,
 } from '@/lib/site-settings'
 import { getPageHeaders, getShopSettings, writeSetting } from '@/lib/site-settings-server'
+import { BODY_FONTS, DEFAULT_BODY_FONT, DEFAULT_HEADING_FONT, HEADING_FONTS } from '@/lib/font-options'
 
 export async function GET() {
   const denied = await unauthorizedResponse()
@@ -28,6 +29,8 @@ export async function PUT(request: NextRequest) {
       shop.productCardStyle = (['classic', 'minimal', 'overlay'] as const).includes(shop.productCardStyle)
         ? shop.productCardStyle
         : 'classic'
+      if (!HEADING_FONTS.includes(shop.headingFont)) shop.headingFont = DEFAULT_HEADING_FONT
+      if (!BODY_FONTS.includes(shop.bodyFont)) shop.bodyFont = DEFAULT_BODY_FONT
       await writeSetting(SHOP_SETTINGS_KEY, shop)
     }
     if (body?.pageHeaders) {

@@ -1,12 +1,16 @@
 // Nastavení obchodu a hlaviček stránek – ukládá se do tabulky Settings (klíč → JSON).
 // Typy a výchozí hodnoty jsou sdílené s klientem (admin formuláře).
 
+import { DEFAULT_BODY_FONT, DEFAULT_HEADING_FONT, type FontKey } from './font-options'
+
 export type ProductCardStyle = 'classic' | 'minimal' | 'overlay'
 
 export interface ShopSettings {
   subscriptionEnabled: boolean
   productCardStyle: ProductCardStyle
   productGridColumns: 2 | 3 | 4
+  headingFont: FontKey
+  bodyFont: FontKey
   announcement: {
     enabled: boolean
     text: string
@@ -37,6 +41,8 @@ export const DEFAULT_SHOP_SETTINGS: ShopSettings = {
   subscriptionEnabled: false,
   productCardStyle: 'classic',
   productGridColumns: 4,
+  headingFont: DEFAULT_HEADING_FONT,
+  bodyFont: DEFAULT_BODY_FONT,
   announcement: {
     enabled: true,
     text: 'Doprava zdarma do Z-BOXu při nákupu nad 2 500 Kč',

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Eye, EyeOff, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Eye, EyeOff, Pencil, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -125,6 +125,28 @@ export default function CategoriesPage() {
       isVisible: !c.isVisible,
     })
 
+  // Přesun kategorie mezi sourozenci (stejná nadřazená kategorie)
+  const siblingsOf = (c: CategoryOption) => rows.filter((r) => (r.parentId || null) === (c.parentId || null))
+
+  const move = async (c: CategoryOption, direction: -1 | 1) => {
+    const siblings = siblingsOf(c).map((s) => s.id)
+    const index = siblings.indexOf(c.id)
+    const target = index + direction
+    if (target < 0 || target >= siblings.length) return
+    ;[siblings[index], siblings[target]] = [siblings[target], siblings[index]]
+    // Okamžitá změna v seznamu, uložení na pozadí
+    setCategories((prev) => prev.map((cat) => (siblings.includes(cat.id) ? { ...cat, sortOrder: siblings.indexOf(cat.id) + 1 } : cat)))
+    const res = await fetch('/api/admin/categories/reorder', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: siblings }),
+    })
+    if (!res.ok) {
+      toast.error('Pořadí se nepodařilo uložit')
+      load()
+    }
+  }
+
   const remove = async (c: CategoryOption) => {
     if (!confirm(`Smazat kategorii „${c.name}“? Podkategorie a produkty se přesunou o úroveň výš.`)) return
     const res = await fetch(`/api/admin/categories/${c.id}`, { method: 'DELETE' })
@@ -143,7 +165,8 @@ export default function CategoriesPage() {
           <h1 className="mb-2 text-3xl font-bold">Kategorie</h1>
           <p className="max-w-2xl text-gray-600">
             Strom kategorií v menu a v obchodě. Nejvyšší úroveň (např. Ženy, Muži, Děti) se zobrazí v hlavním menu,
-            podkategorie v jejich nabídce. Typ velikostí určuje, co zákazník u produktu vybírá.
+            podkategorie v jejich nabídce. Šipkami měníte pořadí – v tomto pořadí se kategorie ukazují všude na webu.
+            Typ velikostí určuje, co zákazník u produktu vybírá.
           </p>
         </div>
         <Button onClick={() => openNew()}>
@@ -176,6 +199,20 @@ export default function CategoriesPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
+                    {(() => {
+                      const siblings = siblingsOf(c)
+                      const index = siblings.findIndex((x) => x.id === c.id)
+                      return (
+                        <>
+                          <Button variant="ghost" size="sm" onClick={() => move(c, -1)} disabled={index <= 0} title="Posunout výš">
+                            <ChevronUp className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => move(c, 1)} disabled={index === siblings.length - 1} title="Posunout níž">
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )
+                    })()}
                     <Button variant="ghost" size="sm" onClick={() => openNew(c.id)} title="Přidat podkategorii">
                       <Plus className="h-4 w-4" />
                     </Button>

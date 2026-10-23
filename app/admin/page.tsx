@@ -57,7 +57,13 @@ async function getDashboardData() {
 /** Ověří, že databáze obsahuje tabulky této verze (tj. že proběhla migrace) */
 async function isDatabaseUpToDate(): Promise<boolean> {
   try {
-    await Promise.all([prisma.pageSection.count(), prisma.category.count(), prisma.saleEvent.count()])
+    await Promise.all([
+      prisma.pageSection.count(),
+      prisma.category.count(),
+      // Sloupce z novějších migrací – chybějící sloupec vyhodí chybu P2022
+      prisma.product.findFirst({ select: { hideWhenSoldOut: true } }),
+      prisma.saleEvent.findFirst({ select: { separateListing: true } }),
+    ])
     return true
   } catch (error) {
     return !isMissingMigrationError(error)

@@ -14,6 +14,7 @@ export interface ActiveSale {
   endsAt: Date | null
   scope: string
   showInMenu: boolean
+  separateListing: boolean
   productIds: Set<string>
   categoryIds: Set<string>
 }
@@ -43,6 +44,7 @@ export const getActiveSales = cache(async (): Promise<ActiveSale[]> => {
       endsAt: event.endsAt,
       scope: event.scope,
       showInMenu: event.showInMenu,
+      separateListing: event.separateListing,
       productIds: new Set(event.products.map((p) => p.id)),
       categoryIds: new Set(event.categories.map((c) => c.id)),
     }))
@@ -64,6 +66,15 @@ export function saleAppliesTo(
     return getCategoryPath(tree, product.categoryId).some((node) => sale.categoryIds.has(node.id))
   }
   return false
+}
+
+/** Produkt je v akci, která ho má ukazovat jen ve výprodeji (ne mezi běžnými produkty) */
+export function isSeparatedSaleProduct(
+  product: { id: string; categoryId: string | null },
+  sales: ActiveSale[],
+  tree: CategoryTree
+): ActiveSale | null {
+  return sales.find((sale) => sale.separateListing && saleAppliesTo(sale, product, tree)) ?? null
 }
 
 /** Nejvýhodnější aktivní akce pro produkt (při souběhu více akcí vyhrává vyšší sleva) */

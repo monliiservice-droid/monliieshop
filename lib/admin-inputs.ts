@@ -46,6 +46,7 @@ export function parseSaleInput(body: any) {
       endsAt: parseDate(body?.endsAt),
       isActive: body?.isActive !== false,
       showInMenu: body?.showInMenu !== false,
+      separateListing: body?.separateListing === true,
       scope,
     },
     productIds: scope === 'products' ? idList(body?.productIds) : [],
@@ -87,6 +88,7 @@ export function parseProductInput(body: any) {
     colors: jsonArrayString(body?.colors),
     isVisible: body?.isVisible !== false,
     isFeatured: body?.isFeatured === true,
+    hideWhenSoldOut: body?.hideWhenSoldOut === true,
     // Pořadí se mění jen když ho klient opravdu pošle (jinak by se při úpravě vynulovalo)
     ...(Number.isInteger(body?.sortOrder) && { sortOrder: body.sortOrder as number }),
   }

@@ -5,7 +5,7 @@ import { prisma } from './prisma'
 import { getDisplayPrice } from './set-config-types'
 import { applySaleDiscount } from './pricing'
 import { getCategoryPath, getCategoryTree, isCategoryPathVisible, type CategoryTree } from './categories'
-import { findBestSale, getActiveSales, saleAppliesTo, type ActiveSale } from './sales'
+import { findBestSale, getActiveSales, isSeparatedSaleProduct, saleAppliesTo, type ActiveSale } from './sales'
 
 export interface ProductCardData {
   id: string
@@ -79,6 +79,7 @@ export async function getProductCards(query: CatalogQuery = {}): Promise<Product
         isSet: true,
         setOptions: true,
         createdAt: true,
+        hideWhenSoldOut: true,
       },
     })
   } catch (error) {
@@ -91,7 +92,11 @@ export async function getProductCards(query: CatalogQuery = {}): Promise<Product
   let cards = products
     // Produkty ve skryté kategorii se ve výpisech neukazují
     .filter((p) => !p.categoryId || isCategoryPathVisible(tree, p.categoryId))
+    // Vyprodaný produkt s volbou „skrýt při vyprodání“ se nezobrazuje
+    .filter((p) => !(p.hideWhenSoldOut && p.stock <= 0))
     .filter((p) => !query.sale || saleAppliesTo(query.sale, p, tree))
+    // Produkty z akcí s odděleným výpisem patří jen do výprodeje – v běžné nabídce a kategoriích se neukazují
+    .filter((p) => query.sale || query.onlySale || !isSeparatedSaleProduct(p, sales, tree))
     .map((p) => toCard(p, tree, sales, newSince))
 
   if (query.onlySale) {

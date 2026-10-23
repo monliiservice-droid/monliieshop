@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { getBasePrice, getProductCards } from '@/lib/catalog'
 import { getCategoryPath, getCategoryTree, getEffectiveSizeType } from '@/lib/categories'
-import { findBestSale, getActiveSales } from '@/lib/sales'
+import { findBestSale, getActiveSales, isSeparatedSaleProduct } from '@/lib/sales'
 import { applySaleDiscount } from '@/lib/pricing'
 import { hasBraMeasurements } from '@/lib/product-types'
 import { DEFAULT_SET_CONFIG, type SetConfiguration } from '@/lib/set-config-types'
@@ -24,7 +24,7 @@ export const revalidate = 300
 type Props = { params: Promise<{ id: string }> }
 
 const getProduct = cache(async (id: string) => {
-  return prisma.product.findFirst({
+  const product = await prisma.product.findFirst({
     where: { id, isVisible: true },
     select: {
       id: true,
@@ -37,8 +37,11 @@ const getProduct = cache(async (id: string) => {
       isSet: true,
       setOptions: true,
       colors: true,
+      hideWhenSoldOut: true,
     },
   })
+  // Vyprodaný produkt s volbou „skrýt při vyprodání“ se na e-shopu neukazuje
+  return product && !(product.hideWhenSoldOut && product.stock <= 0) ? product : null
 })
 
 function parseJson<T>(value: string | null, fallback: T): T {
@@ -97,11 +100,13 @@ export default async function ProductPage({ params }: Props) {
   const sizeType = getEffectiveSizeType(tree, product.categoryId)
   const sale = findBestSale(product, sales, tree)
   const path = getCategoryPath(tree, product.categoryId)
+  // Produkt v akci s odděleným výpisem „patří“ do výprodeje, ne do své kategorie
+  const separatedSale = isSeparatedSaleProduct(product, sales, tree)
   const basePrice = getBasePrice(product)
   const showMeasurements = hasBraMeasurements(product.isSet ? 'set' : sizeType)
   const isBralette = sizeType === 'bralette' || setConfig?.braType === 'bralette'
 
-  const related = product.categoryId
+  const related = product.categoryId && !separatedSale
     ? (await getProductCards({ categoryIds: [product.categoryId], limit: 9 })).filter((p) => p.id !== product.id).slice(0, 8)
     : []
 
@@ -135,8 +140,12 @@ export default async function ProductPage({ params }: Props) {
       <div className="site-container pt-6 md:pt-8">
         <Breadcrumbs
           items={[
-            { label: 'Obchod', href: '/obchod' },
-            ...path.map((c) => ({ label: c.name, href: `/obchod/${c.slug}` })),
+            ...(separatedSale
+              ? [
+                  { label: 'Výprodej', href: '/vyprodej' },
+                  { label: separatedSale.name, href: `/vyprodej/${separatedSale.slug}` },
+                ]
+              : [{ label: 'Obchod', href: '/obchod' }, ...path.map((c) => ({ label: c.name, href: `/obchod/${c.slug}` }))]),
             { label: product.name },
           ]}
         />
