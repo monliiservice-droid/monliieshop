@@ -2,7 +2,6 @@
 
 import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Mail, Phone, MapPin, Facebook, Instagram, Clock, Store, Send } from 'lucide-react'
 import { useState } from 'react'

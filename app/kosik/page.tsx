@@ -2,8 +2,8 @@
 
 import { Footer } from '@/components/footer'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ShoppingBag, Trash2, ArrowRight, Plus, Minus, Package, Truck, Tag, X } from 'lucide-react'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { ShoppingBag, Trash2, ArrowRight, Plus, Minus, Package, Tag, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -139,7 +139,7 @@ export default function CartPage() {
         setDiscountError(data.message || 'Neplatný slevový kód')
         setAppliedDiscount(null)
       }
-    } catch (error) {
+    } catch {
       setDiscountError('Chyba při ověřování kódu')
       setAppliedDiscount(null)
     } finally {

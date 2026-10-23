@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Tag, Plus, Trash2, Edit, TrendingUp } from 'lucide-react'
+import { Tag, Plus, Trash2, TrendingUp } from 'lucide-react'
 
 interface DiscountCode {
   id: string
@@ -93,7 +93,7 @@ export default function DiscountCodesPage() {
         const error = await response.json()
         alert(error.message || 'Chyba při vytváření kódu')
       }
-    } catch (error) {
+    } catch {
       alert('Chyba při vytváření kódu')
     }
   }

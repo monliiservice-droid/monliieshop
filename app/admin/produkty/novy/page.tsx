@@ -117,8 +117,6 @@ export default function NewProductPage() {
       // Pro sety ignorovat základní cenu a použít pouze cenu z variant
       let finalPrice = 0
       if (formData.category === 'Set') {
-        // Debug: Vypsat všechny ceny
-        console.log('🔍 SetConfig před uložením:', JSON.stringify(setConfig, null, 2))
         
         // U setů se bere pouze cena z konfigurace variant
         // Filtrovat pouze nenulové ceny
@@ -129,11 +127,9 @@ export default function NewProductPage() {
           setConfig.prices.wiredWithoutGarters
         ].filter(price => price && price > 0)
         
-        console.log('✅ Validní ceny:', validPrices)
         
         if (validPrices.length > 0) {
           finalPrice = Math.min(...validPrices)
-          console.log('💰 Vypočítaná finalPrice:', finalPrice)
         } else {
           alert('Musíte nastavit alespoň jednu cenu pro varianty setu!')
           throw new Error('Žádné ceny nastavené pro set')
@@ -309,7 +305,7 @@ export default function NewProductPage() {
                       <option value="both">Obojí - zákazník si vybere</option>
                     </select>
                     <p className="text-xs text-gray-600">
-                      Pokud vyberete "Obojí", zákazník si bude moci vybrat mezi braletkou a podprsenkou s kosticí.
+                      Pokud vyberete „Obojí“, zákazník si bude moci vybrat mezi braletkou a podprsenkou s kosticí.
                     </p>
                   </div>
 

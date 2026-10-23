@@ -35,7 +35,7 @@ async function verifySchema() {
     // Test 2: Zkontroluj Order tabulku
     console.log('\n📋 Kontroluji Order model...')
     try {
-      const order = await prisma.order.findFirst()
+      await prisma.order.findFirst()
       console.log('✅ Order model je dostupný')
     } catch (error: any) {
       console.error('❌ Chyba při kontrole Order:', error.message)
@@ -44,7 +44,7 @@ async function verifySchema() {
     // Test 3: Zkontroluj Product tabulku
     console.log('\n📋 Kontroluji Product model...')
     try {
-      const product = await prisma.product.findFirst()
+      await prisma.product.findFirst()
       console.log('✅ Product model je dostupný')
     } catch (error: any) {
       console.error('❌ Chyba při kontrole Product:', error.message)
@@ -53,7 +53,7 @@ async function verifySchema() {
     // Test 4: Zkontroluj CompanySettings tabulku
     console.log('\n📋 Kontroluji CompanySettings model...')
     try {
-      const settings = await prisma.companySettings.findFirst()
+      await prisma.companySettings.findFirst()
       console.log('✅ CompanySettings model je dostupný')
     } catch (error: any) {
       console.error('❌ Chyba při kontrole CompanySettings:', error.message)

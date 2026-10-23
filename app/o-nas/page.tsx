@@ -66,7 +66,7 @@ export default function AboutPage() {
                 <p className="animate-fade-in" style={{animationDelay: '0.2s'}}>
                   A pak jednoho dne přišel moment, kdy jsme si jako tři holky sedly ke stolu a řekly si:
                   <span className="block mt-4 italic text-[#931e31] font-medium text-xl bg-pink-50/50 rounded-2xl p-6 border-l-4 border-[#931e31] shadow-sm hover:shadow-md transition-all duration-300">
-                    „Proč vlastně ne? Proč nezkusit vytvořit něco vlastního, něco, co bude dávat smysl nám třem a bude nás bavit?"
+                    „Proč vlastně ne? Proč nezkusit vytvořit něco vlastního, něco, co bude dávat smysl nám třem a bude nás bavit?„
                   </span>
                 </p>
                 <p className="font-bold text-gray-900 text-3xl text-center my-8 animate-fade-in bg-gradient-to-r from-[#931e31] to-[#b8263d] bg-clip-text text-transparent" style={{animationDelay: '0.4s'}}>
@@ -144,7 +144,7 @@ export default function AboutPage() {
                     každá má svůj pohled.
                   </p>
                   <p className="font-medium text-gray-900">
-                    A právě díky tomu tvoříme prádlo, které není jen pro „ideální postavy", ale pro reálné ženy. 
+                    A právě díky tomu tvoříme prádlo, které není jen pro „ideální postavy„, ale pro reálné ženy. 
                     Pro ženy jako jsme my, jako jsi ty, jako je tvoje ségra nebo mamka.
                   </p>
                 </div>

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Package, ShoppingBag, TrendingUp, Users } from 'lucide-react'
+import { Package, ShoppingBag, TrendingUp } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 
@@ -116,18 +116,18 @@ export default async function AdminDashboard() {
             <CardTitle>Rychlé akce</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <a href="/admin/produkty/novy" className="block p-3 hover:bg-gray-50 rounded-lg border">
+            <Link href="/admin/produkty/novy" className="block p-3 hover:bg-gray-50 rounded-lg border">
               <div className="font-medium">Přidat nový produkt</div>
               <div className="text-sm text-gray-600">Vytvořit nový produkt v obchodě</div>
-            </a>
-            <a href="/admin/objednavky" className="block p-3 hover:bg-gray-50 rounded-lg border">
+            </Link>
+            <Link href="/admin/objednavky" className="block p-3 hover:bg-gray-50 rounded-lg border">
               <div className="font-medium">Zobrazit objednávky</div>
               <div className="text-sm text-gray-600">Spravovat objednávky zákazníků</div>
-            </a>
-            <a href="/admin/trzby" className="block p-3 hover:bg-gray-50 rounded-lg border">
+            </Link>
+            <Link href="/admin/trzby" className="block p-3 hover:bg-gray-50 rounded-lg border">
               <div className="font-medium">Tržby</div>
               <div className="text-sm text-gray-600">Zobrazit statistiky a tržby</div>
-            </a>
+            </Link>
           </CardContent>
         </Card>
 

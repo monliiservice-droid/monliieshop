@@ -5,7 +5,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { PRODUCT_CATEGORIES } from '@/lib/product-types'
 import { getDisplayPrice } from '@/lib/set-config-types'
 
 interface Product {

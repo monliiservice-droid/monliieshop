@@ -133,7 +133,7 @@ export default function OrdersPage() {
     }
   }
 
-  const handleShipOrder = (orderId: string) => {
+  const handleShipOrder = () => {
     setShowTrackingInput(true)
   }
 
@@ -382,7 +382,7 @@ export default function OrdersPage() {
                     action.status === 'shipped' && selectedOrder.shippingMethod !== 'personal' ? (
                       <Button
                         key={action.status}
-                        onClick={() => handleShipOrder(selectedOrder.id)}
+                        onClick={handleShipOrder}
                         className={`${action.color} hover:opacity-90 text-white`}
                       >
                         <action.icon className="h-4 w-4 mr-2" />

@@ -1,19 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Ruler, CheckCircle } from 'lucide-react'
-import { getSizeOptionsForCategory, SIZE_LABELS, PRODUCT_CATEGORIES } from '@/lib/product-types'
+import { getSizeOptionsForCategory, SIZE_LABELS } from '@/lib/product-types'
 import { SetConfiguration, getActivePrice } from '@/lib/set-config-types'
-
-interface ProductVariant {
-  id: string
-  name: string
-  value: string
-  stock: number
-  priceAdjustment: number
-}
 
 interface AddToCartButtonProps {
   product: {
@@ -27,13 +19,12 @@ interface AddToCartButtonProps {
     setOptions?: string
     colors?: string
   }
-  variants: ProductVariant[]
   hasBra?: boolean
   onMeasurementClick?: () => void
   onBraTypeChange?: (type: 'bralette' | 'wired') => void
 }
 
-export function AddToCartButton({ product, variants, hasBra, onMeasurementClick, onBraTypeChange }: AddToCartButtonProps) {
+export function AddToCartButton({ product, hasBra, onMeasurementClick, onBraTypeChange }: AddToCartButtonProps) {
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
   const [showToast, setShowToast] = useState(false)
@@ -52,9 +43,10 @@ export function AddToCartButton({ product, variants, hasBra, onMeasurementClick,
   const [selectedGarters, setSelectedGarters] = useState<boolean>(false)
   
   // Zpracovat barvy produktu
-  const productColors: Array<{name: string, hex: string}> = product.colors 
-    ? JSON.parse(product.colors)
-    : []
+  const productColors: Array<{name: string, hex: string}> = React.useMemo(
+    () => (product.colors ? JSON.parse(product.colors) : []),
+    [product.colors]
+  )
   
   // Nastavit výchozí barvu
   React.useEffect(() => {

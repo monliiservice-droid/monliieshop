@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Edit, Trash2, GripVertical } from 'lucide-react'
+import { Edit, GripVertical } from 'lucide-react'
 import Link from 'next/link'
 import { DeleteProductButton } from '@/components/admin/delete-product-button'
 import { getDisplayPrice } from '@/lib/set-config-types'

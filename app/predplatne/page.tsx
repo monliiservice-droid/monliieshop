@@ -3,9 +3,9 @@
 import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Check, Gift, Package, Heart, Sparkles, CheckCircle } from 'lucide-react'
+import { Check, Gift, Heart, Sparkles, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -43,8 +43,6 @@ export default function PredplatnePage() {
   const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault()
     
-    console.log('handleAddToCart called')
-    console.log('Measurements:', measurements)
     
     // Validace - u braletky není potřeba košíček
     if (braType === 'wired') {
@@ -72,7 +70,6 @@ export default function PredplatnePage() {
       addedAt: new Date().toISOString()
     }
 
-    console.log('Cart item:', cartItem)
 
     try {
       // Uložení do localStorage
@@ -80,7 +77,6 @@ export default function PredplatnePage() {
       existingCart.push(cartItem)
       localStorage.setItem('cart', JSON.stringify(existingCart))
       
-      console.log('Cart updated:', existingCart)
 
       // Dispatchnout custom event pro aktualizaci navbar
       window.dispatchEvent(new Event('cartUpdated'))

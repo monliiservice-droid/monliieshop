@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { TrendingUp, FileText, Plus, Calendar, Download, Eye, X } from 'lucide-react'
+import { TrendingUp, FileText, Plus, Eye, X } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 interface Invoice {
@@ -46,7 +46,6 @@ export default function TrzbyPage() {
   const [showEditForm, setShowEditForm] = useState(false)
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
   const [showDetail, setShowDetail] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(false)
   const [totalRevenue, setTotalRevenue] = useState(0)
   const [paidInvoices, setPaidInvoices] = useState(0)
   const [unpaidInvoices, setUnpaidInvoices] = useState(0)
@@ -236,7 +235,6 @@ export default function TrzbyPage() {
       })
       
       setSelectedInvoice(invoice)
-      setIsEditMode(true)
       setShowDetail(false)
       setShowEditForm(true)
     } catch (error) {
@@ -282,7 +280,6 @@ export default function TrzbyPage() {
       if (res.ok) {
         alert('Faktura byla úspěšně aktualizována')
         setShowEditForm(false)
-        setIsEditMode(false)
         setSelectedInvoice(null)
         // Reset form
         setFormData({
@@ -570,7 +567,6 @@ export default function TrzbyPage() {
                 size="sm"
                 onClick={() => {
                   setShowEditForm(false)
-                  setIsEditMode(false)
                   setSelectedInvoice(null)
                 }}
               >
@@ -743,7 +739,6 @@ export default function TrzbyPage() {
                   variant="outline"
                   onClick={() => {
                     setShowEditForm(false)
-                    setIsEditMode(false)
                     setSelectedInvoice(null)
                   }}
                 >

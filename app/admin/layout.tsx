@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { LayoutDashboard, Package, Settings, ShoppingBag, Users, Tag, TrendingUp, FileText } from 'lucide-react'
+import { LayoutDashboard, Package, Settings, ShoppingBag, Tag, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/admin/LogoutButton'
 

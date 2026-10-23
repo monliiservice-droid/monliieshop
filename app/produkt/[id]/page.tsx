@@ -2,7 +2,6 @@
 
 import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -161,7 +160,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     setOptions: product.setOptions,
                     colors: product.colors
                   }}
-                  variants={product.variants}
                   hasBra={hasBra}
                   onMeasurementClick={scrollToMeasurement}
                   onBraTypeChange={setSelectedBraType}

@@ -1,298 +1,135 @@
-# 🛍️ Monlii E-shop
+# Monlii E-shop
 
-Moderní e-shop pro značku Monlii - jedinečné spodní prádlo s českou tradicí.
+E-shop s ručně šitým spodním prádlem – [monlii.cz](https://monlii.cz), administrace na [admin.monlii.cz](https://admin.monlii.cz).
 
-**Status:** ✅ Production Ready  
-**Deployment:** Cloudflare Pages  
-**Repository:** git@github.com:monliiservice-droid/monliieshop.git
+## Technologie
 
----
+- **Next.js 15** (App Router) + **React 18** + **TypeScript**
+- **Tailwind CSS 4**, komponenty ve stylu shadcn/ui (`components/ui`)
+- **Prisma 5** + **PostgreSQL**
+- **Nodemailer** (SMTP přes Mailtrap) – transakční e-maily
+- **Vercel** – hosting, Blob Storage (obrázky produktů), Cron (e-maily s žádostí o recenzi)
+- **Zásilkovna Z-BOX** – doprava, **QR platba** (SPAYD) – platba převodem
 
-## 🚀 Technologie
+## Lokální vývoj
 
-- **Next.js 16** - React framework s App Router
-- **TypeScript** - Type-safe JavaScript
-- **Tailwind CSS 4** - Utility-first CSS
-- **Prisma ORM** - Type-safe databázový client
-- **PostgreSQL** - Production databáze
-- **GoPay** - Česká platební brána
-- **Nodemailer** - Email systém
-- **Cloudflare Pages** - Hosting a CDN
-- **Lucide React** - Moderní ikony
-
-## 📋 Kompletní Funkce
-
-### 🎨 Frontend (Customer-facing)
-- ✅ Responsivní design (mobile-first)
-- ✅ Hero sekce s dynamickými obrázky (desktop/mobile)
-- ✅ Produktový katalog s filtry
-- ✅ Detail produktu s galerií
-- ✅ Nákupní košík (localStorage)
-- ✅ Checkout flow
-- ✅ GoPay platební brána
-- ✅ Dobírka & bankovní převod
-- ✅ Zásilkovna integrace
-- ✅ Předplatné (subscription boxes)
-- ✅ O nás stránka s příběhem
-- ✅ Kontaktní formulář
-- ✅ Cookie consent (GDPR)
-- ✅ SEO optimalizace
-- ✅ Error pages (404, 500)
-
-### 🛠️ Admin Panel
-- ✅ Dashboard s metrikami
-- ✅ Správa produktů
-- ✅ Správa objednávek (9 stavů workflow)
-- ✅ Automatické emails při změně stavu
-- ✅ Generování faktur PDF
-- ✅ Správa slevových kódů
-- ✅ Sledování skladových zásob
-- ✅ Company settings (IČO, DIČ, adresa)
-- ✅ Přehled tržeb
-
-### 💳 Platby & Objednávky
-- ✅ GoPay online platby (karty, banky, PayPal)
-- ✅ Dobírka (+30 Kč)
-- ✅ Bankovní převod
-- ✅ Automatické webhook zpracování
-- ✅ Email potvrzení objednávky
-- ✅ Fakturace s automatickým číslováním
-- ✅ Slevové kódy (procentuální i fixní)
-
-### 📧 Email Systém
-- ✅ Order confirmation
-- ✅ Status updates (9 stavů)
-- ✅ Invoice attachments
-- ✅ Branded email templates
-- ✅ SMTP konfigurace
-
-## 🛠️ Lokální Vývoj
-
-### 1. Naklonujte repozitář
-```bash
-git clone git@github.com:monliiservice-droid/monliieshop.git
-cd monliieshop
-```
-
-### 2. Nainstalujte závislosti
 ```bash
 npm install
+cp .env.example .env        # vyplň hodnoty (viz níže)
+npm run db:setup            # vygeneruje klienta, aplikuje migrace, založí výchozí fakturační údaje
+npm run dev                 # http://localhost:3000, admin na http://localhost:3000/admin
 ```
 
-### 3. Vytvořte .env.local
+Užitečné příkazy:
+
+| Příkaz | Co dělá |
+| --- | --- |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | kontrola typů |
+| `npm run build` | produkční build |
+| `npm run db:migrate` | aplikuje migrace (`prisma migrate deploy`) |
+| `npm run db:studio` | Prisma Studio – prohlížení databáze |
+| `npm run demo-order` | vytvoří testovací objednávku |
+
+## Proměnné prostředí
+
+Vzor je v [`.env.example`](.env.example). Na Vercelu se nastavují v *Settings → Environment Variables*.
+
+| Proměnná | Povinná | Popis |
+| --- | --- | --- |
+| `DATABASE_URL`, `DIRECT_URL` | ano | PostgreSQL (`DIRECT_URL` bez connection pooleru – pro migrace) |
+| `JWT_SECRET` | ano | podpis admin session (`openssl rand -base64 64`) |
+| `ADMIN_USERNAME` | ne | přihlašovací jméno admina (výchozí `admin`) |
+| `ADMIN_PASSWORD_HASH` | ano* | bcrypt hash hesla admina (doporučeno) |
+| `ADMIN_PASSWORD` | ano* | heslo v čitelné podobě – jen pokud není nastaven hash |
+| `MAILTRAP_HOST`, `MAILTRAP_PORT`, `MAILTRAP_USER`, `MAILTRAP_PASS` | ano | SMTP pro odesílání e-mailů |
+| `EMAIL_FROM` | ano | odesílatel e-mailů |
+| `SELLER_EMAIL` | ano | kam chodí upozornění na objednávky a zprávy z kontaktního formuláře |
+| `ZASILKOVNA_API_KEY` | ano | API klíč Zásilkovny – **pouze serverová proměnná, bez `NEXT_PUBLIC_`** |
+| `BLOB_READ_WRITE_TOKEN` | ano | Vercel Blob – nahrávání obrázků produktů |
+| `NEXT_PUBLIC_URL` | ano | veřejná adresa webu (odkazy v e-mailech, sitemap) |
+| `BANK_ACCOUNT_NUMBER`, `BANK_CODE` | ano | účet pro QR platby |
+| `CRON_SECRET` | ano | zabezpečení cron endpointu; bez něj cron v produkci nic neodešle |
+
+\* stačí jedna z nich. Hash vygeneruješ: `node -e "console.log(require('bcryptjs').hashSync('heslo', 12))"`
+
+## Nasazení (Vercel)
+
+- Build: `prisma generate && next build` (viz `vercel.json`), region `fra1`.
+- **Migrace se při buildu nespouštějí** – po změně schématu spusť `npm run db:migrate` proti produkční DB (s `DATABASE_URL`/`DIRECT_URL` produkce).
+- Domény: `monlii.cz` (e-shop), `www.monlii.cz` → přesměrování, `admin.monlii.cz` (administrace).
+  `middleware.ts` přesměruje `/admin` z hlavní domény na admin subdoménu a hlídá přihlášení.
+- Pokud DNS běží přes Cloudflare, záznamy pro Vercel musí být *DNS only* (bez proxy), jinak Vercel nevydá certifikát.
+- Cron `/api/cron/review-emails` běží denně v 9:00 UTC (`vercel.json`).
+
+### Migrace – jednorázový přechod na novou historii
+
+Historie migrací byla nahrazena jedinou výchozí migrací `prisma/migrations/0_init`, která přesně odpovídá
+`schema.prisma` (původní migrace byly částečně psané pro SQLite a na PostgreSQL neprošly).
+Na **existující produkční databázi** stačí jednou spustit:
+
 ```bash
-cp .env.example .env.local
+# 1) ověř, že produkční DB odpovídá schématu (má vypsat "No difference detected.")
+npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma
+
+# 2) označ výchozí migraci jako aplikovanou (nic nemění na datech)
+npx prisma migrate resolve --applied 0_init
 ```
 
-Vyplňte hodnoty:
-```env
-# Database
-DATABASE_URL="file:./dev.db"
+Pokud krok 1 vypíše rozdíly, nejdřív je vyřeš (neaplikuj migraci naslepo). Nová databáze se založí běžně přes `npm run db:migrate`.
 
-# GoPay (Sandbox)
-GOPAY_GO_ID="8987654321"
-GOPAY_CLIENT_ID="1234567890"
-GOPAY_CLIENT_SECRET="test_secret"
+## Jak to funguje
 
-# Email (Mailtrap sandbox)
-MAILTRAP_HOST="sandbox.smtp.mailtrap.io"
-MAILTRAP_PORT="2525"
-MAILTRAP_USER="your_user"
-MAILTRAP_PASS="your_pass"
-EMAIL_FROM="noreply@monlii.cz"
-SELLER_EMAIL="luckaivankova1@seznam.cz"
+### Objednávka
 
-# App
-NEXT_PUBLIC_URL="http://localhost:3000"
+1. Košík je v `localStorage`; uplatněný slevový kód také (`appliedDiscount`).
+2. Checkout → souhrn → `POST /api/orders`.
+3. **Server ceny vždy přepočítá** (`lib/order-pricing.ts`) – z databáze (produkty, sety) a z ceníku předplatného
+   (`lib/pricing.ts`). Pokud se částka liší od toho, co viděl zákazník, objednávka se nevytvoří (409).
+4. V jedné transakci se vytvoří objednávka, odečte sklad a započítá použití slevového kódu (`lib/order-inventory.ts`).
+5. QR platba: hned se vystaví faktura a zákazník dostane e-mail s QR kódem a fakturou.
+   Dobírka / platba na prodejně: faktura se vystaví při přepnutí do stavu *Ve výrobě*.
+
+Doprava: Z-BOX 69 Kč, zdarma od 2 500 Kč (po slevě); dobírka +30 Kč; osobní odběr Havířov / Frenštát zdarma.
+
+### Stavy objednávky
+
+`new` → `in_production` → `ready_to_ship` → `shipped` → `delivered`, případně `rejected` / `cancelled`.
+Při změně stavu se zákazníkovi posílá e-mail (`lib/email.ts`). Odmítnutí nebo zrušení vrátí zboží na sklad
+a uvolní slevový kód; smazání objednávky, která ještě neodešla, také. U QR platby přepnutí do výroby
+zároveň označí objednávku i fakturu jako zaplacenou.
+
+### Faktury
+
+Číselná řada je v *Administrace → Nastavení → Fakturace* (`invoicePrefix` + `nextInvoiceNum`).
+Číslo se rezervuje a faktura vytvoří v jedné transakci – souběžné objednávky nedostanou stejné číslo.
+Bez vyplněných fakturačních údajů se faktura nevystaví (raději chyba než faktura s vymyšlenými údaji).
+
+### Slevové kódy
+
+Spravují se v administraci. Sleva (procentní / pevná částka) se uplatňuje jen na zboží, ne na dopravu.
+Server kontroluje platnost, minimální částku i maximální počet použití.
+
+### Zabezpečení
+
+- Admin API ověřuje session cookie (`lib/auth.ts`), přihlášení má limit pokusů.
+- Veřejné formuláře (objednávky, kontakt, slevové kódy) mají rate limit (`lib/rate-limit.ts` – v paměti instance,
+  tedy „best effort“).
+- Všechna data od zákazníků se v e-mailech escapují (`lib/escape-html.ts`).
+
+### Instagram na homepage
+
+`components/InstagramFeed.tsx` – seznam příspěvků (obrázek v `public/instagram/post-N.jpg` + odkaz na post).
+Nový příspěvek = ulož obrázek do `public/instagram/` a přidej položku do pole v komponentě.
+
+## Struktura
+
 ```
-
-### 4. Nastavte databázi
-```bash
-# Migrace
-npx prisma migrate dev
-
-# Seed (admin + company settings)
-npm run db:seed
+app/                 stránky (App Router) a API routy (app/api)
+  admin/             administrace
+components/          sdílené komponenty, components/ui = základní UI prvky
+lib/                 logika: ceny, objednávky, faktury, e-maily, Zásilkovna, QR platby
+prisma/              schéma, migrace, seed
+scripts/             pomocné skripty (demo objednávka, kontrola schématu)
+public/              statické soubory
 ```
-
-### 5. Spusťte dev server
-```bash
-npm run dev
-```
-
-Otevřete [http://localhost:3000](http://localhost:3000)
-
-## 📱 Stránky
-
-### Veřejné stránky
-- `/` - Domovská stránka
-- `/obchod` - Výpis všech produktů
-- `/o-nas` - O značce Monlii
-- `/kontakty` - Kontaktní informace
-
-### Admin rozhraní
-- `/admin` - Dashboard (Login: admin / 111023@Granko)
-- `/admin` - Přehled objednávek a metrik
-- Správa produktů, objednávek, slevových kódů
-- Generování faktur
-
-**Admin přihlášení:**
-- Username: `admin`
-- Password: `111023@Granko`
-- (nastaveno automaticky při `npm run db:seed`)
-
-## 🔑 Integrace
-
-### GoPay (Platby)
-1. **Testování:** https://gw.sandbox.gopay.com
-2. **Produkce:** https://www.gopay.com/cs/obchodnici
-3. Získejte GO ID, Client ID, Client Secret
-4. Nastavte v ENV variables
-5. Nakonfigurujte webhook URL v GoPay portálu
-
-**Dokumentace:** `README_GOPAY.md`
-
-### Email (SMTP)
-Doporučené providery:
-- **SendGrid** - 100 emailů/den zdarma
-- **AWS SES** - velmi levné
-- **Mailgun** - 5000 emailů/měsíc zdarma
-
-**Dokumentace:** `README_EMAIL_SYSTEM.md`
-
-### Fakturace
-- Automatické generování PDF faktur
-- Číslování podle roku (prefix)
-- Company settings v databázi
-
-**Dokumentace:** `README_INVOICING.md`
-
-## 📦 Přidání prvního produktu
-
-1. Spusťte aplikaci a přejděte na `/admin/produkty`
-2. Klikněte na "Přidat produkt"
-3. Vyplňte:
-   - Název produktu
-   - Popis
-   - Cenu v Kč
-   - Počet kusů na skladě
-   - Kategorii (volitelné)
-   - URL obrázků (jeden na řádek)
-4. Klikněte na "Vytvořit produkt"
-
-## 🗄️ Databázové schéma
-
-### Product (Produkt)
-- název, popis, cena, sklad
-- obrázky (JSON array)
-- kategorie
-- varianty (velikost, barva)
-
-### Order (Objednávka)
-- číslo objednávky
-- zákazník (jméno, email, telefon)
-- adresy (doručovací, fakturační)
-- položky objednávky
-- celková částka
-- stav (pending, paid, shipped, delivered, cancelled)
-- platební metoda a stav
-- způsob dopravy
-
-### Settings (Nastavení)
-- klíč-hodnota páry pro konfiguraci
-
-## 🎨 Přizpůsobení designu
-
-### Barvy
-Hlavní barva růžová je definována v Tailwind CSS. Pro změnu upravte:
-```css
-/* v app/globals.css */
-.bg-pink-600 -> .bg-your-color
-.text-pink-600 -> .text-your-color
-```
-
-### Logo
-Logo lze upravit v komponentě `components/navbar.tsx`
-
-## 📝 Další vývoj
-
-### Doporučené rozšíření:
-- [ ] Košík a checkout proces
-- [ ] Autentizace admina (NextAuth)
-- [ ] Upload obrázků (místo URL)
-- [ ] Detailní stránka produktu s variantami
-- [ ] Filtrování a vyhledávání produktů
-- [ ] Newsletter
-- [ ] Hodnocení produktů
-- [ ] Wishlist
-
-## 🚀 Production Deployment
-
-### Cloudflare Pages (Configured)
-
-Aplikace je připravená pro deploy na Cloudflare Pages.
-
-**Kompletní návod:** Viz `README_CLOUDFLARE.md`
-
-**Quick deploy:**
-```bash
-# 1. Push na GitHub
-git push origin main
-
-# 2. V Cloudflare Dashboard:
-# - Connect GitHub repository
-# - Framework: Next.js
-# - Build command: npm run build
-# - Output: .next
-
-# 3. Nastav Environment Variables (viz README_CLOUDFLARE.md)
-
-# 4. Deploy!
-```
-
-### Environment Variables (Production)
-
-V Cloudflare Pages dashboard nastav:
-- `DATABASE_URL` - PostgreSQL connection string
-- `GOPAY_GO_ID` - Production GO ID
-- `GOPAY_CLIENT_ID` - Production Client ID
-- `GOPAY_CLIENT_SECRET` - Production Secret
-- `MAILTRAP_HOST` - SMTP host (čeká se na info)
-- `EMAIL_FROM` - noreply@monlii.cz
-- `SELLER_EMAIL` - luckaivankova1@seznam.cz
-- `NEXT_PUBLIC_URL` - https://monlii.cz
-
-## 📚 Dokumentace
-
-Kompletní dokumentace v samostatných souborech:
-
-- **`README_CLOUDFLARE.md`** - Cloudflare Pages deployment
-- **`README_GOPAY.md`** - GoPay integrace a testování  
-- **`README_EMAIL_SYSTEM.md`** - Email systém a SMTP
-- **`README_INVOICING.md`** - Fakturační systém
-- **`PRODUCTION_SETUP.md`** - Production setup guide
-- **`FINAL_DEPLOYMENT_CHECKLIST.md`** - Pre-launch checklist
-- **`GIT_SETUP.md`** - Git setup a první push
-
-## 🏢 Company Info (Pre-configured)
-
-**Lucie Ivanková**  
-IČO: 14316242  
-Dolní Domaslavice 34  
-739 38 Dolní Domaslavice  
-Email: luckaivankova1@seznam.cz  
-Telefon: 735823160  
-⚠️ Není plátce DPH
-
-(Nastaveno automaticky v `prisma/seed.ts`)
-
-## 📞 Kontakt & Podpora
-
-**Developer:** Roman Velička (nevymyslis.cz)  
-**Client:** Lucie Ivanková  
-**Email:** luckaivankova1@seznam.cz  
-**Repository:** git@github.com:monliiservice-droid/monliieshop.git
-
----
-
-**Vytvořeno s ❤️ pro Monlii | Production Ready ✅**

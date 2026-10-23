@@ -178,7 +178,6 @@ export async function findNearestZBox(
       }
     }
 
-    console.log(`Found nearest Z-BOX: ${nearestZBox?.name} (${minDistance.toFixed(2)} km away)`)
     
     return nearestZBox
   } catch (error) {

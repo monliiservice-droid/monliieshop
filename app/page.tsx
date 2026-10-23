@@ -277,7 +277,7 @@ export default function Home() {
                     <div className="flex-1 space-y-2">
                       <h3 className="text-xl font-bold text-[#931e31]">Agáta</h3>
                       <p className="text-sm text-gray-600 leading-relaxed">
-                        "Mám trochu větší velikost, takže vždycky oceňuju, když prádlo opravdu sedí a drží tam, kde má. Když jsem poprvé vyzkoušela Monlli, byla jsem nadšená — pohodlné, krásné a v originálních vzorech, které v běžných obchodech nenajdu. A protože jsme si s holkama hned lidsky sedly a prádlo mě fakt baví, domluvily jsme se, že se stanu tváří Monlli. Tohle je prostě styl, ve kterém se cítím sama sebou."
+                        „Mám trochu větší velikost, takže vždycky oceňuju, když prádlo opravdu sedí a drží tam, kde má. Když jsem poprvé vyzkoušela Monlli, byla jsem nadšená — pohodlné, krásné a v originálních vzorech, které v běžných obchodech nenajdu. A protože jsme si s holkama hned lidsky sedly a prádlo mě fakt baví, domluvily jsme se, že se stanu tváří Monlli. Tohle je prostě styl, ve kterém se cítím sama sebou.“
                       </p>
                     </div>
                   </div>
@@ -297,7 +297,7 @@ export default function Home() {
                     <div className="flex-1 space-y-2">
                       <h3 className="text-xl font-bold text-[#931e31]">Terez</h3>
                       <p className="text-sm text-gray-600 leading-relaxed">
-                        "Jsem profesionální modelka a už jsem fotila opravdu všechno. Ale když jsem poprvé fotila pro Monlli, překvapilo mě, jak jiný ten zážitek byl. Přístup holek, atmosféra i samotné prádlo… všechno působilo osobně, lidsky a hlavně pohodlně. Upřímně mě překvapilo, jak krásně mi prádlo sedlo a že je příjemné i na běžné nošení, nejen na focení. Od té doby už nejsem jen modelka na fotkách — jsem i jejich stálá zákaznice a faninka. Monlli fotím i nosím s radostí."
+                        „Jsem profesionální modelka a už jsem fotila opravdu všechno. Ale když jsem poprvé fotila pro Monlli, překvapilo mě, jak jiný ten zážitek byl. Přístup holek, atmosféra i samotné prádlo… všechno působilo osobně, lidsky a hlavně pohodlně. Upřímně mě překvapilo, jak krásně mi prádlo sedlo a že je příjemné i na běžné nošení, nejen na focení. Od té doby už nejsem jen modelka na fotkách — jsem i jejich stálá zákaznice a faninka. Monlli fotím i nosím s radostí.“
                       </p>
                     </div>
                   </div>
@@ -317,7 +317,7 @@ export default function Home() {
                     <div className="flex-1 space-y-2">
                       <h3 className="text-xl font-bold text-[#931e31]">Natka</h3>
                       <p className="text-sm text-gray-600 leading-relaxed">
-                        "Jsem drobnější postavy, ale mám větší velikost prsou — což je kombinace, se kterou jsem skoro nikdy nenašla set, který by mi seděl tak, jak jsem si přála. Buď mi neseděla podprsenka, nebo kalhotky. Když jsem u Monlli dostala možnost nechat si prádlo ušít přesně na míru, poprvé v životě jsem měla pocit, že se myslí i na ženy jako jsem já. A výsledek? Nejvíc pohodlný kousek, jaký jsem kdy nosila. Byla jsem tak nadšená, že jsem hned věděla, že chci být součástí toho, aby značka rostla a dostala se k dalším ženám. A tak dnes s radostí ukazuju dál, že prádlo může být krásné, originální a hlavně — opravdu sedět."
+                        „Jsem drobnější postavy, ale mám větší velikost prsou — což je kombinace, se kterou jsem skoro nikdy nenašla set, který by mi seděl tak, jak jsem si přála. Buď mi neseděla podprsenka, nebo kalhotky. Když jsem u Monlli dostala možnost nechat si prádlo ušít přesně na míru, poprvé v životě jsem měla pocit, že se myslí i na ženy jako jsem já. A výsledek? Nejvíc pohodlný kousek, jaký jsem kdy nosila. Byla jsem tak nadšená, že jsem hned věděla, že chci být součástí toho, aby značka rostla a dostala se k dalším ženám. A tak dnes s radostí ukazuju dál, že prádlo může být krásné, originální a hlavně — opravdu sedět.“
                       </p>
                     </div>
                   </div>
@@ -337,7 +337,7 @@ export default function Home() {
                     <div className="flex-1 space-y-2">
                       <h3 className="text-xl font-bold text-[#931e31]">Lucka</h3>
                       <p className="text-sm text-gray-600 leading-relaxed">
-                        "I když jsem zakladatelka Monlli, dlouhou dobu jsem byla přesně ten typ ženy, která prádlo neřeší. Brala jsem ho jako něco, co má prostě fungovat — nic víc. Až když mamka začala šít, otevřel se mi úplně nový svět. Poprvé jsem pochopila, že prádlo není jen věc v šuplíku, ale malý rituál ženskosti. Začala jsem si vybírat vzory podle nálady, barev, dne… a zjistila jsem, jak moc mě to baví. Dnes si s prádlem doslova hraju — jednou chci být jemná, jindy odvážná, někdy romantická a některé dny prostě jen pohodlná. A právě díky tomu vím, že každá žena může mít kousek, který mluví za ni, ještě dřív než cokoliv řekne."
+                        „I když jsem zakladatelka Monlli, dlouhou dobu jsem byla přesně ten typ ženy, která prádlo neřeší. Brala jsem ho jako něco, co má prostě fungovat — nic víc. Až když mamka začala šít, otevřel se mi úplně nový svět. Poprvé jsem pochopila, že prádlo není jen věc v šuplíku, ale malý rituál ženskosti. Začala jsem si vybírat vzory podle nálady, barev, dne… a zjistila jsem, jak moc mě to baví. Dnes si s prádlem doslova hraju — jednou chci být jemná, jindy odvážná, někdy romantická a některé dny prostě jen pohodlná. A právě díky tomu vím, že každá žena může mít kousek, který mluví za ni, ještě dřív než cokoliv řekne.“
                       </p>
                     </div>
                   </div>
@@ -417,7 +417,7 @@ export default function Home() {
                     ))}
                   </div>
                   <p className="text-gray-600 mb-6 leading-relaxed italic flex-1">
-                    "S prádlem jsem velmi spokojená, prádlo je pohodlné, nikde nic neškrtí ani neškrábe. Materiál je na těle příjemný. A navíc prádlo na mě vypadá opravdu skvěle!"
+                    „S prádlem jsem velmi spokojená, prádlo je pohodlné, nikde nic neškrtí ani neškrábe. Materiál je na těle příjemný. A navíc prádlo na mě vypadá opravdu skvěle!“
                   </p>
                   <div className="flex items-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#931e31] to-[#b8263d] flex items-center justify-center text-white font-bold mr-3">
@@ -442,7 +442,7 @@ export default function Home() {
                     ))}
                   </div>
                   <p className="text-gray-600 mb-6 leading-relaxed italic flex-1">
-                    "Před nějakým časem jsem měla možnost vyzkoušet vaše prádlo na míru musím říct že jsem velice mile překvapena prádlo úžasně sedí a každý design je opravdu krásný jde vidět že na tom pracuji dvě vkusné ženy a musím podotknout že prádlo je velmi praktické díky jeho pohodlnosti takže je vhodné na běžné celodenní nošení kamkoliv."
+                    „Před nějakým časem jsem měla možnost vyzkoušet vaše prádlo na míru musím říct že jsem velice mile překvapena prádlo úžasně sedí a každý design je opravdu krásný jde vidět že na tom pracuji dvě vkusné ženy a musím podotknout že prádlo je velmi praktické díky jeho pohodlnosti takže je vhodné na běžné celodenní nošení kamkoliv.“
                   </p>
                   <div className="flex items-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#931e31] to-[#b8263d] flex items-center justify-center text-white font-bold mr-3">
@@ -467,7 +467,7 @@ export default function Home() {
                     ))}
                   </div>
                   <p className="text-gray-600 mb-6 leading-relaxed italic flex-1">
-                    "Prádlo úžasně sedí a každý design je opravdu krásný jde vidět že na tom pracuji dvě vkusné ženy a musím podotknout že prádlo je velmi praktické díky jeho pohodlnosti takže je vhodné na běžné celodenní nošení kamkoliv děkuji za tuhle možnost a určitě doufám že se vám bude i nadále dařit vytvářet tak kouzelné kousky."
+                    „Prádlo úžasně sedí a každý design je opravdu krásný jde vidět že na tom pracuji dvě vkusné ženy a musím podotknout že prádlo je velmi praktické díky jeho pohodlnosti takže je vhodné na běžné celodenní nošení kamkoliv děkuji za tuhle možnost a určitě doufám že se vám bude i nadále dařit vytvářet tak kouzelné kousky.“
                   </p>
                   <div className="flex items-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#931e31] to-[#b8263d] flex items-center justify-center text-white font-bold mr-3">
@@ -492,7 +492,7 @@ export default function Home() {
                     ))}
                   </div>
                   <p className="text-gray-600 mb-6 leading-relaxed italic flex-1">
-                    "Neskutečně mě překvapila rychlost dodání, kvalita a cena daného prádla. Úžasně sedí, elastické, nikde neškrábe a netahá. A vzhledem k tomu, že je použitá krajka, tak hřeje a nosím jej v zimě. Objednala jsem si další soupravu a už se nemůžu dočkat."
+                    „Neskutečně mě překvapila rychlost dodání, kvalita a cena daného prádla. Úžasně sedí, elastické, nikde neškrábe a netahá. A vzhledem k tomu, že je použitá krajka, tak hřeje a nosím jej v zimě. Objednala jsem si další soupravu a už se nemůžu dočkat.“
                   </p>
                   <div className="flex items-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#931e31] to-[#b8263d] flex items-center justify-center text-white font-bold mr-3">
@@ -517,7 +517,7 @@ export default function Home() {
                     ))}
                   </div>
                   <p className="text-gray-600 mb-6 leading-relaxed italic flex-1">
-                    "Děkuji za krásné kalhotky a podprsenku! Oba kousky jsou kvalitně zpracované, budou příjemné na nošení především oceňuji vaši rychlost a příjemnou a vstřícnou komunikaci."
+                    „Děkuji za krásné kalhotky a podprsenku! Oba kousky jsou kvalitně zpracované, budou příjemné na nošení především oceňuji vaši rychlost a příjemnou a vstřícnou komunikaci.“
                   </p>
                   <div className="flex items-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#931e31] to-[#b8263d] flex items-center justify-center text-white font-bold mr-3">
@@ -542,7 +542,7 @@ export default function Home() {
                     ))}
                   </div>
                   <p className="text-gray-600 mb-6 leading-relaxed italic flex-1">
-                    "Moc děkuju za hezký komplet na to, že vůbec nevíte, na jakého člověka šijete, tak smekám klobouk každá máme jinou postavu a vy si s tím poradíte."
+                    „Moc děkuju za hezký komplet na to, že vůbec nevíte, na jakého člověka šijete, tak smekám klobouk každá máme jinou postavu a vy si s tím poradíte.“
                   </p>
                   <div className="flex items-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#931e31] to-[#b8263d] flex items-center justify-center text-white font-bold mr-3">
@@ -567,7 +567,7 @@ export default function Home() {
                     ))}
                   </div>
                   <p className="text-gray-600 mb-6 leading-relaxed italic flex-1">
-                    "Moooc děkuji za prádlo, které jste mi ušily na míru. Je strašně moc pohodlné a nikdy mi tak nesedělo žádné prádlo. Těším se až budeme mít další nové kousky jen tak dále."
+                    „Moooc děkuji za prádlo, které jste mi ušily na míru. Je strašně moc pohodlné a nikdy mi tak nesedělo žádné prádlo. Těším se až budeme mít další nové kousky jen tak dále.“
                   </p>
                   <div className="flex items-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#931e31] to-[#b8263d] flex items-center justify-center text-white font-bold mr-3">

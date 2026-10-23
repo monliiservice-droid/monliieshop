@@ -5,11 +5,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Package, CreditCard, ArrowLeft, ArrowRight, MapPin, Truck, Building2 } from 'lucide-react'
+import { CreditCard, ArrowLeft, ArrowRight, MapPin, Truck, Building2 } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Script from 'next/script'
 import { ZASILKOVNA_CONFIG, type ZBoxPoint } from '@/lib/zasilkovna-zbox'
 import {
   COD_FEE,
@@ -155,7 +154,7 @@ export default function CheckoutPage() {
         setPaymentMethod('qr_code')
       }
     }
-  }, [shippingMethod])
+  }, [shippingMethod, paymentMethod])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
