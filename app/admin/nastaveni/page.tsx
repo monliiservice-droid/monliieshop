@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import { CreditCard, Store, FileText } from 'lucide-react'
+import { Store, FileText } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
+import { StoreSettings } from '@/components/admin/store-settings'
 
 export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
@@ -58,23 +60,17 @@ export default function SettingsPage() {
       })
       
       if (res.ok) {
-        alert('Fakturační údaje uloženy')
+        toast.success('Fakturační údaje uloženy')
         await fetchCompanySettings()
       } else {
-        alert('Chyba při ukládání')
+        toast.error('Chyba při ukládání')
       }
     } catch (error) {
       console.error('Error saving company settings:', error)
-      alert('Chyba při ukládání')
+      toast.error('Chyba při ukládání')
     } finally {
       setSaving(false)
     }
-  }
-
-  const handleSave = async () => {
-    // Store settings are saved via saveCompanySettings
-    // This button can be used for future additional settings
-    await saveCompanySettings()
   }
 
   return (
@@ -84,7 +80,7 @@ export default function SettingsPage() {
         <p className="text-gray-600">Spravujte nastavení vašeho e-shopu</p>
       </div>
 
-      <Tabs defaultValue="invoicing" className="space-y-6">
+      <Tabs defaultValue="store" className="space-y-6">
         <TabsList>
           <TabsTrigger value="invoicing">
             <FileText className="h-4 w-4 mr-2" />
@@ -96,46 +92,8 @@ export default function SettingsPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="store" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Základní informace</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Název obchodu</Label>
-                <Input defaultValue="Monlii" />
-              </div>
-              <div className="space-y-2">
-                <Label>E-mail</Label>
-                <Input type="email" placeholder="kontakt@monlii.cz" />
-              </div>
-              <div className="space-y-2">
-                <Label>Telefon</Label>
-                <Input type="tel" placeholder="+420 XXX XXX XXX" />
-              </div>
-              <div className="space-y-2">
-                <Label>Adresa</Label>
-                <Input placeholder="Ulice 123, 100 00 Praha" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Sociální sítě</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Facebook URL</Label>
-                <Input defaultValue="https://www.facebook.com/monlii.cz" />
-              </div>
-              <div className="space-y-2">
-                <Label>Instagram URL</Label>
-                <Input defaultValue="https://www.instagram.com/monlii_i/" />
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="store">
+          <StoreSettings />
         </TabsContent>
 
         <TabsContent value="invoicing" className="space-y-6">
@@ -309,12 +267,6 @@ export default function SettingsPage() {
           </div>
         </TabsContent>
       </Tabs>
-
-      <div className="flex justify-end mt-6">
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? 'Ukládání...' : 'Uložit nastavení'}
-        </Button>
-      </div>
     </div>
   )
 }

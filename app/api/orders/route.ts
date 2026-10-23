@@ -1,93 +1,231 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { randomInt } from 'crypto'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { sendOrderEmail, sendOrderWithInvoiceEmail } from '@/lib/email'
 import { generatePaymentQRCode } from '@/lib/qr-payment'
 import { createInvoiceForOrder } from '@/lib/invoice-generator'
+import { priceOrder, OrderValidationError } from '@/lib/order-pricing'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
+import { reserveOrderResources } from '@/lib/order-inventory'
 
+// Číslo objednávky: ORD- + 9 číslic (číslice slouží i jako variabilní symbol, max. 10 číslic)
 function generateOrderNumber(): string {
   const timestamp = Date.now().toString().slice(-6)
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+  const random = randomInt(0, 1000).toString().padStart(3, '0')
   return `ORD-${timestamp}${random}`
 }
 
+const ORDER_NUMBER_ATTEMPTS = 5
+
+const ORDER_LIMIT = 10
+const ORDER_WINDOW_MS = 60 * 60 * 1000 // 1 hodina
+const EMAIL_REGEX = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/
+
+function cleanString(value: unknown, maxLength: number): string {
+  return typeof value === 'string' ? value.trim().slice(0, maxLength) : ''
+}
+
+// Z-BOX ukládáme jen se známými textovými poli, nic dalšího od klienta
+function sanitizePickupPoint(point: any) {
+  if (!point || typeof point !== 'object') return null
+  const id = cleanString(String(point.id ?? ''), 50)
+  const name = cleanString(point.name, 200)
+  if (!id || !name) return null
+  return {
+    id,
+    name,
+    place: cleanString(point.place, 200),
+    street: cleanString(point.street, 200),
+    city: cleanString(point.city, 100),
+    zip: cleanString(point.zip, 20),
+    country: cleanString(point.country, 10),
+    ...(typeof point.latitude === 'number' && { latitude: point.latitude }),
+    ...(typeof point.longitude === 'number' && { longitude: point.longitude }),
+    ...(typeof point.url === 'string' && /^https:\/\//.test(point.url) && { url: cleanString(point.url, 300) }),
+  }
+}
+
 export async function POST(request: NextRequest) {
+  const { allowed, retryAfterSeconds } = rateLimit(
+    `orders:${getClientIp(request)}`,
+    ORDER_LIMIT,
+    ORDER_WINDOW_MS
+  )
+  if (!allowed) {
+    return NextResponse.json(
+      { message: 'Příliš mnoho objednávek v krátkém čase. Zkuste to prosím později.' },
+      { status: 429, headers: { 'Retry-After': String(retryAfterSeconds) } }
+    )
+  }
+
   try {
     const data = await request.json()
-    
-    console.log('Creating order with data:', JSON.stringify(data, null, 2))
 
-    // Validace
-    if (!data.customer || !data.items || data.items.length === 0) {
-      console.error('Validation failed:', { hasCustomer: !!data.customer, hasItems: !!data.items, itemsLength: data.items?.length })
+    // Validace zákazníka
+    const customer = data?.customer || {}
+    const firstName = cleanString(customer.firstName, 100)
+    const lastName = cleanString(customer.lastName, 100)
+    const email = cleanString(customer.email, 254)
+    const phone = cleanString(customer.phone, 30)
+    const address = cleanString(customer.address, 200)
+    const city = cleanString(customer.city, 100)
+    const zip = cleanString(customer.zip, 20)
+    const isCompany = customer.isCompany === true
+    const company = cleanString(customer.company, 200)
+    const ico = cleanString(customer.ico, 20)
+    const dic = cleanString(customer.dic, 20)
+
+    if (!firstName || !lastName || !email || !address || !city || !zip) {
       return NextResponse.json(
-        { message: 'Neplatná data objednávky' },
+        { message: 'Vyplňte prosím všechny povinné údaje' },
+        { status: 400 }
+      )
+    }
+    if (!EMAIL_REGEX.test(email)) {
+      return NextResponse.json(
+        { message: 'Zadejte prosím platný email' },
+        { status: 400 }
+      )
+    }
+    if (isCompany && (!company || !ico)) {
+      return NextResponse.json(
+        { message: 'Vyplňte prosím název firmy a IČO' },
         { status: 400 }
       )
     }
 
-    // Generování čísla objednávky
-    const orderNumber = generateOrderNumber()
-    console.log('Generated order number:', orderNumber)
-
-    // Vytvoření objednávky v databázi
-    console.log('Creating order in database...')
-    let order
+    // Přepočet cen na serveru – hodnotám z prohlížeče nevěříme
+    let priced
     try {
-      order = await prisma.order.create({
-        data: {
-          orderNumber,
-          customerName: `${data.customer.firstName} ${data.customer.lastName}`,
-          customerEmail: data.customer.email,
-          customerPhone: data.customer.phone || '',
-          shippingAddress: JSON.stringify({
-            firstName: data.customer.firstName,
-            lastName: data.customer.lastName,
-            street: data.customer.address,
-            city: data.customer.city,
-            zip: data.customer.zip,
-            ...(data.customer.isCompany && {
-              company: data.customer.company,
-              ico: data.customer.ico,
-              dic: data.customer.dic
-            }),
-            // Přidáme shipping details přímo do adresy
-            shippingDetails: {
-              // Support both 'zbox' (from checkout) and 'pickupPoint' naming
-              ...((data.shipping.zbox || data.shipping.pickupPoint) && { 
-                pickupPoint: data.shipping.zbox || data.shipping.pickupPoint 
-              }),
-              ...(data.shipping.personalLocation && { personalLocation: data.shipping.personalLocation })
-            }
-          }),
-          shippingMethod: data.shipping.method || 'zasilkovna_pickup',
-          paymentMethod: data.payment.method || 'card',
-          totalAmount: parseFloat(data.totalPrice) || 0,
-          shippingCost: parseFloat(data.shipping.price) || 0,
-          codFee: parseFloat(data.payment.fee) || 0,
-          status: 'new',
-          items: {
-            create: data.items.map((item: any) => ({
-              productName: item.name || '',
-              productId: item.productId || null,
-              quantity: parseInt(item.quantity) || 1,
-              price: parseFloat(item.price) || 0,
-              variant: item.variant ? JSON.stringify(item.variant) : null
-            }))
-          }
+      priced = await priceOrder(data)
+    } catch (error) {
+      if (error instanceof OrderValidationError) {
+        return NextResponse.json({ message: error.message, code: error.code }, { status: 400 })
+      }
+      throw error
+    }
+
+    // Validace místa doručení
+    const pickupPoint = priced.shippingMethod === 'zbox'
+      ? sanitizePickupPoint(data.shipping?.zbox || data.shipping?.pickupPoint)
+      : null
+    const personalLocation = priced.shippingMethod === 'personal'
+      ? data.shipping?.personalLocation
+      : null
+    if (priced.shippingMethod === 'zbox' && !pickupPoint) {
+      return NextResponse.json(
+        { message: 'Chybí výdejní místo Z-BOX' },
+        { status: 400 }
+      )
+    }
+    if (priced.shippingMethod === 'personal' && personalLocation !== 'havirov' && personalLocation !== 'frenstat') {
+      return NextResponse.json(
+        { message: 'Vyberte prosím místo osobního odběru' },
+        { status: 400 }
+      )
+    }
+
+    // Pokud se cena zobrazená zákazníkovi liší od přepočtené, objednávku nevytvoříme,
+    // aby zákazník nezaplatil jinou částku, než viděl (např. starý košík po změně cen)
+    const clientTotal = Number(data.totalPrice)
+    if (!Number.isFinite(clientTotal) || Math.abs(clientTotal - priced.total) > 0.5) {
+      return NextResponse.json(
+        {
+          message: 'Ceny v košíku se mezitím změnily. Vraťte se prosím do košíku a zkontrolujte objednávku.',
+          expectedTotal: priced.total,
         },
-        include: {
-          items: true
+        { status: 409 }
+      )
+    }
+
+    const customerAddress = {
+      firstName,
+      lastName,
+      street: address,
+      city,
+      zip,
+      ...(isCompany && { company, ico, dic })
+    }
+
+    // Vytvoření objednávky, odečtení skladu a použití slevového kódu v jedné transakci.
+    // Při (nepravděpodobné) kolizi čísla objednávky zkusíme vygenerovat jiné.
+    let order
+    for (let attempt = 1; ; attempt++) {
+      const orderNumber = generateOrderNumber()
+      try {
+        order = await prisma.$transaction(async (tx) => {
+          await reserveOrderResources(tx, priced)
+          return tx.order.create({
+            data: {
+              orderNumber,
+              customerName: `${firstName} ${lastName}`,
+              customerEmail: email,
+              customerPhone: phone,
+              shippingAddress: JSON.stringify({
+                ...customerAddress,
+                // Přidáme shipping details přímo do adresy
+                shippingDetails: {
+                  ...(pickupPoint && { pickupPoint }),
+                  ...(personalLocation && { personalLocation })
+                }
+              }),
+              // Fakturační údaje (vč. IČO/DIČ) pro automatické faktury
+              billingAddress: JSON.stringify(customerAddress),
+              shippingMethod: priced.shippingMethod,
+              paymentMethod: priced.paymentMethod,
+              totalAmount: priced.total,
+              shippingCost: priced.shippingCost,
+              codFee: priced.paymentFee,
+              discountCode: priced.discount?.code ?? null,
+              discountAmount: priced.discountAmount,
+              status: 'new',
+              items: {
+                create: priced.items.map((item) => ({
+                  productName: item.name,
+                  productId: item.productId,
+                  quantity: item.quantity,
+                  price: item.price,
+                  variant: item.variant ? JSON.stringify(item.variant) : null
+                }))
+              }
+            },
+            include: {
+              items: true
+            }
+          })
+        })
+        break
+      } catch (error) {
+        if (error instanceof OrderValidationError) {
+          return NextResponse.json({ message: error.message, code: error.code }, { status: 409 })
         }
+        const isOrderNumberCollision = error instanceof Prisma.PrismaClientKnownRequestError
+          && error.code === 'P2002'
+          && JSON.stringify(error.meta?.target ?? '').includes('orderNumber')
+        if (!isOrderNumberCollision || attempt >= ORDER_NUMBER_ATTEMPTS) {
+          throw error
+        }
+      }
+    }
+    console.log('Order created:', order.orderNumber)
+
+    const emailItems = priced.items.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price
+    }))
+    if (priced.discount && priced.discountAmount > 0) {
+      emailItems.push({
+        name: `Sleva (kód ${priced.discount.code})`,
+        quantity: 1,
+        price: -priced.discountAmount
       })
-      console.log('Order created successfully:', order.id)
-    } catch (dbError) {
-      console.error('Database error creating order:', dbError)
-      throw dbError
     }
 
     // Generování QR platby pro qr_code payment method
     let qrPaymentData: ReturnType<typeof generatePaymentQRCode> | undefined = undefined
-    if (data.payment.method === 'qr_code') {
+    if (order.paymentMethod === 'qr_code') {
       qrPaymentData = generatePaymentQRCode(order.orderNumber, order.totalAmount)
     }
 
@@ -98,18 +236,14 @@ export async function POST(request: NextRequest) {
         customerName: order.customerName,
         customerEmail: order.customerEmail,
         totalAmount: order.totalAmount,
-        items: data.items.map((item: any) => ({
-          name: item.name,
-          quantity: item.quantity || 1,
-          price: item.price
-        })),
+        items: emailItems,
         shippingAddress: JSON.parse(order.shippingAddress),
-        paymentMethod: data.payment.method,
+        paymentMethod: order.paymentMethod,
         qrPaymentData
       }
 
       // QR payment: Create invoice immediately and send combined email with QR + invoice
-      if (data.payment.method === 'qr_code') {
+      if (order.paymentMethod === 'qr_code') {
         try {
           const invoice = await createInvoiceForOrder({
             id: order.id,
@@ -118,12 +252,11 @@ export async function POST(request: NextRequest) {
             customerEmail: order.customerEmail,
             customerPhone: order.customerPhone || undefined,
             billingAddress: order.billingAddress || undefined,
-            items: data.items.map((item: any) => ({
-              name: item.name,
-              quantity: item.quantity || 1,
-              price: item.price
-            })),
+            shippingAddress: order.shippingAddress,
+            // Bez řádku slevy – generátor faktury si ho přidá sám z discountAmount
+            items: emailItems.filter((item) => item.price >= 0),
             totalAmount: order.totalAmount,
+            discountCode: order.discountCode,
             discountAmount: order.discountAmount,
             shippingCost: order.shippingCost,
             codFee: order.codFee,
@@ -172,7 +305,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating order:', error)
     return NextResponse.json(
-      { message: 'Chyba při vytváření objednávky', error: String(error) },
+      { message: 'Chyba při vytváření objednávky' },
       { status: 500 }
     )
   }

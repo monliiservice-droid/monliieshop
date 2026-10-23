@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Tag, Plus, Trash2, Edit, TrendingUp } from 'lucide-react'
+import { Tag, Plus, Trash2, TrendingUp } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface DiscountCode {
   id: string
@@ -58,7 +59,7 @@ export default function DiscountCodesPage() {
 
     // Validace - value musí být vyplněno
     if (!formData.value || formData.value === '') {
-      alert('Prosím vyplňte hodnotu slevy')
+      toast.error('Prosím vyplňte hodnotu slevy')
       return
     }
 
@@ -91,10 +92,10 @@ export default function DiscountCodesPage() {
         })
       } else {
         const error = await response.json()
-        alert(error.message || 'Chyba při vytváření kódu')
+        toast.error(error.message || 'Chyba při vytváření kódu')
       }
-    } catch (error) {
-      alert('Chyba při vytváření kódu')
+    } catch {
+      toast.error('Chyba při vytváření kódu')
     }
   }
 
@@ -108,14 +109,14 @@ export default function DiscountCodesPage() {
 
       if (response.ok) {
         await fetchCodes()
-        alert(isActive ? 'Kód byl deaktivován' : 'Kód byl aktivován')
+        toast.success(isActive ? 'Kód byl deaktivován' : 'Kód byl aktivován')
       } else {
         const error = await response.json()
-        alert(error.message || 'Chyba při aktualizaci kódu')
+        toast.error(error.message || 'Chyba při aktualizaci kódu')
       }
     } catch (error) {
       console.error('Error toggling code:', error)
-      alert('Chyba při aktualizaci kódu')
+      toast.error('Chyba při aktualizaci kódu')
     }
   }
 
@@ -129,14 +130,14 @@ export default function DiscountCodesPage() {
 
       if (response.ok) {
         await fetchCodes()
-        alert('Slevový kód byl úspěšně smazán')
+        toast.success('Slevový kód byl úspěšně smazán')
       } else {
         const error = await response.json()
-        alert(error.message || 'Chyba při mazání kódu')
+        toast.error(error.message || 'Chyba při mazání kódu')
       }
     } catch (error) {
       console.error('Error deleting code:', error)
-      alert('Chyba při mazání kódu')
+      toast.error('Chyba při mazání kódu')
     }
   }
 

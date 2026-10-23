@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Package, ShoppingBag, TrendingUp, Users } from 'lucide-react'
+import { Package, ShoppingBag, TrendingUp } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+import { MISSING_MIGRATION_MESSAGE, isMissingMigrationError } from '@/lib/admin-api'
 import Link from 'next/link'
 
 // Force dynamic rendering - don't cache this page
@@ -53,8 +54,24 @@ async function getDashboardData() {
   }
 }
 
+/** Ověří, že databáze obsahuje tabulky této verze (tj. že proběhla migrace) */
+async function isDatabaseUpToDate(): Promise<boolean> {
+  try {
+    await Promise.all([
+      prisma.pageSection.count(),
+      prisma.category.count(),
+      // Sloupce z novějších migrací – chybějící sloupec vyhodí chybu P2022
+      prisma.product.findFirst({ select: { hideWhenSoldOut: true } }),
+      prisma.saleEvent.findFirst({ select: { separateListing: true } }),
+    ])
+    return true
+  } catch (error) {
+    return !isMissingMigrationError(error)
+  }
+}
+
 export default async function AdminDashboard() {
-  const data = await getDashboardData()
+  const [data, databaseUpToDate] = await Promise.all([getDashboardData(), isDatabaseUpToDate()])
 
   const stats = [
     {
@@ -85,6 +102,13 @@ export default async function AdminDashboard() {
 
   return (
     <div>
+      {!databaseUpToDate && (
+        <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-900">
+          <p className="font-semibold">Databáze není aktualizovaná pro tuto verzi e-shopu</p>
+          <p className="mt-1">{MISSING_MIGRATION_MESSAGE}</p>
+          <p className="mt-1">Dokud migrace neproběhne, nejde ukládat obsah webu, kategorie ani výprodeje a obchod nezobrazí produkty.</p>
+        </div>
+      )}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
         <p className="text-gray-600">Přehled vašeho e-shopu</p>
@@ -116,18 +140,18 @@ export default async function AdminDashboard() {
             <CardTitle>Rychlé akce</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <a href="/admin/produkty/novy" className="block p-3 hover:bg-gray-50 rounded-lg border">
+            <Link href="/admin/produkty/novy" className="block p-3 hover:bg-gray-50 rounded-lg border">
               <div className="font-medium">Přidat nový produkt</div>
               <div className="text-sm text-gray-600">Vytvořit nový produkt v obchodě</div>
-            </a>
-            <a href="/admin/objednavky" className="block p-3 hover:bg-gray-50 rounded-lg border">
+            </Link>
+            <Link href="/admin/objednavky" className="block p-3 hover:bg-gray-50 rounded-lg border">
               <div className="font-medium">Zobrazit objednávky</div>
               <div className="text-sm text-gray-600">Spravovat objednávky zákazníků</div>
-            </a>
-            <a href="/admin/trzby" className="block p-3 hover:bg-gray-50 rounded-lg border">
+            </Link>
+            <Link href="/admin/trzby" className="block p-3 hover:bg-gray-50 rounded-lg border">
               <div className="font-medium">Tržby</div>
               <div className="text-sm text-gray-600">Zobrazit statistiky a tržby</div>
-            </a>
+            </Link>
           </CardContent>
         </Card>
 

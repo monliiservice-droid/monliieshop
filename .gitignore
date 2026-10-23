@@ -38,7 +38,6 @@ yarn-error.log*
 .env.development
 .env.development.local
 !.env.example
-!.env.production.template
 
 # vercel
 .vercel
@@ -55,8 +54,4 @@ next-env.d.ts
 /prisma/*.db
 /prisma/*.db-journal
 
-# cloudflare
-.wrangler
-.dev.vars
-wrangler.toml
 /images/

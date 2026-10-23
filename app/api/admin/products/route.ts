@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 import { requireAdminAuth } from '@/lib/auth'
+import { adminErrorResponse, badRequest, revalidateStorefront } from '@/lib/admin-api'
+import { parseProductInput, validateProduct } from '@/lib/admin-inputs'
 
 export async function POST(request: Request) {
   const isAuthed = await requireAdminAuth()
@@ -8,32 +10,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const data = parseProductInput(await request.json())
+  const error = validateProduct(data)
+  if (error) return badRequest(error)
+
   try {
-    const body = await request.json()
-    const { name, description, price, stock, category, images, isSet, setOptions, colors, sortOrder } = body
-
-    const product = await prisma.product.create({
-      data: {
-        name,
-        description,
-        price,
-        stock,
-        category,
-        images: images || '[]',
-        isSet: isSet || false,
-        setOptions: setOptions || '{}',
-        colors: colors || '[]',
-        sortOrder: sortOrder !== undefined ? sortOrder : 0
-      }
-    })
-
+    const product = await prisma.product.create({ data })
+    revalidateStorefront()
     return NextResponse.json(product, { status: 201 })
-  } catch (error) {
-    console.error('Error creating product:', error)
-    return NextResponse.json(
-      { error: 'Failed to create product' },
-      { status: 500 }
-    )
+  } catch (err) {
+    return adminErrorResponse(err, 'Chyba při vytváření produktu')
   }
 }
 
@@ -48,7 +34,8 @@ export async function GET() {
       orderBy: [
         { sortOrder: 'asc' },
         { createdAt: 'desc' }
-      ]
+      ],
+      include: { categoryRef: { select: { id: true, name: true } } }
     })
     return NextResponse.json(products)
   } catch (error) {

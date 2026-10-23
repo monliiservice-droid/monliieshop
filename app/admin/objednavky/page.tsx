@@ -14,6 +14,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Eye, CheckCircle, XCircle, Package, Truck, Home, X, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
+import { toast } from 'sonner'
+import { PICKUP_LOCATIONS } from '@/lib/pickup-locations'
 
 interface Order {
   id: string
@@ -25,6 +27,8 @@ interface Order {
   shippingMethod: string
   paymentMethod: string
   totalAmount: number
+  discountCode: string | null
+  discountAmount: number
   status: string
   paymentStatus: string
   trackingNumber: string | null
@@ -111,24 +115,27 @@ export default function OrdersPage() {
       })
 
       if (res.ok) {
-        alert(`Stav objednávky byl změněn na: ${statusLabels[newStatus]}`)
+        const updated = await res.json()
+        toast.success(`Stav objednávky byl změněn na: ${statusLabels[newStatus]}`)
+        if (updated.emailWarning) {
+          toast.warning(updated.emailWarning)
+        }
         setShowTrackingInput(false)
         setTrackingNumber('')
         await fetchOrders()
         if (selectedOrder && selectedOrder.id === orderId) {
-          const updated = await res.json()
           setSelectedOrder(updated)
         }
       } else {
-        alert('Chyba při změně stavu objednávky')
+        toast.error('Chyba při změně stavu objednávky')
       }
     } catch (error) {
       console.error('Error changing status:', error)
-      alert('Chyba při změně stavu objednávky')
+      toast.error('Chyba při změně stavu objednávky')
     }
   }
 
-  const handleShipOrder = (orderId: string) => {
+  const handleShipOrder = () => {
     setShowTrackingInput(true)
   }
 
@@ -149,16 +156,16 @@ export default function OrdersPage() {
       })
 
       if (res.ok) {
-        alert('Objednávka byla úspěšně smazána')
+        toast.success('Objednávka byla úspěšně smazána')
         setShowDetail(false)
         setSelectedOrder(null)
         await fetchOrders()
       } else {
-        alert('Chyba při mazání objednávky')
+        toast.error('Chyba při mazání objednávky')
       }
     } catch (error) {
       console.error('Error deleting order:', error)
-      alert('Chyba při mazání objednávky')
+      toast.error('Chyba při mazání objednávky')
     }
   }
 
@@ -197,18 +204,18 @@ export default function OrdersPage() {
       })
 
       if (res.ok) {
-        alert(`Stav platby byl změněn na: ${newStatus === 'paid' ? 'Zaplaceno' : 'Čeká na platbu'}`)
+        toast.success(`Stav platby byl změněn na: ${newStatus === 'paid' ? 'Zaplaceno' : 'Čeká na platbu'}`)
         await fetchOrders()
         if (selectedOrder && selectedOrder.id === orderId) {
           const updated = await res.json()
           setSelectedOrder(updated)
         }
       } else {
-        alert('Chyba při změně stavu platby')
+        toast.error('Chyba při změně stavu platby')
       }
     } catch (error) {
       console.error('Error changing payment status:', error)
-      alert('Chyba při změně stavu platby')
+      toast.error('Chyba při změně stavu platby')
     }
   }
 
@@ -377,7 +384,7 @@ export default function OrdersPage() {
                     action.status === 'shipped' && selectedOrder.shippingMethod !== 'personal' ? (
                       <Button
                         key={action.status}
-                        onClick={() => handleShipOrder(selectedOrder.id)}
+                        onClick={handleShipOrder}
                         className={`${action.color} hover:opacity-90 text-white`}
                       >
                         <action.icon className="h-4 w-4 mr-2" />
@@ -493,21 +500,7 @@ export default function OrdersPage() {
                       // Osobní odběr
                       if (addr.shippingDetails?.personalLocation) {
                         const location = addr.shippingDetails.personalLocation
-                        const locationDetails = {
-                          havirov: {
-                            name: 'Havířov',
-                            address: 'Hlavní 1234',
-                            zip: '736 01',
-                            city: 'Havířov'
-                          },
-                          frenstat: {
-                            name: 'Frenštát pod Radhoštěm',
-                            address: 'Hlavní 5678',
-                            zip: '744 01',
-                            city: 'Frenštát p. R.'
-                          }
-                        }
-                        const loc = locationDetails[location as keyof typeof locationDetails]
+                        const loc = PICKUP_LOCATIONS[location as keyof typeof PICKUP_LOCATIONS]
                         
                         return (
                           <div className="col-span-2 mt-2">
@@ -607,6 +600,12 @@ export default function OrdersPage() {
                 </div>
 
                 <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                  {selectedOrder.discountAmount > 0 && (
+                    <div className="flex justify-between text-sm text-green-700 mb-2">
+                      <span>Sleva{selectedOrder.discountCode ? ` (kód ${selectedOrder.discountCode})` : ''}:</span>
+                      <span>-{selectedOrder.discountAmount.toLocaleString('cs-CZ')} Kč</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-lg font-bold">
                     <span>Celkem:</span>
                     <span className="text-[#931e31]">{selectedOrder.totalAmount.toLocaleString('cs-CZ')} Kč</span>

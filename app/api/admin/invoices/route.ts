@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAdminAuth } from '@/lib/auth'
+import { createNumberedInvoice, CompanySettingsMissingError } from '@/lib/invoice-generator'
 
 // GET - načíst všechny faktury
 export async function GET() {
@@ -41,42 +42,26 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
 
-    // Získáme aktuální nastavení firmy pro generování čísla faktury
-    let companySettings = await prisma.companySettings.findFirst()
-    
-    // Pokud neexistuje, vytvoříme výchozí
-    if (!companySettings) {
-      companySettings = await prisma.companySettings.create({
-        data: {
-          companyName: 'Monlii',
-          ico: '00000000',
-          street: 'Hlavní 1',
-          city: 'Praha',
-          zip: '100 00',
-          email: 'info@monlii.cz',
-          phone: '+420 000 000 000',
-        }
-      })
+    const subtotal = parseFloat(data.subtotal)
+    if (!Number.isFinite(subtotal)) {
+      return NextResponse.json(
+        { message: 'Neplatná částka faktury' },
+        { status: 400 }
+      )
     }
 
-    // Vygenerujeme číslo faktury
-    const invoiceNumber = `${companySettings.invoicePrefix}${String(companySettings.nextInvoiceNum).padStart(6, '0')}`
+    const invoice = await createNumberedInvoice((companySettings) => {
+      // Vypočítáme DPH
+      const vatRate = data.vatRate ?? (companySettings.vatPayer ? companySettings.defaultVatRate : 0)
+      const vatAmount = (subtotal * vatRate) / 100
+      const totalAmount = subtotal + vatAmount
 
-    // Vypočítáme DPH
-    const subtotal = parseFloat(data.subtotal)
-    const vatRate = data.vatRate || companySettings.defaultVatRate
-    const vatAmount = (subtotal * vatRate) / 100
-    const totalAmount = subtotal + vatAmount
+      // Spočítáme datum splatnosti
+      const issueDate = data.issueDate ? new Date(data.issueDate) : new Date()
+      const dueDate = new Date(issueDate)
+      dueDate.setDate(dueDate.getDate() + (data.dueDays || companySettings.invoiceDueDays))
 
-    // Spočítáme datum splatnosti
-    const issueDate = data.issueDate ? new Date(data.issueDate) : new Date()
-    const dueDate = new Date(issueDate)
-    dueDate.setDate(dueDate.getDate() + (data.dueDays || companySettings.invoiceDueDays))
-
-    // Vytvoříme fakturu
-    const invoice = await prisma.invoice.create({
-      data: {
-        invoiceNumber,
+      return {
         type: 'manual',
         customerName: data.customerName,
         customerEmail: data.customerEmail,
@@ -96,16 +81,11 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Zvýšíme číslo pro další fakturu
-    await prisma.companySettings.update({
-      where: { id: companySettings.id },
-      data: {
-        nextInvoiceNum: companySettings.nextInvoiceNum + 1
-      }
-    })
-
     return NextResponse.json(invoice, { status: 201 })
   } catch (error) {
+    if (error instanceof CompanySettingsMissingError) {
+      return NextResponse.json({ message: error.message }, { status: 400 })
+    }
     console.error('Error creating invoice:', error)
     return NextResponse.json(
       { message: 'Chyba při vytváření faktury' },

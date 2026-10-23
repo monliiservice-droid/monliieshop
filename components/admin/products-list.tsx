@@ -11,10 +11,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Edit, Trash2, GripVertical } from 'lucide-react'
+import { Edit, GripVertical } from 'lucide-react'
 import Link from 'next/link'
 import { DeleteProductButton } from '@/components/admin/delete-product-button'
 import { getDisplayPrice } from '@/lib/set-config-types'
+import { toast } from 'sonner'
 
 interface Product {
   id: string
@@ -25,6 +26,8 @@ interface Product {
   sortOrder: number
   isSet?: boolean
   setOptions?: string
+  isVisible?: boolean
+  isFeatured?: boolean
 }
 
 interface ProductsListProps {
@@ -82,7 +85,7 @@ export function ProductsList({ initialProducts }: ProductsListProps) {
       }
     } catch (error) {
       console.error('Error saving order:', error)
-      alert('Chyba při ukládání pořadí produktů')
+      toast.error('Chyba při ukládání pořadí produktů')
     } finally {
       setDraggingId(null)
       setIsSaving(false)
@@ -127,7 +130,15 @@ export function ProductsList({ initialProducts }: ProductsListProps) {
                 <TableCell>
                   <GripVertical className="h-5 w-5 text-gray-400" />
                 </TableCell>
-                <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell className="font-medium">
+                  {product.name}
+                  {product.isVisible === false && (
+                    <Badge variant="outline" className="ml-2 text-gray-500">Skrytý</Badge>
+                  )}
+                  {product.isFeatured && (
+                    <Badge variant="outline" className="ml-2 border-amber-300 text-amber-700">Doporučený</Badge>
+                  )}
+                </TableCell>
                 <TableCell>{displayPrice} Kč</TableCell>
               <TableCell>{product.stock}</TableCell>
               <TableCell>

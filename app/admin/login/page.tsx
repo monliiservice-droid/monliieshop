@@ -1,15 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { LogIn } from 'lucide-react'
 
 export default function AdminLoginPage() {
-  const router = useRouter()
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -39,7 +36,7 @@ export default function AdminLoginPage() {
       } else {
         setError(data.error || 'Nepodařilo se přihlásit')
       }
-    } catch (err) {
+    } catch {
       setError('Chyba připojení k serveru')
     } finally {
       setIsLoading(false)
@@ -47,18 +44,15 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-white to-purple-50 p-4">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="space-y-1 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-[#931e31] to-[#b8263d] rounded-full flex items-center justify-center">
-            <LogIn className="h-8 w-8 text-white" />
+    <div className="flex min-h-screen items-center justify-center bg-[#fbf7f2] p-4 font-sans">
+      <Card className="w-full max-w-md border-[#e6dbd0] shadow-sm">
+        <CardHeader className="space-y-4 text-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="Monlii" className="mx-auto h-12 w-auto" />
+          <div>
+            <CardTitle className="text-xl font-semibold">Administrace</CardTitle>
+            <CardDescription>Přihlaste se ke správě e-shopu</CardDescription>
           </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-[#931e31] to-[#b8263d] bg-clip-text text-transparent">
-            Admin Panel
-          </CardTitle>
-          <CardDescription className="text-base">
-            Přihlaste se do administračního rozhraní
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -98,7 +92,7 @@ export default function AdminLoginPage() {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-[#931e31] to-[#b8263d] hover:from-[#6b1623] hover:to-[#931e31] text-white"
+              className="w-full bg-[#931e31] text-white hover:bg-[#6f1424]"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -108,7 +102,6 @@ export default function AdminLoginPage() {
                 </>
               ) : (
                 <>
-                  <LogIn className="h-4 w-4 mr-2" />
                   Přihlásit se
                 </>
               )}
