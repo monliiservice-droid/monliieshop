@@ -40,7 +40,7 @@
 - ✅ Branded email templates
 - ✅ **Mailtrap Production SMTP credentials nastaveny**
   - Host: live.smtp.mailtrap.io
-  - API Token: c951d3b8ca37b7755f61cbf066438915
+  - API Token: <YOUR_MAILTRAP_PASSWORD>
 
 ### 🧾 Fakturace
 - ✅ PDF generování
@@ -83,7 +83,7 @@
 - ✅ Host: live.smtp.mailtrap.io
 - ✅ Port: 587
 - ✅ User: api
-- ✅ API Token: c951d3b8ca37b7755f61cbf066438915
+- ✅ API Token: <YOUR_MAILTRAP_PASSWORD>
 - ✅ Doplněno do všech ENV souborů
 
 ### 1. **První Git Push** (5 minut) - READY!

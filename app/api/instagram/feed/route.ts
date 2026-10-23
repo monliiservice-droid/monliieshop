@@ -46,7 +46,6 @@ export async function GET() {
 
     // Create access token from App ID and App Secret
     const accessToken = `${appId}|${appSecret}`
-    console.log('🔑 Access token created:', accessToken.substring(0, 20) + '...')
 
     // Fetch oEmbed data for each post
     const postPromises = INSTAGRAM_POSTS.map(async (url, index) => {

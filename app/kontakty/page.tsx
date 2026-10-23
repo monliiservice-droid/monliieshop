@@ -12,7 +12,8 @@ export default function ContactPage() {
     name: '',
     email: '',
     phone: '',
-    message: ''
+    message: '',
+    website: '' // honeypot proti spamu
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -33,7 +34,7 @@ export default function ContactPage() {
 
       if (response.ok) {
         setSubmitStatus('success')
-        setFormData({ name: '', email: '', phone: '', message: '' })
+        setFormData({ name: '', email: '', phone: '', message: '', website: '' })
         setTimeout(() => setSubmitStatus('idle'), 5000)
       } else {
         setSubmitStatus('error')
@@ -324,6 +325,19 @@ export default function ContactPage() {
                 )}
 
                 <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
+                  {/* Honeypot – skryté pole pro odhalení botů */}
+                  <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+                    <label htmlFor="website">Web</label>
+                    <input
+                      type="text"
+                      id="website"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={formData.website}
+                      onChange={handleChange}
+                    />
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Jméno */}
                     <div>

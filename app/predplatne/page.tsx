@@ -9,6 +9,7 @@ import { Check, Gift, Package, Heart, Sparkles, CheckCircle } from 'lucide-react
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
+import { getSubscriptionName, getSubscriptionPrice, type SubscriptionPlan } from '@/lib/pricing'
 
 export default function PredplatnePage() {
   const [selectedPlan, setSelectedPlan] = useState<3 | 6 | 12 | null>(null)
@@ -67,7 +68,7 @@ export default function PredplatnePage() {
       withGarters: withGarters,
       measurements: measurements,
       price: getPrice(selectedPlan!),
-      name: `Předplatné ${selectedPlan} měsíců - ${braType === 'wired' ? 'S kosticemi' : 'Braletková'} ${withGarters ? 'S podvazky' : 'Bez podvazků'}`,
+      name: getSubscriptionName(braType, withGarters, selectedPlan!),
       addedAt: new Date().toISOString()
     }
 
@@ -97,20 +98,8 @@ export default function PredplatnePage() {
     }
   }
 
-  const prices = {
-    wired: {
-      without: { 3: 3300, 6: 6600, 12: 13200 },
-      with: { 3: 4200, 6: 8400, 12: 16800 }
-    },
-    bralette: {
-      without: { 3: 2800, 6: 5600, 12: 11200 },
-      with: { 3: 3700, 6: 7400, 12: 14800 }
-    }
-  }
-
-  const getPrice = (months: 3 | 6 | 12) => {
-    const priceTable = braType === 'wired' ? prices.wired : prices.bralette
-    return withGarters ? priceTable.with[months] : priceTable.without[months]
+  const getPrice = (months: SubscriptionPlan) => {
+    return getSubscriptionPrice(braType, withGarters, months)
   }
 
   const getPricePerMonth = (months: 3 | 6 | 12) => {

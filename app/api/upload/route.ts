@@ -1,11 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
+import { requireAdminAuth } from '@/lib/auth'
 
 // App Router route segment config
 export const maxDuration = 60 // 60 seconds timeout
 export const dynamic = 'force-dynamic'
 
+const ALLOWED_TYPES: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/jpg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+}
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
+const MAX_FILES = 20
+
 export async function POST(request: NextRequest) {
+  const isAuthed = await requireAdminAuth()
+  if (!isAuthed) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const formData = await request.formData()
     const files = formData.getAll('files') as File[]
@@ -17,26 +33,42 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (files.length > MAX_FILES) {
+      return NextResponse.json(
+        { error: `Najednou lze nahrát maximálně ${MAX_FILES} souborů` },
+        { status: 400 }
+      )
+    }
+
+    for (const file of files) {
+      if (!(file instanceof File) || !ALLOWED_TYPES[file.type]) {
+        return NextResponse.json(
+          { error: 'Povolené jsou pouze obrázky JPG, PNG, WEBP a GIF' },
+          { status: 400 }
+        )
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: `Soubor ${file.name} je větší než 10 MB` },
+          { status: 400 }
+        )
+      }
+    }
+
     const uploadedUrls: string[] = []
 
     for (const file of files) {
-      // Vytvoř unikátní jméno souboru s správnou příponou
+      // Vytvoř unikátní a bezpečné jméno souboru; přípona vždy podle MIME typu
       const timestamp = Date.now()
-      
-      // Zjisti příponu podle MIME typu
-      let extension = '.jpg' // default
-      if (file.type === 'image/webp') extension = '.webp'
-      else if (file.type === 'image/png') extension = '.png'
-      else if (file.type === 'image/jpeg' || file.type === 'image/jpg') extension = '.jpg'
-      else if (file.type === 'image/gif') extension = '.gif'
-      
-      // Pokud má původní soubor příponu, zachovej ji
-      const originalName = file.name.replace(/\s/g, '_')
-      const hasExtension = /\.(jpg|jpeg|png|webp|gif)$/i.test(originalName)
-      
-      const filename = hasExtension 
-        ? `products/${timestamp}_${originalName}`
-        : `products/${timestamp}_${originalName}${extension}`
+      const extension = ALLOWED_TYPES[file.type]
+      const baseName = file.name
+        .replace(/\.[^.]*$/, '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9_-]/g, '_')
+        .slice(0, 80) || 'image'
+
+      const filename = `products/${timestamp}_${baseName}${extension}`
 
       // Upload do Vercel Blob Storage
       const blob = await put(filename, file, {

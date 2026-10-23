@@ -36,7 +36,7 @@ SELLER_EMAIL=<YOUR_SELLER_EMAIL>
 ### 4. Zásilkovna API
 Get your API key from Zásilkovna dashboard:
 ```bash
-NEXT_PUBLIC_ZASILKOVNA_API_KEY=<YOUR_ZASILKOVNA_API_KEY>
+ZASILKOVNA_API_KEY=<YOUR_ZASILKOVNA_API_KEY>
 ```
 
 ### 5. Application URLs
@@ -85,7 +85,7 @@ INSTAGRAM_APP_SECRET=<YOUR_INSTAGRAM_APP_SECRET>
 
 ### ✅ Secure (Fixed)
 - Admin credentials now use `ADMIN_USERNAME` and `ADMIN_PASSWORD` from env
-- Zásilkovna API key now uses `NEXT_PUBLIC_ZASILKOVNA_API_KEY` from env
+- Zásilkovna API key now uses server-only `ZASILKOVNA_API_KEY` from env
 - JWT secret now uses `JWT_SECRET` from env
 - All `.env` files are gitignored
 - `.env.example` contains only placeholders

@@ -80,7 +80,7 @@ GOPAY_CLIENT_SECRET=test_secret
 MAILTRAP_HOST=live.smtp.mailtrap.io
 MAILTRAP_PORT=587
 MAILTRAP_USER=api
-MAILTRAP_PASS=c951d3b8ca37b7755f61cbf066438915
+MAILTRAP_PASS=<YOUR_MAILTRAP_PASSWORD>
 EMAIL_FROM=noreply@monlii.cz
 SELLER_EMAIL=luckaivankova1@seznam.cz
 
@@ -191,7 +191,7 @@ Prefix faktur: podle roku (2025)
 ### Email:
 ```
 ✅ SMTP: live.smtp.mailtrap.io:587
-✅ API Token: c951d3b8ca37b7755f61cbf066438915
+✅ API Token: <YOUR_MAILTRAP_PASSWORD>
 ✅ From: noreply@monlii.cz
 ✅ Seller: luckaivankova1@seznam.cz
 ```

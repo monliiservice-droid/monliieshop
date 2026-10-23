@@ -11,6 +11,13 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 import { ZASILKOVNA_CONFIG, type ZBoxPoint } from '@/lib/zasilkovna-zbox'
+import {
+  COD_FEE,
+  getPaymentFee,
+  getShippingPrice as getSharedShippingPrice,
+  type PaymentMethod,
+  type ShippingMethod,
+} from '@/lib/pricing'
 
 interface CartItem {
   id: string
@@ -111,28 +118,12 @@ export default function CheckoutPage() {
   }
 
   const getShippingPrice = () => {
-    const total = getTotalPrice()
-    
-    switch (shippingMethod) {
-      case 'zbox':
-        // Free shipping over threshold
-        if (total >= ZASILKOVNA_CONFIG.freeShippingThreshold) {
-          return 0
-        }
-        return ZASILKOVNA_CONFIG.zboxDeliveryPrice
-      case 'personal':
-        return 0
-      default:
-        return 0
-    }
+    return getSharedShippingPrice(shippingMethod as ShippingMethod, getTotalPrice())
   }
 
   const getCodFee = () => {
     // No COD fee for store_payment or qr_code
-    if (paymentMethod === 'cod') {
-      return 30
-    }
-    return 0
+    return getPaymentFee(paymentMethod as PaymentMethod)
   }
 
   const getFinalPrice = () => {
@@ -204,10 +195,11 @@ export default function CheckoutPage() {
       },
       payment: {
         method: paymentMethod,
-        fee: paymentMethod === 'cod' ? 30 : 0
+        fee: getCodFee()
       },
       items: cartItems,
-      totalPrice: getFinalPrice() + (paymentMethod === 'cod' ? 30 : 0)
+      // getFinalPrice() už obsahuje dopravu i poplatek za dobírku
+      totalPrice: getFinalPrice()
     }
     
     // Uložení dat do sessionStorage
@@ -652,7 +644,7 @@ export default function CheckoutPage() {
                               <p className="text-sm text-gray-600">Platba při převzetí</p>
                             </div>
                           </div>
-                          <span className="text-sm text-gray-600">+30 Kč</span>
+                          <span className="text-sm text-gray-600">+{COD_FEE} Kč</span>
                         </div>
                       </div>
                     )}
@@ -690,7 +682,7 @@ export default function CheckoutPage() {
                       {paymentMethod === 'cod' && (
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-600">Dobírka:</span>
-                          <span className="font-semibold">+30 Kč</span>
+                          <span className="font-semibold">+{COD_FEE} Kč</span>
                         </div>
                       )}
                     </div>
@@ -699,7 +691,7 @@ export default function CheckoutPage() {
                       <div className="flex justify-between items-center mb-6">
                         <span className="text-2xl font-bold">Celkem:</span>
                         <div className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-[#931e31] to-[#b8263d] bg-clip-text text-transparent">
-                          {getFinalPrice() + (paymentMethod === 'cod' ? 30 : 0)} Kč
+                          {getFinalPrice()} Kč
                         </div>
                       </div>
 

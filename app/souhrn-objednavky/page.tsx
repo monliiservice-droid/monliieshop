@@ -58,6 +58,12 @@ export default function OrderSummaryPage() {
           alert(`Děkujeme za objednávku! Číslo objednávky: ${result.order.orderNumber}\n\nBrzy vás budeme kontaktovat s potvrzením.`)
           router.push('/')
         }
+      } else if (response.status >= 400 && response.status < 500 && result.message) {
+        // Chyba validace ze serveru (např. změněné ceny) – ukážeme konkrétní důvod
+        alert(result.message)
+        if (response.status === 409) {
+          router.push('/kosik')
+        }
       } else {
         throw new Error(result.message || 'Chyba při vytváření objednávky')
       }

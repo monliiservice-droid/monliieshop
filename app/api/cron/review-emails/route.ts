@@ -6,15 +6,18 @@ import { sendOrderEmail } from '@/lib/email'
 // Například přes Vercel Cron Jobs nebo externí službu jako cron-job.org
 export async function GET(request: NextRequest) {
   // Verify the request is from Vercel Cron
+  const cronSecret = process.env.CRON_SECRET
   const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    // Allow in development without secret
-    if (process.env.NODE_ENV === 'production') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+  const isAuthorized = !!cronSecret && authHeader === `Bearer ${cronSecret}`
+  // V developmentu povolíme volání bez secretu
+  if (!isAuthorized && process.env.NODE_ENV === 'production') {
+    if (!cronSecret) {
+      console.error('CRON_SECRET is not configured - refusing cron request')
     }
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    )
   }
   try {
     // Najdi objednávky, které byly doručeny před 5 dny a ještě nebyl odeslán review email

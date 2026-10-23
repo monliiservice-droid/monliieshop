@@ -99,7 +99,7 @@ NIKOLI pro doručení na adresu!
 
 Nastaveno natvrdo v konfiguraci:
 ```
-API Key: dee61660b640a98d
+API Key: <YOUR_ZASILKOVNA_API_KEY>
 ```
 
 ## Testování:

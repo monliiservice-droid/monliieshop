@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
+import { escapeHtmlDeep } from './escape-html'
 
 // Mailtrap konfigurace
 const transportOptions: SMTPTransport.Options = {
@@ -62,7 +63,8 @@ interface InvoiceData {
 
 // Email šablony
 export async function sendOrderEmail(type: EmailType, orderData: OrderData) {
-  const { subject, html } = getEmailTemplate(type, orderData)
+  // Všechna data od zákazníka escapujeme před vložením do HTML šablony
+  const { subject, html } = getEmailTemplate(type, escapeHtmlDeep(orderData))
   
   const to = type === 'order_received_seller' 
     ? process.env.SELLER_EMAIL || 'prodejce@monlii.cz'
@@ -86,7 +88,8 @@ export async function sendOrderEmail(type: EmailType, orderData: OrderData) {
 
 // Email pro fakturu
 export async function sendInvoiceEmail(invoiceData: InvoiceData) {
-  const { subject, html } = getInvoiceEmailTemplate(invoiceData)
+  // `items` je JSON string – escapuje se až po naparsování v šabloně
+  const { subject, html } = getInvoiceEmailTemplate(escapeHtmlDeep(invoiceData, ['items']))
   
   try {
     await transporter.sendMail({
@@ -115,7 +118,9 @@ interface OrderWithInvoiceData extends OrderData {
   }
 }
 
-export async function sendOrderWithInvoiceEmail(data: OrderWithInvoiceData) {
+export async function sendOrderWithInvoiceEmail(rawData: OrderWithInvoiceData) {
+  // `invoice.items` je JSON string – escapuje se až po naparsování níže
+  const data = escapeHtmlDeep(rawData, ['items'])
   const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo_wide_black.png`
   
   const baseStyles = `
@@ -131,7 +136,7 @@ export async function sendOrderWithInvoiceEmail(data: OrderWithInvoiceData) {
     </style>
   `
 
-  const items = JSON.parse(data.invoice.items)
+  const items = escapeHtmlDeep(JSON.parse(rawData.invoice.items))
 
   const html = `
     ${baseStyles}
@@ -216,8 +221,8 @@ export async function sendOrderWithInvoiceEmail(data: OrderWithInvoiceData) {
   try {
     await transporter.sendMail({
       from: `"Monlii" <${process.env.EMAIL_FROM || 'noreply@monlii.cz'}>`,
-      to: data.customerEmail,
-      subject: `Faktura a platební údaje - Objednávka #${data.orderNumber}`,
+      to: rawData.customerEmail,
+      subject: `Faktura a platební údaje - Objednávka #${rawData.orderNumber}`,
       html,
     })
     
@@ -801,7 +806,7 @@ function getInvoiceEmailTemplate(data: InvoiceData): { subject: string; html: st
     cod: 'Dobírka'
   }
 
-  const items = JSON.parse(data.items)
+  const items = escapeHtmlDeep(JSON.parse(data.items))
 
   return {
     subject: `Faktura ${data.invoiceNumber} k objednávce ${data.orderNumber}`,

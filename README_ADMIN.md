@@ -61,7 +61,7 @@ Nachází se v souboru: `/lib/zasilkovna-config.ts`
 
 ```typescript
 export const ZASILKOVNA_CONFIG = {
-  apiKey: 'dee61660b640a98d',
+  apiKey: '<YOUR_ZASILKOVNA_API_KEY>',
   pickupPointPrice: 69,        // Kč
   homeDeliveryPrice: 99,       // Kč
   freeShippingThreshold: 2500, // Kč

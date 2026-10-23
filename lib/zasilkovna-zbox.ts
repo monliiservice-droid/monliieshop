@@ -84,7 +84,8 @@ async function geocodeAddress(
  */
 async function fetchZBoxPoints(): Promise<ZBoxPoint[]> {
   try {
-    const apiKey = process.env.NEXT_PUBLIC_ZASILKOVNA_API_KEY
+    // Pouze serverová proměnná – klíč se nesmí dostat do JS v prohlížeči
+    const apiKey = process.env.ZASILKOVNA_API_KEY
     
     if (!apiKey) {
       console.error('Zásilkovna API key not configured')
@@ -190,7 +191,6 @@ export async function findNearestZBox(
  * Zásilkovna configuration
  */
 export const ZASILKOVNA_CONFIG = {
-  apiKey: process.env.NEXT_PUBLIC_ZASILKOVNA_API_KEY || '',
   zboxDeliveryPrice: 69, // Kč - Z-BOX delivery
   freeShippingThreshold: 2500, // Kč - free shipping threshold
   codFee: 30, // Kč - cash on delivery fee

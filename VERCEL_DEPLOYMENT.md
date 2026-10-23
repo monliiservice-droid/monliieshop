@@ -31,7 +31,7 @@ DIRECT_URL="postgresql://username:password@host:5432/database?sslmode=require"
 # Admin Credentials
 ADMIN_USERNAME="admin"
 ADMIN_PASSWORD="your_secure_password_here"
-JWT_SECRET="66qNSP2i2m5ql0x3tc4EtthkVR9a7LoKQtkJRqxlcXkYSa+QNbpLoMJHrV9HJIdg8AAA6SdOdMlUy7+0J/5BEw=="
+JWT_SECRET="<vygeneruj: openssl rand -base64 64>"
 
 # Email (Mailtrap Production)
 MAILTRAP_HOST="live.smtp.mailtrap.io"
@@ -42,7 +42,7 @@ EMAIL_FROM="noreply@monlii.cz"
 SELLER_EMAIL="your_seller_email@example.com"
 
 # Zásilkovna Z-BOX API
-NEXT_PUBLIC_ZASILKOVNA_API_KEY="dee61660b640a98d"
+ZASILKOVNA_API_KEY="<YOUR_ZASILKOVNA_API_KEY>"
 
 # App URLs
 NEXT_PUBLIC_URL="https://your-domain.vercel.app"
