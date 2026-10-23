@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { randomInt } from 'crypto'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { sendOrderEmail, sendOrderWithInvoiceEmail } from '@/lib/email'
 import { generatePaymentQRCode } from '@/lib/qr-payment'
 import { createInvoiceForOrder } from '@/lib/invoice-generator'
 import { priceOrder, OrderValidationError } from '@/lib/order-pricing'
 import { rateLimit, getClientIp } from '@/lib/rate-limit'
+import { reserveOrderResources } from '@/lib/order-inventory'
 
+// Číslo objednávky: ORD- + 9 číslic (číslice slouží i jako variabilní symbol, max. 10 číslic)
 function generateOrderNumber(): string {
   const timestamp = Date.now().toString().slice(-6)
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+  const random = randomInt(0, 1000).toString().padStart(3, '0')
   return `ORD-${timestamp}${random}`
 }
+
+const ORDER_NUMBER_ATTEMPTS = 5
 
 const ORDER_LIMIT = 10
 const ORDER_WINDOW_MS = 60 * 60 * 1000 // 1 hodina
@@ -95,7 +101,7 @@ export async function POST(request: NextRequest) {
       priced = await priceOrder(data)
     } catch (error) {
       if (error instanceof OrderValidationError) {
-        return NextResponse.json({ message: error.message }, { status: 400 })
+        return NextResponse.json({ message: error.message, code: error.code }, { status: 400 })
       }
       throw error
     }
@@ -133,49 +139,75 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generování čísla objednávky
-    const orderNumber = generateOrderNumber()
+    const customerAddress = {
+      firstName,
+      lastName,
+      street: address,
+      city,
+      zip,
+      ...(isCompany && { company, ico, dic })
+    }
 
-    // Vytvoření objednávky v databázi
-    const order = await prisma.order.create({
-      data: {
-        orderNumber,
-        customerName: `${firstName} ${lastName}`,
-        customerEmail: email,
-        customerPhone: phone,
-        shippingAddress: JSON.stringify({
-          firstName,
-          lastName,
-          street: address,
-          city,
-          zip,
-          ...(isCompany && { company, ico, dic }),
-          // Přidáme shipping details přímo do adresy
-          shippingDetails: {
-            ...(pickupPoint && { pickupPoint }),
-            ...(personalLocation && { personalLocation })
-          }
-        }),
-        shippingMethod: priced.shippingMethod,
-        paymentMethod: priced.paymentMethod,
-        totalAmount: priced.total,
-        shippingCost: priced.shippingCost,
-        codFee: priced.paymentFee,
-        status: 'new',
-        items: {
-          create: priced.items.map((item) => ({
-            productName: item.name,
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-            variant: item.variant ? JSON.stringify(item.variant) : null
-          }))
+    // Vytvoření objednávky, odečtení skladu a použití slevového kódu v jedné transakci.
+    // Při (nepravděpodobné) kolizi čísla objednávky zkusíme vygenerovat jiné.
+    let order
+    for (let attempt = 1; ; attempt++) {
+      const orderNumber = generateOrderNumber()
+      try {
+        order = await prisma.$transaction(async (tx) => {
+          await reserveOrderResources(tx, priced)
+          return tx.order.create({
+            data: {
+              orderNumber,
+              customerName: `${firstName} ${lastName}`,
+              customerEmail: email,
+              customerPhone: phone,
+              shippingAddress: JSON.stringify({
+                ...customerAddress,
+                // Přidáme shipping details přímo do adresy
+                shippingDetails: {
+                  ...(pickupPoint && { pickupPoint }),
+                  ...(personalLocation && { personalLocation })
+                }
+              }),
+              // Fakturační údaje (vč. IČO/DIČ) pro automatické faktury
+              billingAddress: JSON.stringify(customerAddress),
+              shippingMethod: priced.shippingMethod,
+              paymentMethod: priced.paymentMethod,
+              totalAmount: priced.total,
+              shippingCost: priced.shippingCost,
+              codFee: priced.paymentFee,
+              discountCode: priced.discount?.code ?? null,
+              discountAmount: priced.discountAmount,
+              status: 'new',
+              items: {
+                create: priced.items.map((item) => ({
+                  productName: item.name,
+                  productId: item.productId,
+                  quantity: item.quantity,
+                  price: item.price,
+                  variant: item.variant ? JSON.stringify(item.variant) : null
+                }))
+              }
+            },
+            include: {
+              items: true
+            }
+          })
+        })
+        break
+      } catch (error) {
+        if (error instanceof OrderValidationError) {
+          return NextResponse.json({ message: error.message, code: error.code }, { status: 409 })
         }
-      },
-      include: {
-        items: true
+        const isOrderNumberCollision = error instanceof Prisma.PrismaClientKnownRequestError
+          && error.code === 'P2002'
+          && JSON.stringify(error.meta?.target ?? '').includes('orderNumber')
+        if (!isOrderNumberCollision || attempt >= ORDER_NUMBER_ATTEMPTS) {
+          throw error
+        }
       }
-    })
+    }
     console.log('Order created:', order.orderNumber)
 
     const emailItems = priced.items.map((item) => ({
@@ -183,6 +215,13 @@ export async function POST(request: NextRequest) {
       quantity: item.quantity,
       price: item.price
     }))
+    if (priced.discount && priced.discountAmount > 0) {
+      emailItems.push({
+        name: `Sleva (kód ${priced.discount.code})`,
+        quantity: 1,
+        price: -priced.discountAmount
+      })
+    }
 
     // Generování QR platby pro qr_code payment method
     let qrPaymentData: ReturnType<typeof generatePaymentQRCode> | undefined = undefined
@@ -213,8 +252,11 @@ export async function POST(request: NextRequest) {
             customerEmail: order.customerEmail,
             customerPhone: order.customerPhone || undefined,
             billingAddress: order.billingAddress || undefined,
-            items: emailItems,
+            shippingAddress: order.shippingAddress,
+            // Bez řádku slevy – generátor faktury si ho přidá sám z discountAmount
+            items: emailItems.filter((item) => item.price >= 0),
             totalAmount: order.totalAmount,
+            discountCode: order.discountCode,
             discountAmount: order.discountAmount,
             shippingCost: order.shippingCost,
             codFee: order.codFee,

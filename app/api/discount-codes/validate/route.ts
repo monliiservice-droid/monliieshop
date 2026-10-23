@@ -1,70 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-
+import { findValidDiscountCode } from '@/lib/discount'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
+  // Ochrana proti zkoušení kódů hrubou silou
+  const { allowed, retryAfterSeconds } = rateLimit(`discount:${getClientIp(request)}`, 30, 10 * 60 * 1000)
+  if (!allowed) {
+    return NextResponse.json(
+      { valid: false, message: 'Příliš mnoho pokusů. Zkuste to prosím později.' },
+      { status: 429, headers: { 'Retry-After': String(retryAfterSeconds) } }
+    )
+  }
+
   try {
     const { code, orderAmount } = await request.json()
 
-    if (!code) {
+    const check = await findValidDiscountCode(code, Number(orderAmount) || 0)
+    if (!check.valid) {
       return NextResponse.json(
-        { valid: false, message: 'Slevový kód je povinný' },
-        { status: 400 }
-      )
-    }
-
-    // Najít slevový kód v databázi
-    const discountCode = await prisma.discountCode.findUnique({
-      where: { code: code.toUpperCase() }
-    })
-
-    // Kontroly platnosti
-    if (!discountCode) {
-      return NextResponse.json(
-        { valid: false, message: 'Slevový kód nebyl nalezen' },
-        { status: 404 }
-      )
-    }
-
-    if (!discountCode.isActive) {
-      return NextResponse.json(
-        { valid: false, message: 'Slevový kód již není aktivní' },
-        { status: 400 }
-      )
-    }
-
-    // Kontrola data platnosti
-    const now = new Date()
-    if (discountCode.validFrom && new Date(discountCode.validFrom) > now) {
-      return NextResponse.json(
-        { valid: false, message: 'Slevový kód ještě není platný' },
-        { status: 400 }
-      )
-    }
-
-    if (discountCode.validUntil && new Date(discountCode.validUntil) < now) {
-      return NextResponse.json(
-        { valid: false, message: 'Platnost slevového kódu již vypršela' },
-        { status: 400 }
-      )
-    }
-
-    // Kontrola maximálního počtu použití
-    if (discountCode.maxUses && discountCode.usedCount >= discountCode.maxUses) {
-      return NextResponse.json(
-        { valid: false, message: 'Slevový kód byl již využit maximální počet krát' },
-        { status: 400 }
-      )
-    }
-
-    // Kontrola minimální částky objednávky
-    if (discountCode.minAmount && orderAmount < discountCode.minAmount) {
-      return NextResponse.json(
-        { 
-          valid: false, 
-          message: `Minimální částka objednávky pro tento kód je ${discountCode.minAmount} Kč` 
-        },
-        { status: 400 }
+        { valid: false, message: check.message },
+        { status: check.status }
       )
     }
 
@@ -72,9 +27,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       valid: true,
       discount: {
-        code: discountCode.code,
-        type: discountCode.type,
-        value: discountCode.value
+        code: check.discountCode.code,
+        type: check.discountCode.type,
+        value: check.discountCode.value
       }
     })
 

@@ -206,7 +206,8 @@ export default function InvoiceViewPage() {
           <div>
             <h3 className="font-bold text-lg mb-4 text-gray-800">Odběratel</h3>
             <div className="space-y-1 text-sm">
-              <p className="font-semibold">{invoice.customerName}</p>
+              {customerAddress.company && <p className="font-semibold">{customerAddress.company}</p>}
+              <p className={customerAddress.company ? '' : 'font-semibold'}>{invoice.customerName}</p>
               {customerAddress.street && <p>{customerAddress.street}</p>}
               {customerAddress.city && (
                 <p>{customerAddress.zip} {customerAddress.city}</p>

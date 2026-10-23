@@ -21,8 +21,8 @@ export function Footer() {
 
   useEffect(() => {
     // Načtení fakturačních údajů z API
-    fetch('/api/admin/company-settings')
-      .then(res => res.json())
+    fetch('/api/company-info')
+      .then(res => (res.ok ? res.json() : null))
       .then(data => setCompanySettings(data))
       .catch(err => console.error('Error loading company settings:', err))
   }, [])

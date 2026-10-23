@@ -7,6 +7,7 @@ import { ShoppingBag, Trash2, ArrowRight, Plus, Minus, Package, Truck, Tag, X } 
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { calculateDiscountAmount, loadAppliedDiscount, saveAppliedDiscount, type AppliedDiscount } from '@/lib/pricing'
 
 interface CartItem {
   id: string
@@ -32,7 +33,7 @@ export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [discountCode, setDiscountCode] = useState('')
-  const [appliedDiscount, setAppliedDiscount] = useState<any>(null)
+  const [appliedDiscount, setAppliedDiscountState] = useState<AppliedDiscount | null>(null)
   const [discountError, setDiscountError] = useState('')
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false)
 
@@ -44,7 +45,12 @@ export default function CartPage() {
         if (cart) {
           const parsedCart = JSON.parse(cart)
           setCartItems(parsedCart)
-          console.log('Cart loaded:', parsedCart)
+        }
+        // Obnovení dříve uplatněného slevového kódu
+        const savedDiscount = loadAppliedDiscount()
+        if (savedDiscount) {
+          setAppliedDiscountState(savedDiscount)
+          setDiscountCode(savedDiscount.code)
         }
       } catch (error) {
         console.error('Error loading cart:', error)
@@ -88,15 +94,15 @@ export default function CartPage() {
     return cartItems.reduce((total, item) => total + (item.quantity || 1), 0)
   }
 
+  // Uplatněný kód držíme i v localStorage, aby ho checkout poslal do objednávky
+  const setAppliedDiscount = (discount: AppliedDiscount | null) => {
+    setAppliedDiscountState(discount)
+    saveAppliedDiscount(discount)
+  }
+
   const getDiscountAmount = () => {
     if (!appliedDiscount) return 0
-    const subtotal = getTotalPrice()
-    
-    if (appliedDiscount.type === 'percentage') {
-      return Math.round(subtotal * (appliedDiscount.value / 100))
-    } else {
-      return appliedDiscount.value
-    }
+    return calculateDiscountAmount(appliedDiscount, getTotalPrice())
   }
 
   const getFinalPrice = () => {

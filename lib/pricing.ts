@@ -59,3 +59,48 @@ export function getShippingPrice(method: ShippingMethod, subtotal: number): numb
 export function getPaymentFee(method: PaymentMethod): number {
   return method === 'cod' ? COD_FEE : 0
 }
+
+export interface AppliedDiscount {
+  code: string
+  type: string // 'percentage' | 'fixed'
+  value: number
+}
+
+/**
+ * Výše slevy v Kč – zaokrouhlená na celé koruny a nikdy vyšší než částka zboží.
+ */
+export function calculateDiscountAmount(
+  discount: { type: string; value: number },
+  subtotal: number
+): number {
+  const amount = discount.type === 'percentage'
+    ? Math.round(subtotal * (discount.value / 100))
+    : Math.round(discount.value)
+  return Math.min(Math.max(amount, 0), subtotal)
+}
+
+// Uplatněný slevový kód se drží v localStorage, aby přežil přechod košík → checkout → souhrn
+const DISCOUNT_STORAGE_KEY = 'appliedDiscount'
+
+export function loadAppliedDiscount(): AppliedDiscount | null {
+  try {
+    const raw = localStorage.getItem(DISCOUNT_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed.code === 'string' ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+export function saveAppliedDiscount(discount: AppliedDiscount | null) {
+  try {
+    if (discount) {
+      localStorage.setItem(DISCOUNT_STORAGE_KEY, JSON.stringify(discount))
+    } else {
+      localStorage.removeItem(DISCOUNT_STORAGE_KEY)
+    }
+  } catch {
+    // localStorage nemusí být dostupný (anonymní režim) – sleva pak jen nepřežije reload
+  }
+}

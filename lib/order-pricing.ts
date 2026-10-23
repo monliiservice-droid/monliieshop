@@ -3,6 +3,7 @@
 
 import { prisma } from './prisma'
 import { getActivePrice, type SetConfiguration } from './set-config-types'
+import { calculateDiscountAmount, findValidDiscountCode } from './discount'
 import {
   ALLOWED_PAYMENT_METHODS,
   SUBSCRIPTION_PLANS,
@@ -30,6 +31,8 @@ export interface PricedOrderItem {
 export interface PricedOrder {
   items: PricedOrderItem[]
   subtotal: number
+  discount: { id: string; code: string; maxUses: number | null } | null
+  discountAmount: number
   shippingMethod: ShippingMethod
   shippingCost: number
   paymentMethod: PaymentMethod
@@ -37,7 +40,11 @@ export interface PricedOrder {
   total: number
 }
 
-export class OrderValidationError extends Error {}
+export class OrderValidationError extends Error {
+  constructor(message: string, public readonly code?: 'DISCOUNT_INVALID') {
+    super(message)
+  }
+}
 
 function cleanString(value: unknown, maxLength: number): string {
   return typeof value === 'string' ? value.trim().slice(0, maxLength) : ''
@@ -97,6 +104,23 @@ async function priceProductItems(items: any[]): Promise<Map<any, PricedOrderItem
 
   const products = await prisma.product.findMany({ where: { id: { in: productIds } } })
   const productsById = new Map(products.map((product) => [product.id, product]))
+
+  // Kontrola skladu (součet množství přes všechny řádky stejného produktu).
+  // Závazné odečtení probíhá atomicky až při vytváření objednávky.
+  const requestedQuantities = new Map<string, number>()
+  for (const item of items) {
+    requestedQuantities.set(item.productId, (requestedQuantities.get(item.productId) || 0) + parseQuantity(item.quantity))
+  }
+  for (const [productId, quantity] of requestedQuantities) {
+    const product = productsById.get(productId)
+    if (product && product.stock < quantity) {
+      throw new OrderValidationError(
+        product.stock > 0
+          ? `Produkt ${product.name} je skladem pouze v počtu ${product.stock} ks`
+          : `Produkt ${product.name} již není skladem`
+      )
+    }
+  }
 
   const result = new Map<any, PricedOrderItem>()
   for (const item of items) {
@@ -165,16 +189,36 @@ export async function priceOrder(data: any): Promise<PricedOrder> {
   )
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shippingCost = getShippingPrice(shippingMethod, subtotal)
+
+  // Slevový kód se uplatňuje jen na zboží, ne na dopravu a poplatky
+  let discount: PricedOrder['discount'] = null
+  let discountAmount = 0
+  if (data?.discountCode) {
+    const check = await findValidDiscountCode(data.discountCode, subtotal)
+    if (!check.valid) {
+      throw new OrderValidationError(`Slevový kód nelze uplatnit: ${check.message}`, 'DISCOUNT_INVALID')
+    }
+    discount = {
+      id: check.discountCode.id,
+      code: check.discountCode.code,
+      maxUses: check.discountCode.maxUses,
+    }
+    discountAmount = calculateDiscountAmount(check.discountCode, subtotal)
+  }
+
+  // Doprava zdarma se počítá z částky po slevě
+  const shippingCost = getShippingPrice(shippingMethod, subtotal - discountAmount)
   const paymentFee = getPaymentFee(paymentMethod)
 
   return {
     items,
     subtotal,
+    discount,
+    discountAmount,
     shippingMethod,
     shippingCost,
     paymentMethod,
     paymentFee,
-    total: subtotal + shippingCost + paymentFee,
+    total: subtotal - discountAmount + shippingCost + paymentFee,
   }
 }

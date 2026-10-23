@@ -7,6 +7,7 @@ import { Package, CreditCard, MapPin, ArrowLeft, CheckCircle, Truck, Building2, 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { saveAppliedDiscount } from '@/lib/pricing'
 
 export default function OrderSummaryPage() {
   const router = useRouter()
@@ -44,6 +45,7 @@ export default function OrderSummaryPage() {
       if (response.ok && result.success) {
         // Vymazání košíku a session dat
         localStorage.removeItem('cart')
+        saveAppliedDiscount(null)
         sessionStorage.removeItem('orderData')
         window.dispatchEvent(new Event('cartUpdated'))
         
@@ -61,7 +63,11 @@ export default function OrderSummaryPage() {
       } else if (response.status >= 400 && response.status < 500 && result.message) {
         // Chyba validace ze serveru (např. změněné ceny) – ukážeme konkrétní důvod
         alert(result.message)
-        if (response.status === 409) {
+        if (result.code === 'DISCOUNT_INVALID') {
+          // Neplatný/vyčerpaný kód odebereme, zákazník ho uvidí v košíku
+          saveAppliedDiscount(null)
+          router.push('/kosik')
+        } else if (response.status === 409) {
           router.push('/kosik')
         }
       } else {
@@ -339,6 +345,12 @@ export default function OrderSummaryPage() {
                         {orderData.items.reduce((sum: number, item: any) => sum + (item.price * (item.quantity || 1)), 0).toFixed(0)} Kč
                       </span>
                     </div>
+                    {orderData.discountAmount > 0 && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span>Sleva ({orderData.discountCode}):</span>
+                        <span className="font-semibold">-{orderData.discountAmount} Kč</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Doprava:</span>
                       <span className="font-semibold">

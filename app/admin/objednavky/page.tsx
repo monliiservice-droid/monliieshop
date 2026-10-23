@@ -25,6 +25,8 @@ interface Order {
   shippingMethod: string
   paymentMethod: string
   totalAmount: number
+  discountCode: string | null
+  discountAmount: number
   status: string
   paymentStatus: string
   trackingNumber: string | null
@@ -111,12 +113,15 @@ export default function OrdersPage() {
       })
 
       if (res.ok) {
-        alert(`Stav objednávky byl změněn na: ${statusLabels[newStatus]}`)
+        const updated = await res.json()
+        alert(
+          `Stav objednávky byl změněn na: ${statusLabels[newStatus]}` +
+          (updated.emailWarning ? `\n\n⚠️ ${updated.emailWarning}` : '')
+        )
         setShowTrackingInput(false)
         setTrackingNumber('')
         await fetchOrders()
         if (selectedOrder && selectedOrder.id === orderId) {
-          const updated = await res.json()
           setSelectedOrder(updated)
         }
       } else {
@@ -607,6 +612,12 @@ export default function OrdersPage() {
                 </div>
 
                 <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                  {selectedOrder.discountAmount > 0 && (
+                    <div className="flex justify-between text-sm text-green-700 mb-2">
+                      <span>Sleva{selectedOrder.discountCode ? ` (kód ${selectedOrder.discountCode})` : ''}:</span>
+                      <span>-{selectedOrder.discountAmount.toLocaleString('cs-CZ')} Kč</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-lg font-bold">
                     <span>Celkem:</span>
                     <span className="text-[#931e31]">{selectedOrder.totalAmount.toLocaleString('cs-CZ')} Kč</span>

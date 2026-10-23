@@ -13,7 +13,10 @@ import Script from 'next/script'
 import { ZASILKOVNA_CONFIG, type ZBoxPoint } from '@/lib/zasilkovna-zbox'
 import {
   COD_FEE,
+  calculateDiscountAmount,
   getPaymentFee,
+  loadAppliedDiscount,
+  type AppliedDiscount,
   getShippingPrice as getSharedShippingPrice,
   type PaymentMethod,
   type ShippingMethod,
@@ -33,6 +36,7 @@ export default function CheckoutPage() {
   const [shippingMethod, setShippingMethod] = useState('zbox')
   const [paymentMethod, setPaymentMethod] = useState('qr_code')
   const [isCompany, setIsCompany] = useState(false)
+  const [appliedDiscount, setAppliedDiscount] = useState<AppliedDiscount | null>(null)
   const [personalPickupLocation, setPersonalPickupLocation] = useState<'havirov' | 'frenstat' | null>(null)
   const [nearestZBox, setNearestZBox] = useState<ZBoxPoint | null>(null)
   const [isLoadingZBox, setIsLoadingZBox] = useState(false)
@@ -57,6 +61,7 @@ export default function CheckoutPage() {
           const parsedCart = JSON.parse(cart)
           setCartItems(parsedCart)
         }
+        setAppliedDiscount(loadAppliedDiscount())
       } catch (error) {
         console.error('Error loading cart:', error)
       } finally {
@@ -117,8 +122,15 @@ export default function CheckoutPage() {
     }, 0)
   }
 
+  const getDiscountAmount = () => {
+    return appliedDiscount ? calculateDiscountAmount(appliedDiscount, getTotalPrice()) : 0
+  }
+
+  // Doprava zdarma se počítá z částky po slevě (stejně jako na serveru)
+  const getDiscountedSubtotal = () => getTotalPrice() - getDiscountAmount()
+
   const getShippingPrice = () => {
-    return getSharedShippingPrice(shippingMethod as ShippingMethod, getTotalPrice())
+    return getSharedShippingPrice(shippingMethod as ShippingMethod, getDiscountedSubtotal())
   }
 
   const getCodFee = () => {
@@ -127,7 +139,7 @@ export default function CheckoutPage() {
   }
 
   const getFinalPrice = () => {
-    return getTotalPrice() + getShippingPrice() + getCodFee()
+    return getDiscountedSubtotal() + getShippingPrice() + getCodFee()
   }
 
   // Reset payment method when shipping method changes to avoid invalid combinations
@@ -198,6 +210,10 @@ export default function CheckoutPage() {
         fee: getCodFee()
       },
       items: cartItems,
+      ...(appliedDiscount && {
+        discountCode: appliedDiscount.code,
+        discountAmount: getDiscountAmount()
+      }),
       // getFinalPrice() už obsahuje dopravu i poplatek za dobírku
       totalPrice: getFinalPrice()
     }
@@ -438,7 +454,7 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         <span className="font-bold text-[#931e31]">
-                          {getTotalPrice() >= ZASILKOVNA_CONFIG.freeShippingThreshold ? 'ZDARMA' : `${ZASILKOVNA_CONFIG.zboxDeliveryPrice} Kč`}
+                          {getDiscountedSubtotal() >= ZASILKOVNA_CONFIG.freeShippingThreshold ? 'ZDARMA' : `${ZASILKOVNA_CONFIG.zboxDeliveryPrice} Kč`}
                         </span>
                       </div>
 
@@ -673,6 +689,12 @@ export default function CheckoutPage() {
                         <span className="text-gray-600">Mezisoučet:</span>
                         <span className="font-bold">{getTotalPrice()} Kč</span>
                       </div>
+                      {appliedDiscount && getDiscountAmount() > 0 && (
+                        <div className="flex justify-between text-lg text-green-600">
+                          <span>Sleva ({appliedDiscount.code}):</span>
+                          <span className="font-bold">-{getDiscountAmount()} Kč</span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-lg">
                         <span className="text-gray-600">Doprava:</span>
                         <span className="font-bold text-green-600">
