@@ -21,11 +21,19 @@ async function getProducts() {
         name: true,
         price: true,
         stock: true,
-        category: true,
-        sortOrder: true
+        sortOrder: true,
+        isSet: true,
+        setOptions: true,
+        isVisible: true,
+        isFeatured: true,
+        categoryRef: { select: { name: true } }
       }
     })
-    return products
+    return products.map(({ categoryRef, ...product }) => ({
+      ...product,
+      category: categoryRef?.name ?? null,
+      setOptions: product.setOptions ?? undefined
+    }))
   } catch (error) {
     console.error('Error fetching products:', error)
     return []

@@ -127,7 +127,7 @@ interface OrderWithInvoiceData extends OrderData {
 export async function sendOrderWithInvoiceEmail(rawData: OrderWithInvoiceData) {
   // `invoice.items` je JSON string – escapuje se až po naparsování níže
   const data = escapeHtmlDeep(rawData, ['items'])
-  const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo_wide_black.png`
+  const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo-email.png`
   
   const baseStyles = `
     <style>
@@ -148,7 +148,7 @@ export async function sendOrderWithInvoiceEmail(rawData: OrderWithInvoiceData) {
     ${baseStyles}
     <div class="container">
       <div class="header">
-        <img src="${logoUrl}" alt="Monlii" width="150">
+        <img src="${logoUrl}" alt="Monlii" width="180">
       </div>
       <div class="content">
         <h2>Děkujeme za objednávku! 🎉</h2>
@@ -241,7 +241,7 @@ export async function sendOrderWithInvoiceEmail(rawData: OrderWithInvoiceData) {
 }
 
 function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; html: string } {
-  const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo_wide_black.png`
+  const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo-email.png`
   
   const baseStyles = `
     <style>
@@ -265,7 +265,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
           ${baseStyles}
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Monlii" width="150">
+              <img src="${logoUrl}" alt="Monlii" width="180">
             </div>
             <div class="content">
               <h2>Děkujeme za vaši objednávku!</h2>
@@ -370,7 +370,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
           ${baseStyles}
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Monlii" width="150">
+              <img src="${logoUrl}" alt="Monlii" width="180">
             </div>
             <div class="content">
               <h2>🔔 Nová objednávka!</h2>
@@ -433,7 +433,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
           ${baseStyles}
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Monlii" width="150">
+              <img src="${logoUrl}" alt="Monlii" width="180">
             </div>
             <div class="content">
               <h2>Tvoje objednávka je ve výrobě! 🎨✨</h2>
@@ -499,7 +499,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
           ${baseStyles}
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Monlii" width="150">
+              <img src="${logoUrl}" alt="Monlii" width="180">
             </div>
             <div class="content">
               <h2>Omlouváme se</h2>
@@ -523,7 +523,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
           ${baseStyles}
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Monlii" width="150">
+              <img src="${logoUrl}" alt="Monlii" width="180">
             </div>
             <div class="content">
               <h2>Tvoje objednávka je ve výrobě! 🎨</h2>
@@ -554,7 +554,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             ${baseStyles}
             <div class="container">
               <div class="header">
-                <img src="${logoUrl}" alt="Monlii" width="150">
+                <img src="${logoUrl}" alt="Monlii" width="180">
               </div>
               <div class="content">
                 <h2>Tvůj výrobek je hotový! ✨🎉</h2>
@@ -588,7 +588,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
           ${baseStyles}
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Monlii" width="150">
+              <img src="${logoUrl}" alt="Monlii" width="180">
             </div>
             <div class="content">
               <h2>Tvoje objednávka je připravena! 📦</h2>
@@ -631,7 +631,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
             ${baseStyles}
             <div class="container">
               <div class="header">
-                <img src="${logoUrl}" alt="Monlii" width="150">
+                <img src="${logoUrl}" alt="Monlii" width="180">
               </div>
               <div class="content">
                 <h2>Tvoje objednávka je připravena k vyzvednutí! 🎉</h2>
@@ -670,7 +670,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
           ${baseStyles}
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Monlii" width="150">
+              <img src="${logoUrl}" alt="Monlii" width="180">
             </div>
             <div class="content">
               <h2>Tvoje objednávka je na cestě! 🚚</h2>
@@ -721,7 +721,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
           ${baseStyles}
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Monlii" width="150">
+              <img src="${logoUrl}" alt="Monlii" width="180">
             </div>
             <div class="content">
               <h2>${isPickupDelivered ? 'Děkujeme za vyzvednutí! 💝' : 'Tvoje objednávka dorazila! 🎉'}</h2>
@@ -744,7 +744,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
           ${baseStyles}
           <div class="container">
             <div class="header">
-              <img src="${logoUrl}" alt="Monlii" width="150">
+              <img src="${logoUrl}" alt="Monlii" width="180">
             </div>
             <div class="content">
               <h2>Řekni nám, co si myslíš! 💝</h2>
@@ -777,7 +777,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
 }
 
 function getInvoiceEmailTemplate(data: InvoiceData): { subject: string; html: string } {
-  const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo_wide_black.png`
+  const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo-email.png`
   
   const baseStyles = `
     <style>
@@ -812,7 +812,7 @@ function getInvoiceEmailTemplate(data: InvoiceData): { subject: string; html: st
       ${baseStyles}
       <div class="container">
         <div class="header">
-          <img src="${logoUrl}" alt="Monlii" width="150">
+          <img src="${logoUrl}" alt="Monlii" width="180">
         </div>
         <div class="content">
           <h2>Děkujeme za vaši objednávku! 🎉</h2>

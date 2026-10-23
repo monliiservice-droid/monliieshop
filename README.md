@@ -1,6 +1,6 @@
 # Monlii E-shop
 
-E-shop s ručně šitým spodním prádlem – [monlii.cz](https://monlii.cz), administrace na [admin.monlii.cz](https://admin.monlii.cz).
+E-shop s ručně šitým prádlem a oblečením pro ženy, muže i děti – [monlii.cz](https://monlii.cz), administrace na [admin.monlii.cz](https://admin.monlii.cz).
 
 ## Technologie
 
@@ -62,6 +62,13 @@ Vzor je v [`.env.example`](.env.example). Na Vercelu se nastavují v *Settings �
 - Pokud DNS běží přes Cloudflare, záznamy pro Vercel musí být *DNS only* (bez proxy), jinak Vercel nevydá certifikát.
 - Cron `/api/cron/review-emails` běží denně v 9:00 UTC (`vercel.json`).
 
+### Migrace při nasazení nové verze
+
+**Před nasazením verze, která přidává migraci, ji nejdřív spusťte na produkční databázi** (`npm run db:migrate`
+s produkčními `DATABASE_URL` / `DIRECT_URL`). Nový kód počítá s novými sloupci a tabulkami – bez migrace by obchod
+nefungoval. Migrace `1_shop_builder` přidává kategorie, výprodeje a sekce stránek a stávající produkty sama zařadí
+do nového stromu kategorií (podle jejich dosavadní kategorie).
+
 ### Migrace – jednorázový přechod na novou historii
 
 Historie migrací byla nahrazena jedinou výchozí migrací `prisma/migrations/0_init`, která přesně odpovídá
@@ -77,6 +84,19 @@ npx prisma migrate resolve --applied 0_init
 ```
 
 Pokud krok 1 vypíše rozdíly, nejdřív je vyřeš (neaplikuj migraci naslepo). Nová databáze se založí běžně přes `npm run db:migrate`.
+
+## Administrace – co kde najdete
+
+| Sekce | K čemu slouží |
+| --- | --- |
+| **Produkty** | Produkty, fotky (první = hlavní, druhá se ukáže po najetí), barvy, sklad, skrytí, „doporučený“ |
+| **Kategorie** | Strom kategorií. Nejvyšší úroveň (Ženy / Muži / Děti…) je v hlavním menu, podkategorie v megamenu. U kategorie se nastavuje **typ velikostí** (podprsenka, braletka, set, prádlo XS–XL, oblečení XS–XXL, dětské 86–164, bez velikostí) – podkategorie ho může zdědit. |
+| **Obsah webu** | Shop builder homepage: sekce (úvodní banner, dlaždice kategorií, produkty, fotka + text, hodnoty, výprodej, příběhy, recenze, Instagram, text) – pořadí, viditelnost, texty, fotky. Záložka *Hlavičky stránek* upravuje hlavičky Obchodu, O nás, Kontaktů… |
+| **Výprodeje** | Časově omezené akce (sezóna, doprodej skladu…) se slevou v %, na celý obchod / kategorie / produkty. Akce má vlastní stránku `/vyprodej/<slug>`, odkaz v menu a banner. Sleva se automaticky promítne do cen i objednávek. |
+| **Nastavení → Obchod** | Vzhled produktových karet (klasické / minimalistické / přes fotku), počet sloupců, informační lišta nad menu, **zapnutí/skrytí předplatného** |
+| **Nastavení → Fakturace** | Firemní údaje a číselná řada faktur |
+
+Změny z administrace se na webu projeví okamžitě (stránky se po uložení přegenerují).
 
 ## Jak to funguje
 
@@ -122,22 +142,28 @@ Server kontroluje platnost, minimální částku i maximální počet použití.
   tedy „best effort“).
 - Všechna data od zákazníků se v e-mailech escapují (`lib/escape-html.ts`).
 
-### Instagram na homepage
+### Design
 
-`components/InstagramFeed.tsx` – seznam příspěvků (obrázek v `public/instagram/post-N.jpg` + odkaz na post).
-Nový příspěvek = ulož obrázek do `public/instagram/` a přidej položku do pole v komponentě.
+- Barvy a písma jsou v `app/globals.css` (`@theme`): vínová `wine`, tmavá `ink` (barva loga), lněný podklad `linen`,
+  písma Cormorant Garamond (nadpisy) a Manrope (text). Logo je `public/logo.svg` (tmavé) a `public/logo-light.svg`
+  (světlé); pro e-maily `public/logo-email.png`.
+- Stránky obchodu sdílí layout `app/(shop)/layout.tsx` (lišta, hlavička s megamenu, patička). Hlavička i menu se
+  skládají z kategorií, výprodejů a nastavení (`lib/navigation.ts`).
+- Sekce homepage jsou v `components/sections/`, jejich data a výchozí obsah v `lib/sections.ts`, editor polí
+  v `lib/section-fields.ts`.
 
 ### Detail produktu a SEO
 
-Detail produktu (`app/produkt/[id]`) se vykresluje na serveru a cachuje na 60 s: má vlastní titulek, popis,
+Detail produktu (`app/(shop)/produkt/[id]`) se vykresluje na serveru a cachuje (po úpravě v adminu se obnoví hned): má vlastní titulek, popis,
 canonical URL, náhled pro sdílení (Open Graph) a strukturovaná data Product (cena, dostupnost) pro Google.
 
 ## Struktura
 
 ```
 app/                 stránky (App Router) a API routy (app/api)
+  (shop)/            stránky obchodu se společnou hlavičkou a patičkou
   admin/             administrace
-components/          sdílené komponenty, components/ui = základní UI prvky
+components/          site/ (obchod), sections/ (sekce homepage), product/ (detail), admin/, ui/ (základní prvky)
 lib/                 logika: ceny, objednávky, faktury, e-maily, Zásilkovna, QR platby
 prisma/              schéma, migrace, seed
 scripts/             pomocné skripty (demo objednávka, kontrola schématu)

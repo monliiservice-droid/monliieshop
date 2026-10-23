@@ -1,20 +1,30 @@
-import type { Metadata } from "next";
-import { Lora } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
-import { CookieConsent } from "@/components/cookie-consent";
 import { Toaster } from "@/components/ui/sonner";
-import { WelcomeNotice } from "@/components/welcome-notice";
 
-const lora = Lora({
+const manrope = Manrope({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-lora",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-manrope",
+  display: "swap",
 });
 
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-cormorant",
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const TITLE = "Monlii | Šité s láskou k tělu i přírodě";
+const DESCRIPTION =
+  "Ručně šité prádlo a oblečení pro ženy, muže i děti z rodinné české dílny. Malé série, poctivé materiály a střihy, které opravdu sedí.";
+
 export const metadata: Metadata = {
-  title: "Monlii | Jedinečné spodní prádlo s příběhem a českou tradicí",
-  description: "Objevte krásné a pohodlné spodní prádlo, které šije zkušená švadlena. Každý kousek je unikátní a podporuje rodinnou výrobu a české ruční řemeslo.",
-  keywords: ['spodní prádlo', 'ručně šité prádlo', 'české prádlo', 'dámské prádlo', 'podprsenky', 'kalhotky', 'braletky', 'luxusní prádlo', 'monlii', 'rodinná výroba', 'české řemeslo'],
+  title: TITLE,
+  description: DESCRIPTION,
+  keywords: ['ručně šité oblečení', 'české prádlo', 'dámské prádlo', 'pánské prádlo', 'dětské oblečení', 'rodinná dílna', 'pomalá móda', 'monlii'],
   authors: [{ name: 'Monlii' }],
   creator: 'Monlii',
   publisher: 'Monlii',
@@ -30,29 +40,19 @@ export const metadata: Metadata = {
     apple: [
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
     ],
-    other: [
-      { rel: 'mask-icon', url: '/favicon.png', color: '#931e31' }
-    ]
   },
   openGraph: {
-    title: "Monlii | Jedinečné spodní prádlo s příběhem a českou tradicí",
-    description: "Objevte krásné a pohodlné spodní prádlo, které šije zkušená švadlena. Každý kousek je unikátní a podporuje rodinnou výrobu a české ruční řemeslo.",
+    title: TITLE,
+    description: DESCRIPTION,
     type: 'website',
     locale: 'cs_CZ',
     siteName: 'Monlii',
-    images: [
-      {
-        url: '/story_4.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Monlii - Jedinečné spodní prádlo',
-      }
-    ],
+    images: [{ url: '/story_4.jpg', alt: 'Monlii – šité s láskou k tělu i přírodě' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Monlii | Jedinečné spodní prádlo",
-    description: "Objevte krásné a pohodlné spodní prádlo, které šije zkušená švadlena.",
+    title: TITLE,
+    description: DESCRIPTION,
     images: ['/story_4.jpg'],
   },
   robots: {
@@ -68,20 +68,20 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: '#fbf7f2',
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs">
-      <body
-        className={`${lora.variable} font-serif antialiased`}
-      >
+    <html lang="cs" className={`${manrope.variable} ${cormorant.variable}`}>
+      <body>
         {children}
-        <CookieConsent />
         <Toaster theme="light" position="top-center" richColors closeButton />
-        <WelcomeNotice />
       </body>
     </html>
   );

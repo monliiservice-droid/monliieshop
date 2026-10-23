@@ -72,13 +72,13 @@ export async function POST(request: NextRequest) {
 
     const sellerEmail = process.env.SELLER_EMAIL || 'luckaivankova1@seznam.cz'
     const fromEmail = process.env.EMAIL_FROM || 'noreply@monlii.cz'
-    const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo_wide_black.png`
+    const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo-email.png`
 
     // Email pro prodejce
     const sellerEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="text-align: center; padding: 30px; border-bottom: 3px solid #931e31;">
-          <img src="${logoUrl}" alt="Monlii" width="150">
+          <img src="${logoUrl}" alt="Monlii" width="180">
         </div>
         <div style="padding: 40px 30px;">
           <h2 style="color: #931e31; margin-bottom: 20px;">🔔 Nová zpráva z kontaktního formuláře</h2>
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     const customerEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="text-align: center; padding: 30px; border-bottom: 3px solid #931e31;">
-          <img src="${logoUrl}" alt="Monlii" width="150">
+          <img src="${logoUrl}" alt="Monlii" width="180">
         </div>
         <div style="padding: 40px 30px;">
           <h2 style="color: #931e31; margin-bottom: 20px;">Děkujeme za vaši zprávu! ✉️</h2>

@@ -26,6 +26,8 @@ interface Product {
   sortOrder: number
   isSet?: boolean
   setOptions?: string
+  isVisible?: boolean
+  isFeatured?: boolean
 }
 
 interface ProductsListProps {
@@ -128,7 +130,15 @@ export function ProductsList({ initialProducts }: ProductsListProps) {
                 <TableCell>
                   <GripVertical className="h-5 w-5 text-gray-400" />
                 </TableCell>
-                <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell className="font-medium">
+                  {product.name}
+                  {product.isVisible === false && (
+                    <Badge variant="outline" className="ml-2 text-gray-500">Skrytý</Badge>
+                  )}
+                  {product.isFeatured && (
+                    <Badge variant="outline" className="ml-2 border-amber-300 text-amber-700">Doporučený</Badge>
+                  )}
+                </TableCell>
                 <TableCell>{displayPrice} Kč</TableCell>
               <TableCell>{product.stock}</TableCell>
               <TableCell>

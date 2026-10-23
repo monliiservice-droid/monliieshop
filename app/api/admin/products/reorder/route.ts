@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAdminAuth } from '@/lib/auth'
+import { revalidateStorefront } from '@/lib/admin-api'
 
 export async function PUT(request: Request) {
   const isAuthed = await requireAdminAuth()
@@ -21,6 +22,7 @@ export async function PUT(request: Request) {
         })
       )
     )
+    revalidateStorefront()
 
     return NextResponse.json({ success: true })
   } catch (error) {

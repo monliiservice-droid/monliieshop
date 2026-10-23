@@ -4,8 +4,12 @@
 import { prisma } from './prisma'
 import { getActivePrice, type SetConfiguration } from './set-config-types'
 import { calculateDiscountAmount, findValidDiscountCode } from './discount'
+import { getCategoryTree } from './categories'
+import { findBestSale, getActiveSales } from './sales'
+import { getShopSettings } from './site-settings-server'
 import {
   ALLOWED_PAYMENT_METHODS,
+  applySaleDiscount,
   SUBSCRIPTION_PLANS,
   getPaymentFee,
   getShippingPrice,
@@ -102,7 +106,11 @@ async function priceProductItems(items: any[]): Promise<Map<any, PricedOrderItem
     throw new OrderValidationError('Neplatný produkt v košíku')
   }
 
-  const products = await prisma.product.findMany({ where: { id: { in: productIds } } })
+  const [products, tree, sales] = await Promise.all([
+    prisma.product.findMany({ where: { id: { in: productIds }, isVisible: true } }),
+    getCategoryTree(),
+    getActiveSales(),
+  ])
   const productsById = new Map(products.map((product) => [product.id, product]))
 
   // Kontrola skladu (součet množství přes všechny řádky stejného produktu).
@@ -147,6 +155,12 @@ async function priceProductItems(items: any[]): Promise<Map<any, PricedOrderItem
       price = getActivePrice(config, braType, withGarters)
     }
 
+    // Aktivní výprodej snižuje cenu (u setu cenu zvolené varianty)
+    const sale = findBestSale(product, sales, tree)
+    if (sale) {
+      price = applySaleDiscount(price, sale.discountPercent)
+    }
+
     if (!(price > 0)) {
       throw new OrderValidationError(`Produkt ${product.name} nelze momentálně objednat`)
     }
@@ -178,6 +192,11 @@ export async function priceOrder(data: any): Promise<PricedOrder> {
   const paymentMethod = data?.payment?.method as PaymentMethod
   if (!ALLOWED_PAYMENT_METHODS[shippingMethod]?.includes(paymentMethod)) {
     throw new OrderValidationError('Neplatná kombinace dopravy a platby')
+  }
+
+  const hasSubscription = rawItems.some((item) => item.type === 'subscription')
+  if (hasSubscription && !(await getShopSettings()).subscriptionEnabled) {
+    throw new OrderValidationError('Předplatné momentálně nenabízíme. Odeberte ho prosím z košíku.')
   }
 
   const productItems = rawItems.filter((item) => item.type !== 'subscription')

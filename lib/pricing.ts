@@ -104,3 +104,9 @@ export function saveAppliedDiscount(discount: AppliedDiscount | null) {
     // localStorage nemusí být dostupný (anonymní režim) – sleva pak jen nepřežije reload
   }
 }
+
+/** Cena po výprodejové slevě, zaokrouhlená na celé koruny */
+export function applySaleDiscount(price: number, discountPercent: number): number {
+  const pct = Math.min(Math.max(discountPercent, 0), 100)
+  return Math.round(price * (1 - pct / 100))
+}
