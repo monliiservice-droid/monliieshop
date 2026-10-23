@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { TrendingUp, FileText, Plus, Eye, X } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { toast } from 'sonner'
 
 interface Invoice {
   id: string
@@ -109,12 +110,12 @@ export default function TrzbyPage() {
   const handleCreateInvoice = async () => {
     // Validace
     if (!formData.customerName || !formData.customerEmail || !formData.customerAddress.street || !formData.customerAddress.city || !formData.customerAddress.zip) {
-      alert('Vyplňte všechna povinná pole')
+      toast.error('Vyplňte všechna povinná pole')
       return
     }
 
     if (formData.items.some(item => !item.name || item.quantity <= 0 || item.price <= 0)) {
-      alert('Všechny položky musí mít název, množství a cenu')
+      toast.error('Všechny položky musí mít název, množství a cenu')
       return
     }
 
@@ -132,7 +133,7 @@ export default function TrzbyPage() {
       })
 
       if (res.ok) {
-        alert('Faktura byla úspěšně vytvořena')
+        toast.success('Faktura byla úspěšně vytvořena')
         setShowCreateForm(false)
         // Reset form
         setFormData({
@@ -149,11 +150,11 @@ export default function TrzbyPage() {
         await fetchData()
       } else {
         const error = await res.json()
-        alert(error.message || 'Chyba při vytváření faktury')
+        toast.error(error.message || 'Chyba při vytváření faktury')
       }
     } catch (error) {
       console.error('Error creating invoice:', error)
-      alert('Chyba při vytváření faktury')
+      toast.error('Chyba při vytváření faktury')
     }
   }
 
@@ -196,18 +197,18 @@ export default function TrzbyPage() {
       })
 
       if (res.ok) {
-        alert(`Faktura označena jako: ${newStatus === 'paid' ? 'zaplacená' : 'nezaplacená'}`)
+        toast.success(`Faktura označena jako: ${newStatus === 'paid' ? 'zaplacená' : 'nezaplacená'}`)
         await fetchData()
         if (selectedInvoice && selectedInvoice.id === invoiceId) {
           const updated = await res.json()
           setSelectedInvoice(updated)
         }
       } else {
-        alert('Chyba při změně statusu')
+        toast.error('Chyba při změně statusu')
       }
     } catch (error) {
       console.error('Error changing status:', error)
-      alert('Chyba při změně statusu')
+      toast.error('Chyba při změně statusu')
     }
   }
 
@@ -239,7 +240,7 @@ export default function TrzbyPage() {
       setShowEditForm(true)
     } catch (error) {
       console.error('Error preparing edit form:', error)
-      alert('Chyba při načítání dat faktury')
+      toast.error('Chyba při načítání dat faktury')
     }
   }
 
@@ -248,12 +249,12 @@ export default function TrzbyPage() {
 
     // Validace
     if (!formData.customerName || !formData.customerEmail || !formData.customerAddress.street || !formData.customerAddress.city || !formData.customerAddress.zip) {
-      alert('Vyplnťte všechna povinná pole')
+      toast.error('Vyplňte všechna povinná pole')
       return
     }
 
     if (formData.items.some(item => !item.name || item.quantity <= 0 || item.price <= 0)) {
-      alert('Všechny položky musí mít název, množství a cenu')
+      toast.error('Všechny položky musí mít název, množství a cenu')
       return
     }
 
@@ -278,7 +279,7 @@ export default function TrzbyPage() {
       })
 
       if (res.ok) {
-        alert('Faktura byla úspěšně aktualizována')
+        toast.success('Faktura byla úspěšně aktualizována')
         setShowEditForm(false)
         setSelectedInvoice(null)
         // Reset form
@@ -296,11 +297,11 @@ export default function TrzbyPage() {
         await fetchData()
       } else {
         const error = await res.json()
-        alert(error.message || 'Chyba při aktualizaci faktury')
+        toast.error(error.message || 'Chyba při aktualizaci faktury')
       }
     } catch (error) {
       console.error('Error updating invoice:', error)
-      alert('Chyba při aktualizaci faktury')
+      toast.error('Chyba při aktualizaci faktury')
     }
   }
 
@@ -315,17 +316,17 @@ export default function TrzbyPage() {
       })
 
       if (res.ok) {
-        alert('Faktura byla úspěšně smazána')
+        toast.success('Faktura byla úspěšně smazána')
         setShowDetail(false)
         setSelectedInvoice(null)
         await fetchData()
       } else {
         const error = await res.json()
-        alert(error.message || 'Chyba při mazání faktury')
+        toast.error(error.message || 'Chyba při mazání faktury')
       }
     } catch (error) {
       console.error('Error deleting invoice:', error)
-      alert('Chyba při mazání faktury')
+      toast.error('Chyba při mazání faktury')
     }
   }
 

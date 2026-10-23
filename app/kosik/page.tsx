@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { ShoppingBag, Trash2, ArrowRight, Plus, Minus, Package, Tag, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { calculateDiscountAmount, loadAppliedDiscount, saveAppliedDiscount, type AppliedDiscount } from '@/lib/pricing'
@@ -221,10 +222,12 @@ export default function CartPage() {
                           {/* Obrázek produktu */}
                           {item.image && (
                             <div className="flex-shrink-0 w-full sm:w-36 lg:w-48 h-48 sm:h-full bg-gradient-to-br from-pink-100 via-purple-50 to-pink-50 overflow-hidden relative group">
-                              <img 
-                                src={item.image} 
+                              <Image
+                                src={item.image}
                                 alt={item.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                fill
+                                sizes="(min-width: 1024px) 192px, (min-width: 640px) 144px, 100vw"
+                                className="object-cover group-hover:scale-110 transition-transform duration-700"
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             </div>

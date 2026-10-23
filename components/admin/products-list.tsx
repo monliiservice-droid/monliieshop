@@ -15,6 +15,7 @@ import { Edit, GripVertical } from 'lucide-react'
 import Link from 'next/link'
 import { DeleteProductButton } from '@/components/admin/delete-product-button'
 import { getDisplayPrice } from '@/lib/set-config-types'
+import { toast } from 'sonner'
 
 interface Product {
   id: string
@@ -82,7 +83,7 @@ export function ProductsList({ initialProducts }: ProductsListProps) {
       }
     } catch (error) {
       console.error('Error saving order:', error)
-      alert('Chyba při ukládání pořadí produktů')
+      toast.error('Chyba při ukládání pořadí produktů')
     } finally {
       setDraggingId(null)
       setIsSaving(false)

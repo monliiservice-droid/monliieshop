@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ShoppingCart, Ruler, CheckCircle } from 'lucide-react'
 import { getSizeOptionsForCategory, SIZE_LABELS } from '@/lib/product-types'
 import { SetConfiguration, getActivePrice } from '@/lib/set-config-types'
+import { toast } from 'sonner'
 
 interface AddToCartButtonProps {
   product: {
@@ -16,8 +17,8 @@ interface AddToCartButtonProps {
     images: string
     category: string | null
     isSet?: boolean
-    setOptions?: string
-    colors?: string
+    setOptions?: string | null
+    colors?: string | null
   }
   hasBra?: boolean
   onMeasurementClick?: () => void
@@ -88,17 +89,17 @@ export function AddToCartButton({ product, hasBra, onMeasurementClick, onBraType
   const handleAddToCart = () => {
     // Validace
     if (productColors.length > 0 && !selectedColor) {
-      alert('Prosím vyberte barvu')
+      toast.error('Prosím vyberte barvu')
       return
     }
     
     if (sizeConfig.fields.length > 0 && !allSizesSelected) {
-      alert('Prosím vyberte všechny velikosti')
+      toast.error('Prosím vyberte všechny velikosti')
       return
     }
 
     if (quantity > availableStock) {
-      alert('Požadované množství není skladem')
+      toast.error('Požadované množství není skladem')
       return
     }
 

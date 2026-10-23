@@ -1,6 +1,12 @@
 import nodemailer from 'nodemailer'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { escapeHtmlDeep } from './escape-html'
+import { getPickupLocation } from './pickup-locations'
+
+function formatPickupAddress(id: unknown): string {
+  const location = getPickupLocation(id)
+  return `${location.address}, ${location.zip} ${location.city}`
+}
 
 // Mailtrap konfigurace
 const transportOptions: SMTPTransport.Options = {
@@ -339,12 +345,10 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                 <div style="background: #ecfdf5; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #10b981;">
                   <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Osobní odběr na prodejně</h3>
                   <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">
-                    ${data.shippingAddress.shippingDetails.personalLocation === 'havirov' ? 'Havířov' : 'Frenštát pod Radhoštěm'}
+                    ${getPickupLocation(data.shippingAddress.shippingDetails.personalLocation).name}
                   </p>
                   <p style="margin: 0; color: #374151;">
-                    ${data.shippingAddress.shippingDetails.personalLocation === 'havirov' 
-                      ? 'Hlavní 1234, 736 01 Havířov' 
-                      : 'Hlavní 5678, 744 01 Frenštát p. R.'}
+                    ${formatPickupAddress(data.shippingAddress.shippingDetails.personalLocation)}
                   </p>
                 </div>
               ` : ''}
@@ -466,12 +470,10 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                 <div style="background: #ecfdf5; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #10b981;">
                   <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Osobní odběr na prodejně:</h3>
                   <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">
-                    ${data.shippingAddress.shippingDetails.personalLocation === 'havirov' ? 'Havířov' : 'Frenštát pod Radhoštěm'}
+                    ${getPickupLocation(data.shippingAddress.shippingDetails.personalLocation).name}
                   </p>
                   <p style="margin: 0; color: #374151;">
-                    ${data.shippingAddress.shippingDetails.personalLocation === 'havirov' 
-                      ? 'Hlavní 1234, 736 01 Havířov' 
-                      : 'Hlavní 5678, 744 01 Frenštát p. R.'}
+                    ${formatPickupAddress(data.shippingAddress.shippingDetails.personalLocation)}
                   </p>
                   ${data.paymentMethod === 'store_payment' ? `
                     <p style="margin-top: 10px; color: #059669; font-weight: bold;">💳 Platba při vyzvednutí</p>
@@ -544,9 +546,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
       if (isPersonalPickup) {
         // Personal pickup - product is finished
         const pickupLocation = data.shippingAddress.shippingDetails.personalLocation
-        const locationInfo = pickupLocation === 'havirov' 
-          ? { name: 'Havířov', address: 'Hlavní 1234', zip: '736 01', city: 'Havířov' }
-          : { name: 'Frenštát pod Radhoštěm', address: 'Hlavní 5678', zip: '744 01', city: 'Frenštát p. R.' }
+        const locationInfo = getPickupLocation(pickupLocation)
         
         return {
           subject: `Objednávka #${data.orderNumber} - výrobek je hotov! ✨`,
@@ -623,9 +623,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
       if (isPickupShipped) {
         // Personal pickup - ready for pickup
         const pickupLoc = data.shippingAddress.shippingDetails.personalLocation
-        const locDetails = pickupLoc === 'havirov' 
-          ? { name: 'Havířov', address: 'Hlavní 1234', zip: '736 01', city: 'Havířov' }
-          : { name: 'Frenštát pod Radhoštěm', address: 'Hlavní 5678', zip: '744 01', city: 'Frenštát p. R.' }
+        const locDetails = getPickupLocation(pickupLoc)
         
         return {
           subject: `Objednávka #${data.orderNumber} - připraveno k vyzvednutí! 🎉`,

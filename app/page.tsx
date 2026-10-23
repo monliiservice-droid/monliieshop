@@ -38,15 +38,27 @@ export default function Home() {
           {/* Background Image with Overlay */}
           <div className="absolute inset-0">
             {/* Desktop Image */}
-            <div 
-              className="hidden sm:block absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: 'url(/hero_section_alternative_2.jpg)' }}
-            />
+            <div className="hidden sm:block absolute inset-0">
+              <Image
+                src="/hero_section_alternative_2.jpg"
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-center"
+              />
+            </div>
             {/* Mobile Image */}
-            <div 
-              className="block sm:hidden absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: 'url(/hero_section_new_mobile.JPG)' }}
-            />
+            <div className="block sm:hidden absolute inset-0">
+              <Image
+                src="/hero_section_new_mobile.JPG"
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-center"
+              />
+            </div>
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/50 to-black/60"></div>
           </div>
           

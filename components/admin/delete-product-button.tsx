@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 interface DeleteProductButtonProps {
   productId: string
@@ -29,11 +30,11 @@ export function DeleteProductButton({ productId, productName }: DeleteProductBut
       if (response.ok) {
         router.refresh()
       } else {
-        alert('Chyba při mazání produktu')
+        toast.error('Chyba při mazání produktu')
       }
     } catch (error) {
       console.error('Error deleting product:', error)
-      alert('Chyba při mazání produktu')
+      toast.error('Chyba při mazání produktu')
     } finally {
       setDeleting(false)
     }

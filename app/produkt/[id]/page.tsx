@@ -1,275 +1,124 @@
-'use client'
-
-import { Navbar } from '@/components/navbar'
-import { Footer } from '@/components/footer'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { AddToCartButton } from '@/components/add-to-cart-button'
-import Image from 'next/image'
-import Link from 'next/link'
-import { Ruler, Package, Shield } from 'lucide-react'
-import { PRODUCT_CATEGORIES } from '@/lib/product-types'
-import { getDisplayPrice } from '@/lib/set-config-types'
-import { useEffect, useState } from 'react'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
+import { prisma } from '@/lib/prisma'
+import { getDisplayPrice } from '@/lib/set-config-types'
+import { ProductDetail } from '@/components/product-detail'
 
-export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const [product, setProduct] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('popis')
-  const [selectedBraType, setSelectedBraType] = useState<'bralette' | 'wired'>('bralette')
+// Stránka se generuje na serveru a cachuje; změny z adminu se projeví do minuty
+export const revalidate = 60
 
-  useEffect(() => {
-    async function loadProduct() {
-      const { id } = await params
-      try {
-        const response = await fetch(`/api/products/${id}`)
-        if (response.ok) {
-          const data = await response.json()
-          setProduct(data)
-        } else {
-          notFound()
-        }
-      } catch (error) {
-        console.error('Error loading product:', error)
-      } finally {
-        setLoading(false)
-      }
+type Props = { params: Promise<{ id: string }> }
+
+// cache() – metadata i stránka sdílí jeden dotaz do databáze
+const getProduct = cache(async (id: string) => {
+  return prisma.product.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      price: true,
+      stock: true,
+      images: true,
+      category: true,
+      isSet: true,
+      setOptions: true,
+      colors: true,
+    },
+  })
+})
+
+function parseImages(images: string): string[] {
+  try {
+    const parsed = JSON.parse(images)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function getPrice(product: { price: number; isSet: boolean; setOptions: string | null }): number {
+  if (product.isSet && product.setOptions) {
+    try {
+      return getDisplayPrice(JSON.parse(product.setOptions))
+    } catch {
+      return product.price
     }
-    loadProduct()
-  }, [params])
+  }
+  return product.price
+}
 
-  if (loading) {
-    return (
-      <>
-        <Navbar />
-        <main className="min-h-screen flex items-center justify-center">
-          <p>Načítání produktu...</p>
-        </main>
-        <Footer />
-      </>
-    )
+function shortDescription(product: { name: string; description: string | null }): string {
+  const text = (product.description || `${product.name} – ručně šité spodní prádlo Monlii.`)
+    .replace(/\s+/g, ' ')
+    .trim()
+  return text.length > 160 ? `${text.slice(0, 157)}…` : text
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const product = await getProduct(id)
+  if (!product) {
+    return { title: 'Produkt nenalezen | Monlii' }
   }
 
+  const description = shortDescription(product)
+  const images = parseImages(product.images)
+
+  return {
+    title: `${product.name} | Monlii`,
+    description,
+    alternates: { canonical: `/produkt/${product.id}` },
+    openGraph: {
+      title: product.name,
+      description,
+      type: 'website',
+      locale: 'cs_CZ',
+      siteName: 'Monlii',
+      url: `/produkt/${product.id}`,
+      images: images.slice(0, 1).map((url) => ({ url, alt: product.name })),
+    },
+  }
+}
+
+export default async function ProductPage({ params }: Props) {
+  const { id } = await params
+  const product = await getProduct(id)
   if (!product) {
     notFound()
   }
 
-  // Detekce, zda produkt obsahuje podprsenku
-  const hasBra = product.category && (
-    product.category === PRODUCT_CATEGORIES.BRA_WIRED ||
-    product.category === PRODUCT_CATEGORIES.BRA_BRALETTE ||
-    product.category === PRODUCT_CATEGORIES.SET
-  )
+  const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'
+  const images = parseImages(product.images)
 
-  // Určit, zda je to braletka nebo s kosticí
-  const isBralette = product.category === PRODUCT_CATEGORIES.BRA_BRALETTE || 
-    (product.isSet && product.setOptions && (
-      JSON.parse(product.setOptions).braType === 'bralette' || 
-      (JSON.parse(product.setOptions).braType === 'both' && selectedBraType === 'bralette')
-    ))
-
-  // Vypočítat zobrazovací cenu (nejnižší cena pro sety)
-  const displayPrice = product.isSet && product.setOptions
-    ? getDisplayPrice(JSON.parse(product.setOptions))
-    : product.price
-
-  const scrollToMeasurement = () => {
-    setActiveTab('mereni')
-    setTimeout(() => {
-      const element = document.getElementById('product-tabs')
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }, 100)
+  // Strukturovaná data pro vyhledávače (cena, dostupnost, obrázky)
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: shortDescription(product),
+    image: images.map((url) => new URL(url, baseUrl).toString()),
+    sku: product.id,
+    brand: { '@type': 'Brand', name: 'Monlii' },
+    ...(product.category && { category: product.category }),
+    offers: {
+      '@type': 'Offer',
+      url: `${baseUrl}/produkt/${product.id}`,
+      priceCurrency: 'CZK',
+      price: getPrice(product),
+      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    },
   }
-
-  const images = JSON.parse(product.images)
 
   return (
     <>
-      <Navbar />
-      <main className="min-h-screen bg-white">
-        <section className="py-12">
-          <div className="container max-w-7xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {/* Galerie obrázků */}
-              <div className="space-y-4">
-                <div className="aspect-[3/4] bg-gray-100 rounded-3xl overflow-hidden soft-shadow-lg">
-                  {images.length > 0 ? (
-                    <Image
-                      src={images[0]}
-                      alt={product.name}
-                      width={800}
-                      height={1000}
-                      className="w-full h-full object-cover"
-                      priority
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      Bez obrázku
-                    </div>
-                  )}
-                </div>
-                
-                {images.length > 1 && (
-                  <div className="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
-                    {images.slice(1, 5).map((img: string, idx: number) => (
-                      <div key={idx} className="aspect-square bg-gray-100 rounded-2xl overflow-hidden soft-shadow hover:soft-shadow-lg transition-all duration-300 cursor-pointer">
-                        <Image
-                          src={img}
-                          alt={`${product.name} ${idx + 2}`}
-                          width={200}
-                          height={200}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Informace o produktu */}
-              <div className="space-y-6">
-                <div>
-                  {product.category && (
-                    <Badge className="mb-3 bg-gradient-to-r from-pink-50 to-rose-50 text-gray-700 hover:from-pink-100 hover:to-rose-100 rounded-full px-4 py-1.5 shadow-sm">
-                      {product.category}
-                    </Badge>
-                  )}
-                  <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-4 tracking-tight">{product.name}</h1>
-                </div>
-
-                {product.description && (
-                  <div className="prose prose-lg">
-                    <p className="text-gray-600 leading-relaxed">{product.description}</p>
-                  </div>
-                )}
-
-                {/* Přidat do košíku komponent */}
-                <AddToCartButton 
-                  product={{
-                    id: product.id,
-                    name: product.name,
-                    price: displayPrice,
-                    stock: product.stock,
-                    images: product.images,
-                    category: product.category,
-                    isSet: product.isSet,
-                    setOptions: product.setOptions,
-                    colors: product.colors
-                  }}
-                  hasBra={hasBra}
-                  onMeasurementClick={scrollToMeasurement}
-                  onBraTypeChange={setSelectedBraType}
-                />
-
-                {/* Výhody */}
-                <div className="grid grid-cols-1 gap-4 pt-6">
-                  <div className="flex items-start space-x-3">
-                    <Package className="h-6 w-6 text-[#931e31] flex-shrink-0 mt-1" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Doprava</h3>
-                      <p className="text-sm text-gray-600">3-5 dnů (skladem) | až 14 dnů (na míru)</p>
-                      <p className="text-sm text-green-600 font-semibold mt-1">Zásilkovna ZDARMA nad 2 500 Kč</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Shield className="h-6 w-6 text-[#931e31] flex-shrink-0 mt-1" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Bezpečná platba</h3>
-                      <p className="text-sm text-gray-600">Platba kartou nebo na dobírku</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Ruler className="h-6 w-6 text-[#931e31] flex-shrink-0 mt-1" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Ruční výroba</h3>
-                      <p className="text-sm text-gray-600">Každý kousek je unikát vyrobený s láskou</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Tabs s dalšími informacemi */}
-            <div id="product-tabs" className="mt-16">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="w-full justify-start bg-gradient-to-r from-pink-50/50 to-rose-50/50 rounded-2xl h-auto p-1.5 sm:p-2">
-                  <TabsTrigger 
-                    value="popis" 
-                    className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#931e31] data-[state=active]:shadow-md px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base transition-all duration-300"
-                  >
-                    Popis
-                  </TabsTrigger>
-                  {hasBra && (
-                    <TabsTrigger 
-                      value="mereni" 
-                      className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#931e31] data-[state=active]:shadow-md px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base transition-all duration-300"
-                    >
-                      <Ruler className="mr-1.5 sm:mr-2 h-4 w-4" />
-                      Jak měřit
-                    </TabsTrigger>
-                  )}
-                </TabsList>
-                
-                <TabsContent value="popis" className="py-8">
-                  <Card className="border-0 rounded-3xl soft-shadow-lg bg-white">
-                    <CardContent className="p-5 sm:p-8">
-                      <div className="prose prose-lg max-w-none">
-                        <h3 className="text-xl sm:text-2xl font-bold mb-4">O produktu</h3>
-                        <p className="text-gray-600 leading-relaxed">
-                          {product.description || 'Detailní popis produktu bude doplněn.'}
-                        </p>
-                        <h4 className="text-xl font-semibold mt-6 mb-3">Materiál a péče</h4>
-                        <ul className="space-y-2 text-gray-600">
-                          <li>• Vysoce kvalitní materiály pro maximální pohodlí</li>
-                          <li>• Ruční výroba s důrazem na detail</li>
-                          <li>• Praní v ruce nebo maximálně na 30 stupňů</li>
-                          <li>• Nesušit v sušičce</li>
-                        </ul>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                
-                {hasBra && (
-                  <TabsContent value="mereni" className="py-8">
-                    <Card className="border-0 rounded-3xl soft-shadow-lg bg-white">
-                      <CardContent className="p-5 sm:p-8">
-                        <h3 className="text-xl sm:text-2xl font-bold mb-6">
-                          Návod k měření - {isBralette ? 'Braletková podprsenka' : 'Podprsenka s kosticemi'}
-                        </h3>
-                        <p className="text-gray-600 mb-6 leading-relaxed">
-                          Pro správnou volbu velikosti použijte níže uvedenou měřící tabulku. 
-                          Doporučujeme měřit tělo bez oblečení pro co nejpřesnější výsledek.
-                        </p>
-                        <div className="bg-gradient-to-br from-pink-50/50 to-purple-50/50 rounded-3xl p-6 border border-pink-100/50 max-w-2xl mx-auto">
-                          <Image
-                            src={isBralette ? '/merici_tabulka_braletka.png' : '/merici_tabulka_kostice.png'}
-                            alt={isBralette ? 'Měřící tabulka - Braletková' : 'Měřící tabulka - S kosticemi'}
-                            width={800}
-                            height={600}
-                            className="w-full h-auto rounded-xl shadow-md"
-                          />
-                        </div>
-                        <div className="mt-6 p-4 bg-[#931e31]/5 border-l-4 border-[#931e31]">
-                          <p className="text-sm text-gray-700">
-                            <strong>Tip:</strong> Pokud si nejste jistí velikostí, <Link href="/kontakty#kontaktni-formular" className="text-[#931e31] hover:text-[#b8263d] font-semibold underline">kontaktujte nás</Link>. 
-                            Rádi vám poradíme s výběrem správné velikosti.
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                )}
-              </Tabs>
-            </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
+      <script
+        type="application/ld+json"
+        // "<" escapujeme, aby text z databáze nemohl ukončit <script> tag
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <ProductDetail product={product} />
     </>
   )
 }

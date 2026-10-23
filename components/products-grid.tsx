@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 import Link from 'next/link'
 import { getDisplayPrice } from '@/lib/set-config-types'
 
@@ -92,10 +93,12 @@ export function ProductsGrid({ products }: ProductsGridProps) {
                   <CardHeader className="p-0 cursor-pointer">
                     <div className="aspect-[3/4] bg-gray-100 relative overflow-hidden">
                       {images.length > 0 ? (
-                        <img 
-                          src={images[0]} 
+                        <Image
+                          src={images[0]}
                           alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          fill
+                          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium">

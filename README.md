@@ -45,7 +45,7 @@ Vzor je v [`.env.example`](.env.example). Na Vercelu se nastavují v *Settings �
 | `MAILTRAP_HOST`, `MAILTRAP_PORT`, `MAILTRAP_USER`, `MAILTRAP_PASS` | ano | SMTP pro odesílání e-mailů |
 | `EMAIL_FROM` | ano | odesílatel e-mailů |
 | `SELLER_EMAIL` | ano | kam chodí upozornění na objednávky a zprávy z kontaktního formuláře |
-| `ZASILKOVNA_API_KEY` | ano | API klíč Zásilkovny – **pouze serverová proměnná, bez `NEXT_PUBLIC_`** |
+| `ZASILKOVNA_API_KEY` | ano | API klíč Zásilkovny pro mapový widget (API *heslo* se nepoužívá) |
 | `BLOB_READ_WRITE_TOKEN` | ano | Vercel Blob – nahrávání obrázků produktů |
 | `NEXT_PUBLIC_URL` | ano | veřejná adresa webu (odkazy v e-mailech, sitemap) |
 | `BANK_ACCOUNT_NUMBER`, `BANK_CODE` | ano | účet pro QR platby |
@@ -92,6 +92,11 @@ Pokud krok 1 vypíše rozdíly, nejdřív je vyřeš (neaplikuj migraci naslepo)
 
 Doprava: Z-BOX 69 Kč, zdarma od 2 500 Kč (po slevě); dobírka +30 Kč; osobní odběr Havířov / Frenštát zdarma.
 
+- **Z-BOX** si zákazník vybírá na mapě v oficiálním widgetu Zásilkovny (`lib/zasilkovna-zbox.ts`,
+  klíč poskytuje `/api/zasilkovna/config`).
+- **Místa osobního odběru** (adresy prodejen) jsou na jednom místě v `lib/pickup-locations.ts` –
+  používá je checkout, administrace i e-maily.
+
 ### Stavy objednávky
 
 `new` → `in_production` → `ready_to_ship` → `shipped` → `delivered`, případně `rejected` / `cancelled`.
@@ -121,6 +126,11 @@ Server kontroluje platnost, minimální částku i maximální počet použití.
 
 `components/InstagramFeed.tsx` – seznam příspěvků (obrázek v `public/instagram/post-N.jpg` + odkaz na post).
 Nový příspěvek = ulož obrázek do `public/instagram/` a přidej položku do pole v komponentě.
+
+### Detail produktu a SEO
+
+Detail produktu (`app/produkt/[id]`) se vykresluje na serveru a cachuje na 60 s: má vlastní titulek, popis,
+canonical URL, náhled pro sdílení (Open Graph) a strukturovaná data Product (cena, dostupnost) pro Google.
 
 ## Struktura
 

@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { saveAppliedDiscount } from '@/lib/pricing'
+import { toast } from 'sonner'
 
 export default function OrderSummaryPage() {
   const router = useRouter()
@@ -25,6 +26,13 @@ export default function OrderSummaryPage() {
     }
     setOrderData(JSON.parse(data))
   }, [router])
+
+  // Po odeslání objednávky zobrazíme potvrzení od začátku stránky
+  useEffect(() => {
+    if (orderSubmitted) {
+      window.scrollTo({ top: 0 })
+    }
+  }, [orderSubmitted])
 
   const handleSubmitOrder = async () => {
     if (!orderData) return
@@ -51,18 +59,14 @@ export default function OrderSummaryPage() {
         
         setSubmittedOrderNumber(result.order.orderNumber)
         
-        // Pokud je platba QR kódem, zobrazíme QR kód
+        // QR platba zobrazí QR kód, ostatní platby jen potvrzení objednávky
         if (orderData.payment.method === 'qr_code' && result.qrPaymentData) {
           setQrPaymentData(result.qrPaymentData)
-          setOrderSubmitted(true)
-        } else {
-          // Pro dobírku přesměrujeme na děkovnou stránku
-          alert(`Děkujeme za objednávku! Číslo objednávky: ${result.order.orderNumber}\n\nBrzy vás budeme kontaktovat s potvrzením.`)
-          router.push('/')
         }
+        setOrderSubmitted(true)
       } else if (response.status >= 400 && response.status < 500 && result.message) {
         // Chyba validace ze serveru (např. změněné ceny) – ukážeme konkrétní důvod
-        alert(result.message)
+        toast.error(result.message)
         if (result.code === 'DISCOUNT_INVALID') {
           // Neplatný/vyčerpaný kód odebereme, zákazník ho uvidí v košíku
           saveAppliedDiscount(null)
@@ -75,7 +79,7 @@ export default function OrderSummaryPage() {
       }
     } catch (error) {
       console.error('Error submitting order:', error)
-      alert('Chyba při odesílání objednávky. Zkuste to prosím znovu nebo nás kontaktujte.')
+      toast.error('Chyba při odesílání objednávky. Zkuste to prosím znovu nebo nás kontaktujte.')
     } finally {
       setIsSubmitting(false)
     }
@@ -109,9 +113,52 @@ export default function OrderSummaryPage() {
         return 'QR platba'
       case 'cod':
         return 'Dobírka'
+      case 'store_payment':
+        return 'Platba na prodejně'
       default:
         return method
     }
+  }
+
+  // Potvrzení objednávky bez QR platby (dobírka, platba na prodejně)
+  if (orderSubmitted && !qrPaymentData) {
+    const isPickup = orderData.shipping.method === 'personal'
+    return (
+      <>
+        <main className="min-h-screen bg-gradient-to-b from-white via-pink-50/10 to-white">
+          <section className="py-16">
+            <div className="container max-w-2xl text-center">
+              <CheckCircle className="h-20 w-20 text-green-600 mx-auto mb-4" />
+              <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight">Děkujeme za objednávku!</h1>
+              <p className="text-xl text-gray-600 mb-8">
+                Číslo objednávky: <strong className="text-[#931e31]">{submittedOrderNumber}</strong>
+              </p>
+              <Card className="border-0 rounded-3xl soft-shadow-lg mb-8 text-left">
+                <CardContent className="p-6 sm:p-8 space-y-3 text-gray-700">
+                  <p>Potvrzení jsme vám poslali na e-mail <strong>{orderData.customer.email}</strong>.</p>
+                  <p>
+                    {orderData.payment.method === 'cod'
+                      ? 'Objednávku zaplatíte při převzetí zásilky v Z-BOXu.'
+                      : 'Objednávku zaplatíte při vyzvednutí na prodejně.'}
+                  </p>
+                  <p>
+                    {isPickup
+                      ? 'Jakmile bude objednávka připravená k vyzvednutí, dáme vám vědět e-mailem.'
+                      : 'Jakmile objednávku odešleme, pošleme vám e-mail se sledovacím číslem zásilky.'}
+                  </p>
+                </CardContent>
+              </Card>
+              <Link href="/obchod">
+                <Button className="bg-gradient-to-r from-[#931e31] to-[#b8263d] text-white rounded-full px-8 py-6 text-lg">
+                  Pokračovat v nákupu
+                </Button>
+              </Link>
+            </div>
+          </section>
+        </main>
+        <Footer />
+      </>
+    )
   }
 
   // Pokud je objednávka odeslána a máme QR kód, zobrazíme potvrzovací stránku s QR kódem
@@ -137,6 +184,8 @@ export default function OrderSummaryPage() {
                     
                     <div className="flex justify-center">
                       <div className="bg-white p-6 rounded-2xl shadow-xl border-4 border-[#931e31]">
+                        {/* QR kód generuje externí služba dynamicky – optimalizace přes next/image nedává smysl */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
                           src={qrPaymentData.qrCodeURL} 
                           alt="QR kód pro platbu" 

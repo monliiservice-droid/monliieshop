@@ -10,6 +10,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
 import { getSubscriptionName, getSubscriptionPrice, type SubscriptionPlan } from '@/lib/pricing'
+import { toast } from 'sonner'
 
 export default function PredplatnePage() {
   const [selectedPlan, setSelectedPlan] = useState<3 | 6 | 12 | null>(null)
@@ -47,12 +48,12 @@ export default function PredplatnePage() {
     // Validace - u braletky není potřeba košíček
     if (braType === 'wired') {
       if (!measurements.size || !measurements.group || !measurements.pantiesSize) {
-        alert('Prosím vyplňte všechny rozměry')
+        toast.error('Prosím vyplňte všechny rozměry')
         return
       }
     } else {
       if (!measurements.size || !measurements.pantiesSize) {
-        alert('Prosím vyplňte všechny rozměry')
+        toast.error('Prosím vyplňte všechny rozměry')
         return
       }
     }
@@ -90,7 +91,7 @@ export default function PredplatnePage() {
       setMeasurements({ size: '', group: '', pantiesSize: '' })
     } catch (error) {
       console.error('Error adding to cart:', error)
-      alert('Chyba při přidávání do košíku. Zkuste to prosím znovu.')
+      toast.error('Chyba při přidávání do košíku. Zkuste to prosím znovu.')
     }
   }
 

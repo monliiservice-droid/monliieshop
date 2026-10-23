@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { Store, FileText } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 
 export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
@@ -58,14 +59,14 @@ export default function SettingsPage() {
       })
       
       if (res.ok) {
-        alert('Fakturační údaje uloženy')
+        toast.success('Fakturační údaje uloženy')
         await fetchCompanySettings()
       } else {
-        alert('Chyba při ukládání')
+        toast.error('Chyba při ukládání')
       }
     } catch (error) {
       console.error('Error saving company settings:', error)
-      alert('Chyba při ukládání')
+      toast.error('Chyba při ukládání')
     } finally {
       setSaving(false)
     }

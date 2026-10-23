@@ -13,6 +13,7 @@ import Image from 'next/image'
 import { CATEGORY_GROUPS } from '@/lib/product-types'
 import imageCompression from 'browser-image-compression'
 import { DEFAULT_SET_CONFIG, SetConfiguration } from '@/lib/set-config-types'
+import { toast } from 'sonner'
 
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -75,12 +76,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             }
           }
         } else {
-          alert('Produkt nenalezen')
+          toast.error('Produkt nenalezen')
           router.push('/admin/produkty')
         }
       } catch (error) {
         console.error('Error loading product:', error)
-        alert('Chyba při načítání produktu')
+        toast.error('Chyba při načítání produktu')
       } finally {
         setLoading(false)
       }
@@ -189,7 +190,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         if (validPrices.length > 0) {
           finalPrice = Math.min(...validPrices)
         } else {
-          alert('Musíte nastavit alespoň jednu cenu pro varianty setu!')
+          toast.error('Musíte nastavit alespoň jednu cenu pro varianty setu!')
           throw new Error('Žádné ceny nastavené pro set')
         }
       } else {
@@ -217,11 +218,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         router.push('/admin/produkty')
         router.refresh()
       } else {
-        alert('Chyba při ukládání produktu')
+        toast.error('Chyba při ukládání produktu')
       }
     } catch (error) {
       console.error('Error saving product:', error)
-      alert('Chyba při ukládání produktu')
+      toast.error('Chyba při ukládání produktu')
     } finally {
       setSaving(false)
     }

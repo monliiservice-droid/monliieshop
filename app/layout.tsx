@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Lora } from "next/font/google";
 import "./globals.css";
 import { CookieConsent } from "@/components/cookie-consent";
+import { Toaster } from "@/components/ui/sonner";
 import { WelcomeNotice } from "@/components/welcome-notice";
 
 const lora = Lora({
@@ -18,9 +19,6 @@ export const metadata: Metadata = {
   creator: 'Monlii',
   publisher: 'Monlii',
   metadataBase: new URL(process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'),
-  alternates: {
-    canonical: '/',
-  },
   manifest: '/site.webmanifest',
   icons: {
     icon: [
@@ -41,7 +39,6 @@ export const metadata: Metadata = {
     description: "Objevte krásné a pohodlné spodní prádlo, které šije zkušená švadlena. Každý kousek je unikátní a podporuje rodinnou výrobu a české ruční řemeslo.",
     type: 'website',
     locale: 'cs_CZ',
-    url: 'https://monlii.cz',
     siteName: 'Monlii',
     images: [
       {
@@ -83,6 +80,7 @@ export default function RootLayout({
       >
         {children}
         <CookieConsent />
+        <Toaster theme="light" position="top-center" richColors closeButton />
         <WelcomeNotice />
       </body>
     </html>

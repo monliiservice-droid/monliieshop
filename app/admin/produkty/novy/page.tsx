@@ -13,6 +13,7 @@ import Image from 'next/image'
 import { CATEGORY_GROUPS } from '@/lib/product-types'
 import imageCompression from 'browser-image-compression'
 import { DEFAULT_SET_CONFIG, SetConfiguration } from '@/lib/set-config-types'
+import { toast } from 'sonner'
 
 export default function NewProductPage() {
   const router = useRouter()
@@ -131,7 +132,7 @@ export default function NewProductPage() {
         if (validPrices.length > 0) {
           finalPrice = Math.min(...validPrices)
         } else {
-          alert('Musíte nastavit alespoň jednu cenu pro varianty setu!')
+          toast.error('Musíte nastavit alespoň jednu cenu pro varianty setu!')
           throw new Error('Žádné ceny nastavené pro set')
         }
       } else {
@@ -159,11 +160,11 @@ export default function NewProductPage() {
         router.push('/admin/produkty')
         router.refresh()
       } else {
-        alert('Chyba při vytváření produktu')
+        toast.error('Chyba při vytváření produktu')
       }
     } catch (error) {
       console.error('Error creating product:', error)
-      alert('Chyba při vytváření produktu')
+      toast.error('Chyba při vytváření produktu')
     } finally {
       setLoading(false)
     }

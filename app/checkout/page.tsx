@@ -9,7 +9,7 @@ import { CreditCard, ArrowLeft, ArrowRight, MapPin, Truck, Building2 } from 'luc
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ZASILKOVNA_CONFIG, type ZBoxPoint } from '@/lib/zasilkovna-zbox'
+import { ZASILKOVNA_CONFIG, pickZBox, type ZBoxPoint } from '@/lib/zasilkovna-zbox'
 import {
   COD_FEE,
   calculateDiscountAmount,
@@ -20,6 +20,8 @@ import {
   type PaymentMethod,
   type ShippingMethod,
 } from '@/lib/pricing'
+import { toast } from 'sonner'
+import { PICKUP_LOCATIONS } from '@/lib/pickup-locations'
 
 interface CartItem {
   id: string
@@ -37,8 +39,9 @@ export default function CheckoutPage() {
   const [isCompany, setIsCompany] = useState(false)
   const [appliedDiscount, setAppliedDiscount] = useState<AppliedDiscount | null>(null)
   const [personalPickupLocation, setPersonalPickupLocation] = useState<'havirov' | 'frenstat' | null>(null)
-  const [nearestZBox, setNearestZBox] = useState<ZBoxPoint | null>(null)
+  const [selectedZBox, setSelectedZBox] = useState<ZBoxPoint | null>(null)
   const [isLoadingZBox, setIsLoadingZBox] = useState(false)
+  const [zBoxError, setZBoxError] = useState('')
   const [formData, setFormData] = useState({
     email: '',
     phone: '',
@@ -70,48 +73,23 @@ export default function CheckoutPage() {
     loadCart()
   }, [])
 
-  // Auto-find nearest Z-BOX when address is complete
-  useEffect(() => {
-    const findZBox = async () => {
-      if (
-        shippingMethod === 'zbox' &&
-        formData.address &&
-        formData.city &&
-        formData.zip &&
-        formData.address.length > 3 &&
-        formData.city.length > 2 &&
-        formData.zip.length >= 5
-      ) {
-        setIsLoadingZBox(true)
-        try {
-          const response = await fetch('/api/zasilkovna/nearest-zbox', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              street: formData.address,
-              city: formData.city,
-              zip: formData.zip,
-            }),
-          })
-
-          if (response.ok) {
-            const data = await response.json()
-            if (data.success && data.zbox) {
-              setNearestZBox(data.zbox)
-            }
-          }
-        } catch (error) {
-          console.error('Error finding Z-BOX:', error)
-        } finally {
-          setIsLoadingZBox(false)
-        }
+  // Výběr Z-BOXu na mapě Zásilkovny
+  const handlePickZBox = async () => {
+    setShippingMethod('zbox')
+    setIsLoadingZBox(true)
+    setZBoxError('')
+    try {
+      const point = await pickZBox()
+      if (point) {
+        setSelectedZBox(point)
       }
+    } catch (error) {
+      console.error('Error opening Zásilkovna widget:', error)
+      setZBoxError('Mapu Zásilkovny se nepodařilo načíst. Zkuste to prosím znovu.')
+    } finally {
+      setIsLoadingZBox(false)
     }
-
-    // Debounce the search
-    const timeoutId = setTimeout(findZBox, 1000)
-    return () => clearTimeout(timeoutId)
-  }, [formData.address, formData.city, formData.zip, shippingMethod])
+  }
 
 
   const getTotalPrice = () => {
@@ -160,20 +138,20 @@ export default function CheckoutPage() {
     e.preventDefault()
     
     // Validace Z-BOX
-    if (shippingMethod === 'zbox' && !nearestZBox) {
-      alert('Nejbližší Z-BOX nebyl nalezen. Prosím zkontrolujte vaši adresu.')
+    if (shippingMethod === 'zbox' && !selectedZBox) {
+      toast.error('Vyberte prosím Z-BOX, kam vám zásilku doručíme.')
       return
     }
     
     // Validace místa osobního odběru
     if (shippingMethod === 'personal' && !personalPickupLocation) {
-      alert('Prosím vyberte místo osobního odběru (Havířov nebo Frenštát)')
+      toast.error('Prosím vyberte místo osobního odběru (Havířov nebo Frenštát)')
       return
     }
     
     // Validace firemních údajů
     if (isCompany && (!formData.company || !formData.ico)) {
-      alert('Prosím vyplňte všechny povinné firemní údaje')
+      toast.error('Prosím vyplňte všechny povinné firemní údaje')
       return
     }
     
@@ -197,8 +175,8 @@ export default function CheckoutPage() {
       shipping: {
         method: shippingMethod,
         price: getShippingPrice(),
-        ...(shippingMethod === 'zbox' && nearestZBox && {
-          zbox: nearestZBox
+        ...(shippingMethod === 'zbox' && selectedZBox && {
+          zbox: selectedZBox
         }),
         ...(shippingMethod === 'personal' && personalPickupLocation && {
           personalLocation: personalPickupLocation
@@ -449,7 +427,7 @@ export default function CheckoutPage() {
                           </div>
                           <div>
                             <h3 className="font-semibold">Zásilkovna Z-BOX</h3>
-                            <p className="text-sm text-gray-600">Automatický výdejní box nejblíže vaší adrese</p>
+                            <p className="text-sm text-gray-600">Výdejní box Zásilkovny dle vašeho výběru</p>
                           </div>
                         </div>
                         <span className="font-bold text-[#931e31]">
@@ -457,27 +435,37 @@ export default function CheckoutPage() {
                         </span>
                       </div>
 
-                      {/* Nearest Z-BOX Display */}
+                      {/* Výběr Z-BOXu */}
                       {shippingMethod === 'zbox' && (
-                        <div className="mt-3 pt-3 border-t border-pink-200">
-                          {isLoadingZBox ? (
-                            <div className="p-3 bg-blue-50 rounded-xl border border-blue-200 text-center">
-                              <p className="text-sm text-blue-700">🔍 Hledám nejbližší Z-BOX...</p>
-                            </div>
-                          ) : nearestZBox ? (
+                        <div className="mt-3 pt-3 border-t border-pink-200 space-y-3">
+                          {selectedZBox ? (
                             <div className="p-3 bg-green-50 rounded-xl border border-green-200">
-                              <p className="text-sm font-medium text-green-800">✓ Nejbližší Z-BOX:</p>
-                              <p className="text-sm font-semibold text-green-900 mt-1">{nearestZBox.name}</p>
-                              <p className="text-xs text-green-700">{nearestZBox.street}</p>
-                              <p className="text-xs text-green-700">{nearestZBox.city}, {nearestZBox.zip}</p>
+                              <p className="text-sm font-medium text-green-800">✓ Vybraný Z-BOX:</p>
+                              <p className="text-sm font-semibold text-green-900 mt-1">{selectedZBox.name}</p>
+                              <p className="text-xs text-green-700">{selectedZBox.street}</p>
+                              <p className="text-xs text-green-700">{selectedZBox.city}, {selectedZBox.zip}</p>
                             </div>
                           ) : (
                             <div className="p-3 bg-yellow-50 rounded-xl border border-yellow-200">
                               <p className="text-sm text-yellow-800">
-                                ℹ️ Vyplňte vaši adresu výše a automaticky najdeme nejbližší Z-BOX
+                                ℹ️ Vyberte na mapě Z-BOX, kam vám zásilku doručíme
                               </p>
                             </div>
                           )}
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handlePickZBox()
+                            }}
+                            disabled={isLoadingZBox}
+                            className="w-full rounded-xl border-[#931e31] text-[#931e31] hover:bg-pink-50"
+                          >
+                            <MapPin className="mr-2 h-4 w-4" />
+                            {isLoadingZBox ? 'Načítám mapu…' : selectedZBox ? 'Změnit Z-BOX' : 'Vybrat Z-BOX na mapě'}
+                          </Button>
+                          {zBoxError && <p className="text-xs text-red-500">{zBoxError}</p>}
                         </div>
                       )}
                     </div>
@@ -533,9 +521,9 @@ export default function CheckoutPage() {
                                   )}
                                 </div>
                                 <div>
-                                  <p className="font-semibold text-gray-900">Havířov</p>
-                                  <p className="text-xs text-gray-600 mt-1">Hlavní 1234</p>
-                                  <p className="text-xs text-gray-600">736 01 Havířov</p>
+                                  <p className="font-semibold text-gray-900">{PICKUP_LOCATIONS.havirov.name}</p>
+                                  <p className="text-xs text-gray-600 mt-1">{PICKUP_LOCATIONS.havirov.address}</p>
+                                  <p className="text-xs text-gray-600">{PICKUP_LOCATIONS.havirov.zip} {PICKUP_LOCATIONS.havirov.city}</p>
                                 </div>
                               </div>
                             </div>
@@ -560,9 +548,9 @@ export default function CheckoutPage() {
                                   )}
                                 </div>
                                 <div>
-                                  <p className="font-semibold text-gray-900">Frenštát pod Radhoštěm</p>
-                                  <p className="text-xs text-gray-600 mt-1">Hlavní 5678</p>
-                                  <p className="text-xs text-gray-600">744 01 Frenštát p. R.</p>
+                                  <p className="font-semibold text-gray-900">{PICKUP_LOCATIONS.frenstat.name}</p>
+                                  <p className="text-xs text-gray-600 mt-1">{PICKUP_LOCATIONS.frenstat.address}</p>
+                                  <p className="text-xs text-gray-600">{PICKUP_LOCATIONS.frenstat.zip} {PICKUP_LOCATIONS.frenstat.city}</p>
                                 </div>
                               </div>
                             </div>
@@ -718,13 +706,13 @@ export default function CheckoutPage() {
 
                       <Button 
                         type="submit"
-                        disabled={shippingMethod === 'zbox' && !nearestZBox}
+                        disabled={shippingMethod === 'zbox' && !selectedZBox}
                         className="w-full bg-gradient-to-r from-[#931e31] to-[#b8263d] hover:from-[#6b1623] hover:to-[#931e31] text-white py-7 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
-                        {shippingMethod === 'zbox' && !nearestZBox ? (
+                        {shippingMethod === 'zbox' && !selectedZBox ? (
                           <>
                             <MapPin className="mr-2 h-5 w-5" />
-                            Vyplňte vaši adresu pro nalezení Z-BOXu
+                            Vyberte Z-BOX pro doručení
                           </>
                         ) : (
                           <>
@@ -733,9 +721,9 @@ export default function CheckoutPage() {
                           </>
                         )}
                       </Button>
-                      {shippingMethod === 'zbox' && !nearestZBox && (
+                      {shippingMethod === 'zbox' && !selectedZBox && (
                         <p className="text-xs text-red-500 text-center mt-2">
-                          ⚠️ Pro dokončení objednávky vyplňte vaši adresu
+                          ⚠️ Pro dokončení objednávky vyberte Z-BOX v sekci Způsob dopravy
                         </p>
                       )}
                     </div>
