@@ -82,6 +82,15 @@ export interface TextData {
   align: 'left' | 'center'
 }
 
+export interface CustomImageData {
+  image: string
+  mobileImage: string
+  alt: string
+  link: string
+  width: 'full' | 'container'
+  spacing: 'none' | 'normal'
+}
+
 export interface SectionDataMap {
   hero: HeroData
   categoryTiles: CategoryTilesData
@@ -93,6 +102,7 @@ export interface SectionDataMap {
   reviews: ReviewsData
   instagram: InstagramData
   text: TextData
+  customImage: CustomImageData
 }
 
 export type SectionType = keyof SectionDataMap
@@ -116,6 +126,7 @@ export const SECTION_TYPE_LABELS: Record<SectionType, { label: string; descripti
   reviews: { label: 'Recenze', description: 'Krátké citace zákazníků' },
   instagram: { label: 'Instagram', description: 'Fotky z Instagramu s odkazy' },
   text: { label: 'Text', description: 'Samostatný odstavec textu' },
+  customImage: { label: 'Vlastní grafika', description: 'Vlastní obrázek (např. z Canvy) v SVG nebo PNG' },
 }
 
 export const SECTION_TYPES = Object.keys(SECTION_TYPE_LABELS) as SectionType[]
@@ -233,6 +244,14 @@ export const DEFAULT_SECTION_DATA: SectionDataMap = {
     title: 'Nadpis',
     text: 'Text sekce.',
     align: 'center',
+  },
+  customImage: {
+    image: '',
+    mobileImage: '',
+    alt: '',
+    link: '',
+    width: 'full',
+    spacing: 'none',
   },
 }
 

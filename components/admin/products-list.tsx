@@ -22,6 +22,7 @@ interface Product {
   name: string
   price: number
   stock: number
+  allowBackorder?: boolean
   category: string | null
   sortOrder: number
   isSet?: boolean
@@ -151,6 +152,8 @@ export function ProductsList({ initialProducts }: ProductsListProps) {
                   <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
                     Skladem
                   </Badge>
+                ) : product.allowBackorder ? (
+                  <Badge variant="outline">Na zakázku</Badge>
                 ) : (
                   <Badge variant="destructive">Vyprodáno</Badge>
                 )}

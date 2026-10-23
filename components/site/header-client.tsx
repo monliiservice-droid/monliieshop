@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ChevronDown, Menu, ShoppingBag, X } from 'lucide-react'
@@ -226,7 +227,9 @@ export function HeaderClient({ navigation }: { navigation: SiteNavigation }) {
         </div>
       )}
 
-      {mobileOpen && <MobileMenu navigation={navigation} onClose={() => setMobileOpen(false)} />}
+      {/* Menu se vykresluje mimo hlavičku: po odscrolování má hlavička backdrop-blur, který by „fixed“
+          menu uzavřel do své výšky */}
+      {mobileOpen && createPortal(<MobileMenu navigation={navigation} onClose={() => setMobileOpen(false)} />, document.body)}
     </header>
   )
 }

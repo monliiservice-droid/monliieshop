@@ -1,6 +1,7 @@
 // Katalog pro výpisy produktů (obchod, kategorie, výprodeje, sekce homepage).
 // Ceny už obsahují aktivní výprodejové slevy.
 
+import { isAvailable } from './product-stock'
 import { prisma } from './prisma'
 import { getDisplayPrice } from './set-config-types'
 import { applySaleDiscount } from './pricing'
@@ -80,6 +81,7 @@ export async function getProductCards(query: CatalogQuery = {}): Promise<Product
         setOptions: true,
         createdAt: true,
         hideWhenSoldOut: true,
+        allowBackorder: true,
       },
     })
   } catch (error) {
@@ -93,7 +95,7 @@ export async function getProductCards(query: CatalogQuery = {}): Promise<Product
     // Produkty ve skryté kategorii se ve výpisech neukazují
     .filter((p) => !p.categoryId || isCategoryPathVisible(tree, p.categoryId))
     // Vyprodaný produkt s volbou „skrýt při vyprodání“ se nezobrazuje
-    .filter((p) => !(p.hideWhenSoldOut && p.stock <= 0))
+    .filter((p) => !(p.hideWhenSoldOut && !isAvailable(p.stock, p.allowBackorder)))
     .filter((p) => !query.sale || saleAppliesTo(query.sale, p, tree))
     // Produkty z akcí s odděleným výpisem patří jen do výprodeje – v běžné nabídce a kategoriích se neukazují
     .filter((p) => query.sale || query.onlySale || !isSeparatedSaleProduct(p, sales, tree))
@@ -117,6 +119,7 @@ function toCard(
     name: string
     price: number
     stock: number
+    allowBackorder: boolean
     images: string
     categoryId: string | null
     isSet: boolean
@@ -140,7 +143,7 @@ function toCard(
     salePrice: sale ? applySaleDiscount(price, sale.discountPercent) : null,
     salePercent: sale ? sale.discountPercent : null,
     saleName: sale ? sale.name : null,
-    inStock: p.stock > 0,
+    inStock: isAvailable(p.stock, p.allowBackorder),
     categoryName: path.length ? path[path.length - 1].name : null,
     isNew: p.createdAt.getTime() >= newSince,
   }

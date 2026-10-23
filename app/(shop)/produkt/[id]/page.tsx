@@ -13,6 +13,7 @@ import { DEFAULT_SET_CONFIG, type SetConfiguration } from '@/lib/set-config-type
 import { getShopSettings } from '@/lib/site-settings-server'
 import { Breadcrumbs } from '@/components/site/breadcrumbs'
 import { ProductGallery } from '@/components/product/product-gallery'
+import { isAvailable, parseSizeOptions, resolveSizeType } from '@/lib/product-stock'
 import { ProductPurchase } from '@/components/product/product-purchase'
 import { ProductCard } from '@/components/site/product-card'
 import { ScrollRow } from '@/components/site/scroll-row'
@@ -38,10 +39,15 @@ const getProduct = cache(async (id: string) => {
       setOptions: true,
       colors: true,
       hideWhenSoldOut: true,
+      sizeType: true,
+      sizeOptions: true,
+      allowBackorder: true,
+      backorderLeadTime: true,
+      variants: { select: { size: true, color: true, stock: true } },
     },
   })
-  // Vyprodaný produkt s volbou „skrýt při vyprodání“ se na e-shopu neukazuje
-  return product && !(product.hideWhenSoldOut && product.stock <= 0) ? product : null
+  // Vyprodaný produkt s volbou „skrýt při vyprodání“ se na e-shopu neukazuje (produkt na zakázku vyprodaný není)
+  return product && !(product.hideWhenSoldOut && !isAvailable(product.stock, product.allowBackorder)) ? product : null
 })
 
 function parseJson<T>(value: string | null, fallback: T): T {
@@ -97,7 +103,7 @@ export default async function ProductPage({ params }: Props) {
   const setConfig: SetConfiguration | null = product.isSet
     ? { ...DEFAULT_SET_CONFIG, ...parseJson<Partial<SetConfiguration>>(product.setOptions, {}) }
     : null
-  const sizeType = getEffectiveSizeType(tree, product.categoryId)
+  const sizeType = resolveSizeType(product, getEffectiveSizeType(tree, product.categoryId))
   const sale = findBestSale(product, sales, tree)
   const path = getCategoryPath(tree, product.categoryId)
   // Produkt v akci s odděleným výpisem „patří“ do výprodeje, ne do své kategorie
@@ -125,7 +131,9 @@ export default async function ProductPage({ params }: Props) {
       url: `${baseUrl}/produkt/${product.id}`,
       priceCurrency: 'CZK',
       price: sale ? applySaleDiscount(basePrice, sale.discountPercent) : basePrice,
-      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      availability: product.stock > 0
+        ? 'https://schema.org/InStock'
+        : product.allowBackorder ? 'https://schema.org/BackOrder' : 'https://schema.org/OutOfStock',
     },
   }
 
@@ -171,6 +179,10 @@ export default async function ProductPage({ params }: Props) {
                   image: images[0] ?? null,
                   setConfig,
                   colors,
+                  sizeOptions: parseSizeOptions(product.sizeOptions),
+                  variants: product.variants,
+                  allowBackorder: product.allowBackorder,
+                  backorderLeadTime: product.backorderLeadTime,
                 }}
                 sizeType={sizeType}
                 salePercent={sale?.discountPercent ?? null}

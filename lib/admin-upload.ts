@@ -21,12 +21,25 @@ export async function compressImage(file: File): Promise<File> {
   }
 }
 
+const GRAPHIC_ORIGINAL_MAX_BYTES = 2 * 1024 * 1024
+
+/**
+ * Připraví soubor k nahrání. SVG se nikdy nepřevádí (zůstane ostré a malé).
+ * Vlastní grafika (text, loga z Canvy) se nahraje v originále, pokud není příliš velká –
+ * převod do WebP by rozmazal drobné písmo.
+ */
+async function prepareFile(file: File, graphic: boolean): Promise<File> {
+  if (file.type === 'image/svg+xml') return file
+  if (graphic && file.size <= GRAPHIC_ORIGINAL_MAX_BYTES) return file
+  return compressImage(file)
+}
+
 /** Nahraje obrázky do úložiště a vrátí jejich URL */
-export async function uploadImages(files: File[]): Promise<string[]> {
+export async function uploadImages(files: File[], options: { graphic?: boolean } = {}): Promise<string[]> {
   if (files.length === 0) return []
   const formData = new FormData()
   for (const file of files) {
-    formData.append('files', await compressImage(file))
+    formData.append('files', await prepareFile(file, options.graphic === true))
   }
   const response = await fetch('/api/upload', { method: 'POST', body: formData })
   const result = await response.json().catch(() => ({}))

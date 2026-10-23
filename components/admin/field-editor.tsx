@@ -125,7 +125,18 @@ function FieldEditor({
         </div>
       )
     case 'image':
-      return <ImageField label={field.label} value={value ?? ''} onChange={onChange} aspect={field.aspect} hint={field.hint} />
+      return <ImageField label={field.label} value={value ?? ''} onChange={onChange} aspect={field.aspect} hint={field.hint} graphic={field.graphic} />
+    case 'note':
+      return (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          <p className="font-medium">{field.title}</p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            {field.lines.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      )
     case 'button': {
       const button = value ?? { text: '', link: '' }
       return (

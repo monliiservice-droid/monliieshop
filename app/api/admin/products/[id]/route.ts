@@ -20,7 +20,7 @@ export async function GET(
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
-        variants: true
+        variants: { select: { size: true, color: true, stock: true } }
       }
     })
 
@@ -52,12 +52,22 @@ export async function PUT(
   }
 
   const { id } = await params
-  const data = parseProductInput(await request.json())
-  const error = validateProduct(data)
+  const input = parseProductInput(await request.json())
+  const error = validateProduct(input)
   if (error) return badRequest(error)
+  const { data, variants } = input
 
   try {
-    const product = await prisma.product.update({ where: { id }, data })
+    // Sklad po variantách se při uložení nahradí tím, co je ve formuláři
+    const product = await prisma.$transaction(async (tx) => {
+      if (variants) {
+        await tx.productVariant.deleteMany({ where: { productId: id } })
+        if (variants.length > 0) {
+          await tx.productVariant.createMany({ data: variants.map((v) => ({ ...v, productId: id })) })
+        }
+      }
+      return tx.product.update({ where: { id }, data })
+    })
     revalidateStorefront()
     return NextResponse.json(product)
   } catch (err) {

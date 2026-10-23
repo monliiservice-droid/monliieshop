@@ -10,12 +10,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const data = parseProductInput(await request.json())
-  const error = validateProduct(data)
+  const input = parseProductInput(await request.json())
+  const error = validateProduct(input)
   if (error) return badRequest(error)
 
   try {
-    const product = await prisma.product.create({ data })
+    const product = await prisma.product.create({
+      data: {
+        ...input.data,
+        ...(input.variants && input.variants.length > 0 && { variants: { create: input.variants } }),
+      },
+    })
     revalidateStorefront()
     return NextResponse.json(product, { status: 201 })
   } catch (err) {

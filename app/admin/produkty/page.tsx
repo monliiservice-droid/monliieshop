@@ -21,6 +21,7 @@ async function getProducts() {
         name: true,
         price: true,
         stock: true,
+        allowBackorder: true,
         sortOrder: true,
         isSet: true,
         setOptions: true,

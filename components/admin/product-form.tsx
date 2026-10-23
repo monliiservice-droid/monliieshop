@@ -13,7 +13,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { type SetConfiguration } from '@/lib/set-config-types'
 import { EMPTY_PRODUCT_VALUES, type Color, type ProductFormValues } from '@/lib/product-form-values'
-import { SIZE_TYPE_LABELS } from '@/lib/product-types'
+import { isSizeType } from '@/lib/product-types'
+import { ProductStockEditor, cellValue, selectedOptions, stockGrid } from '@/components/admin/product-stock-editor'
 import { effectiveSizeType, flattenCategories, type CategoryOption } from '@/lib/category-options'
 import { uploadImages } from '@/lib/admin-upload'
 
@@ -44,7 +45,8 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
   }, [])
 
   const categoryOptions = useMemo(() => flattenCategories(categories), [categories])
-  const sizeType = effectiveSizeType(categories, values.categoryId)
+  const categorySizeType = effectiveSizeType(categories, values.categoryId)
+  const sizeType = isSizeType(values.sizeType) ? values.sizeType : categorySizeType
   const isSet = sizeType === 'set'
 
   const update = <K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) =>
@@ -92,6 +94,29 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
       price = Math.min(...prices)
     }
 
+    // Sklad po variantách: každá nabízená kombinace velikost × barva
+    const { fields, sizes, colors } = stockGrid(values, sizeType)
+    const variants: { size: string; color: string; stock: number }[] = []
+    if (values.stockMode === 'variants') {
+      for (const size of sizes) {
+        for (const color of colors) {
+          const cell = cellValue(values, size, color)
+          if (cell === 'off') continue
+          const stock = Number(cell)
+          if (cell === '' || !Number.isInteger(stock) || stock < 0) {
+            toast.error(`Zadejte počet kusů pro ${[size, color].filter(Boolean).join(' / ') || 'produkt'}`)
+            return
+          }
+          variants.push({ size, color, stock })
+        }
+      }
+      if (variants.length === 0) {
+        toast.error('Nabídněte alespoň jednu kombinaci velikosti a barvy')
+        return
+      }
+    }
+    const sizeOptions = Object.fromEntries(fields.map((field) => [field.name, selectedOptions(values, field)]))
+
     setSaving(true)
     try {
       const response = await fetch(productId ? `/api/admin/products/${productId}` : '/api/admin/products', {
@@ -101,7 +126,12 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
           name: values.name,
           description: values.description,
           price,
-          stock: parseInt(values.stock, 10),
+          stock: values.stockMode === 'single' ? parseInt(values.stock, 10) : 0,
+          variants,
+          sizeType: values.sizeType || null,
+          sizeOptions,
+          allowBackorder: values.allowBackorder,
+          backorderLeadTime: values.backorderLeadTime,
           categoryId: values.categoryId || null,
           images: JSON.stringify(values.images),
           colors: JSON.stringify(values.colors),
@@ -167,10 +197,6 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-gray-500">
-                  Velikosti: <strong>{SIZE_TYPE_LABELS[sizeType]}</strong>. Typ velikostí se nastavuje u kategorie v sekci{' '}
-                  <Link href="/admin/kategorie" className="underline">Kategorie</Link>.
-                </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 {!isSet && (
@@ -179,10 +205,6 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
                     <Input id="price" type="number" min="0" step="1" required value={values.price} onChange={(e) => update('price', e.target.value)} />
                   </div>
                 )}
-                <div className="space-y-2">
-                  <Label htmlFor="stock">Skladem (ks) *</Label>
-                  <Input id="stock" type="number" min="0" step="1" required value={values.stock} onChange={(e) => update('stock', e.target.value)} />
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -318,9 +340,12 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
                   ))}
                 </div>
               )}
-              <p className="text-xs text-gray-500">Pokud produkt existuje jen v jedné barvě, nechte prázdné.</p>
+              <p className="text-xs text-gray-500">Pokud produkt existuje jen v jedné barvě, nechte prázdné. Sklad jednotlivých barev nastavíte níže.</p>
             </CardContent>
           </Card>
+
+          <ProductStockEditor values={values} update={update} categorySizeType={categorySizeType} sizeType={sizeType} />
+
         </div>
 
         <div className="space-y-6">
@@ -347,7 +372,11 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
                 <input type="checkbox" className="mt-1 h-4 w-4" checked={values.hideWhenSoldOut} onChange={(e) => update('hideWhenSoldOut', e.target.checked)} />
                 <span className="text-sm">
                   <span className="font-medium">Skrýt, když je vyprodáno</span>
-                  <span className="block text-gray-500">Při nulovém skladu produkt z e-shopu zmizí. Jinak zůstane vidět s označením „Vyprodáno“.</span>
+                  <span className="block text-gray-500">
+                    {values.allowBackorder
+                      ? 'Produkt se šije na zakázku, takže nikdy není vyprodaný.'
+                      : 'Při nulovém skladu produkt z e-shopu zmizí. Jinak zůstane vidět s označením „Vyprodáno“.'}
+                  </span>
                 </span>
               </label>
               <div className="flex gap-2 pt-2">

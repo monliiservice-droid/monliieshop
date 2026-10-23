@@ -13,6 +13,8 @@ interface ImageFieldProps {
   onChange: (url: string) => void
   hint?: string
   aspect?: 'wide' | 'portrait' | 'square'
+  /** Vlastní grafika: přijímá i SVG, nezmenšuje se tolik a náhled ukazuje celý obrázek */
+  graphic?: boolean
 }
 
 const ASPECT_CLASS = {
@@ -22,7 +24,7 @@ const ASPECT_CLASS = {
 }
 
 /** Výběr jednoho obrázku: náhled, nahrání z počítače nebo vložení URL */
-export function ImageField({ label, value, onChange, hint, aspect = 'wide' }: ImageFieldProps) {
+export function ImageField({ label, value, onChange, hint, aspect = 'wide', graphic = false }: ImageFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
@@ -30,7 +32,7 @@ export function ImageField({ label, value, onChange, hint, aspect = 'wide' }: Im
     if (!file) return
     setUploading(true)
     try {
-      const [url] = await uploadImages([file])
+      const [url] = await uploadImages([file], { graphic })
       onChange(url)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Nahrání se nezdařilo')
@@ -46,7 +48,7 @@ export function ImageField({ label, value, onChange, hint, aspect = 'wide' }: Im
       <div className={`relative w-full max-w-md overflow-hidden rounded-lg border border-dashed bg-gray-50 ${ASPECT_CLASS[aspect]}`}>
         {value ? (
           <>
-            <Image src={value} alt="" fill sizes="448px" unoptimized className="object-cover" />
+            <Image src={value} alt="" fill sizes="448px" unoptimized className={graphic ? 'object-contain' : 'object-cover'} />
             <button
               type="button"
               onClick={() => onChange('')}
@@ -89,7 +91,7 @@ export function ImageField({ label, value, onChange, hint, aspect = 'wide' }: Im
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept={graphic ? 'image/svg+xml,image/png,image/jpeg,image/webp' : 'image/*'}
         className="hidden"
         onChange={(e) => handleFile(e.target.files?.[0])}
       />

@@ -12,27 +12,34 @@ datasource db {
 }
 
 model Product {
-  id              String           @id @default(cuid())
-  name            String
-  description     String?
-  price           Float
-  stock           Int              @default(0)
-  images          String           @default("[]") // JSON array of image URLs
-  category        String? // Legacy textová kategorie (před stromem kategorií) – nepoužívá se, ponecháno kvůli historii
-  categoryId      String?
-  categoryRef     Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  isSet           Boolean          @default(false) // Označení zda je produkt set
-  setOptions      String?          @default("{}") // JSON konfigurace pro sety (podvazky, typ podprsenky, ceny)
-  colors          String?          @default("[]") // JSON array barev: [{name: "Černá", hex: "#000000"}]
-  sortOrder       Int              @default(0) // Pořadí produktu (menší číslo = vyšší v seznamu)
-  isVisible       Boolean          @default(true) // Skrytý produkt se v obchodě nezobrazuje
-  isFeatured      Boolean          @default(false) // Doporučený produkt (sekce na homepage)
-  hideWhenSoldOut Boolean          @default(false) // Při nulovém skladu se produkt na e-shopu nezobrazí
-  variants        ProductVariant[]
-  orderItems      OrderItem[]
-  saleEvents      SaleEvent[]      @relation("SaleEventProducts")
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                String           @id @default(cuid())
+  name              String
+  description       String?
+  price             Float
+  stock             Int              @default(0)
+  images            String           @default("[]") // JSON array of image URLs
+  category          String? // Legacy textová kategorie (před stromem kategorií) – nepoužívá se, ponecháno kvůli historii
+  categoryId        String?
+  categoryRef       Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  isSet             Boolean          @default(false) // Označení zda je produkt set
+  setOptions        String?          @default("{}") // JSON konfigurace pro sety (podvazky, typ podprsenky, ceny)
+  colors            String?          @default("[]") // JSON array barev: [{name: "Černá", hex: "#000000"}]
+  sortOrder         Int              @default(0) // Pořadí produktu (menší číslo = vyšší v seznamu)
+  isVisible         Boolean          @default(true) // Skrytý produkt se v obchodě nezobrazuje
+  isFeatured        Boolean          @default(false) // Doporučený produkt (sekce na homepage)
+  hideWhenSoldOut   Boolean          @default(false) // Při nulovém skladu se produkt na e-shopu nezobrazí
+  // Typ velikostí produktu (null = podle kategorie)
+  sizeType          String?
+  // Povolené velikosti: JSON {pole: [hodnoty]}, např. {"size": ["S", "M"]} – chybějící pole = všechny
+  sizeOptions       String           @default("{}")
+  // true = při nulovém skladu lze objednat na zakázku, false = prodává se jen to, co je skladem
+  allowBackorder    Boolean          @default(false)
+  backorderLeadTime String? // Doba výroby na zakázku, např. "2–3 týdny"
+  variants          ProductVariant[]
+  orderItems        OrderItem[]
+  saleEvents        SaleEvent[]      @relation("SaleEventProducts")
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 
   @@index([categoryId])
 }
@@ -95,14 +102,17 @@ model PageSection {
   @@index([page, sortOrder])
 }
 
+// Sklad po velikostech a barvách. Prázdný řetězec = produkt danou dimenzi nemá.
+// Existuje-li pro produkt aspoň jedna varianta, sklad produktu je součtem variant.
 model ProductVariant {
-  id              String  @id @default(cuid())
-  productId       String
-  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  name            String // např. "Velikost", "Barva"
-  value           String // např. "M", "Červená"
-  stock           Int     @default(0)
-  priceAdjustment Float   @default(0)
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size      String  @default("") // hlavní velikost (obvod / XS–XXL / výška)
+  color     String  @default("") // název barvy z product.colors
+  stock     Int     @default(0)
+
+  @@unique([productId, size, color])
 }
 
 model Order {
@@ -134,15 +144,20 @@ model Order {
 }
 
 model OrderItem {
-  id          String   @id @default(cuid())
-  orderId     String
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId   String?
-  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
-  productName String   @default("") // Název produktu v okamžiku objednávky (pro historii)
-  quantity    Int
-  price       Float // Cena v okamžiku objednávky
-  variant     String? // JSON string: Varianta produktu
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String?
+  product       Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName   String   @default("") // Název produktu v okamžiku objednávky (pro historii)
+  quantity      Int
+  price         Float // Cena v okamžiku objednávky
+  variant       String? // JSON string: Varianta produktu
+  // Skladová varianta, ze které se odečetlo (null = sklad celého produktu)
+  variantSize   String?
+  variantColor  String?
+  // Kolik kusů se vzalo ze skladu; zbytek je na zakázku. null = starší objednávka (celé množství ze skladu)
+  stockReserved Int?
 }
 
 model Settings {

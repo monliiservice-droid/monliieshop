@@ -2,6 +2,7 @@
 import { slugify } from './categories'
 import { isSizeType } from './product-types'
 import { cleanText, optionalText } from './admin-api'
+import { parseSizeOptions, totalStock, type StockVariant } from './product-stock'
 
 export function parseCategoryInput(body: any) {
   const name = cleanText(body?.name, 100)
@@ -73,30 +74,63 @@ function jsonArrayString(value: unknown): string {
   }
 }
 
+const MAX_VARIANTS = 300
+
+/** Sklad po variantách (velikost × barva). Neplatné řádky a duplicity se zahodí, null = neplatný počet kusů. */
+function parseVariants(value: unknown): StockVariant[] | null {
+  if (!Array.isArray(value)) return []
+  const seen = new Set<string>()
+  const result: StockVariant[] = []
+  for (const raw of value.slice(0, MAX_VARIANTS)) {
+    const size = typeof raw?.size === 'string' ? raw.size.trim().slice(0, 30) : ''
+    const color = typeof raw?.color === 'string' ? raw.color.trim().slice(0, 60) : ''
+    const stock = Number(raw?.stock)
+    if (!Number.isInteger(stock) || stock < 0) return null
+    const key = `${size}\u0000${color}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    result.push({ size, color, stock })
+  }
+  return result
+}
+
 export function parseProductInput(body: any) {
   const price = Number(body?.price)
-  const stock = Number(body?.stock)
+  const variants = parseVariants(body?.variants)
+  // Se skladem po variantách je sklad produktu jejich součtem
+  const stock = variants && variants.length > 0 ? totalStock(variants) : Number(body?.stock)
+  const sizeOptions = parseSizeOptions(body?.sizeOptions)
   return {
-    name: cleanText(body?.name, 200),
-    description: optionalText(body?.description, 10000),
-    price: Number.isFinite(price) && price >= 0 ? price : NaN,
-    stock: Number.isInteger(stock) && stock >= 0 ? stock : NaN,
-    images: jsonArrayString(body?.images),
-    categoryId: optionalText(body?.categoryId, 50),
-    isSet: body?.isSet === true,
-    setOptions: typeof body?.setOptions === 'string' ? body.setOptions : '{}',
-    colors: jsonArrayString(body?.colors),
-    isVisible: body?.isVisible !== false,
-    isFeatured: body?.isFeatured === true,
-    hideWhenSoldOut: body?.hideWhenSoldOut === true,
-    // Pořadí se mění jen když ho klient opravdu pošle (jinak by se při úpravě vynulovalo)
-    ...(Number.isInteger(body?.sortOrder) && { sortOrder: body.sortOrder as number }),
+    data: {
+      name: cleanText(body?.name, 200),
+      description: optionalText(body?.description, 10000),
+      price: Number.isFinite(price) && price >= 0 ? price : NaN,
+      stock: Number.isInteger(stock) && stock >= 0 ? stock : NaN,
+      images: jsonArrayString(body?.images),
+      categoryId: optionalText(body?.categoryId, 50),
+      isSet: body?.isSet === true,
+      setOptions: typeof body?.setOptions === 'string' ? body.setOptions : '{}',
+      colors: jsonArrayString(body?.colors),
+      isVisible: body?.isVisible !== false,
+      isFeatured: body?.isFeatured === true,
+      hideWhenSoldOut: body?.hideWhenSoldOut === true,
+      sizeType: isSizeType(body?.sizeType) ? (body.sizeType as string) : null,
+      sizeOptions: JSON.stringify(sizeOptions),
+      allowBackorder: body?.allowBackorder === true,
+      backorderLeadTime: optionalText(body?.backorderLeadTime, 60),
+      // Pořadí se mění jen když ho klient opravdu pošle (jinak by se při úpravě vynulovalo)
+      ...(Number.isInteger(body?.sortOrder) && { sortOrder: body.sortOrder as number }),
+    },
+    // undefined = klient varianty neposlal (např. jen přepnutí viditelnosti) → sklad po variantách zůstane beze změny
+    variants: body?.variants === undefined ? undefined : variants,
   }
 }
 
-export function validateProduct(data: ReturnType<typeof parseProductInput>): string | null {
+export function validateProduct(input: ReturnType<typeof parseProductInput>): string | null {
+  const { data, variants } = input
   if (!data.name) return 'Vyplňte název produktu'
   if (Number.isNaN(data.price)) return 'Zadejte platnou cenu'
+  if (variants === null) return 'Počty kusů skladem musí být celá nezáporná čísla'
   if (Number.isNaN(data.stock)) return 'Zadejte platný počet kusů skladem'
   return null
 }
