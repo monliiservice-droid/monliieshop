@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { sendOrderEmail, sendOrderWithInvoiceEmail } from '@/lib/email'
 import { generatePaymentQRCode } from '@/lib/qr-payment'
 import { createInvoiceForOrder } from '@/lib/invoice-generator'
-import { priceOrder, OrderValidationError } from '@/lib/order-pricing'
+import { priceOrder, OrderValidationError, type PricedOrder } from '@/lib/order-pricing'
 import { rateLimit, getClientIp } from '@/lib/rate-limit'
 import { reserveOrderResources } from '@/lib/order-inventory'
 
@@ -44,6 +44,22 @@ function sanitizePickupPoint(point: any) {
     ...(typeof point.longitude === 'number' && { longitude: point.longitude }),
     ...(typeof point.url === 'string' && /^https:\/\//.test(point.url) && { url: cleanString(point.url, 300) }),
   }
+}
+
+// Popis varianty pro objednávku; kusy, které nejsou skladem, se označí jako zakázka
+function describeVariant(item: PricedOrder['items'][number], reserved: number): string | null {
+  const madeToOrder = item.productId ? item.quantity - reserved : 0
+  if (madeToOrder <= 0) return item.variant ? JSON.stringify(item.variant) : null
+  const note = madeToOrder === item.quantity ? 'Na zakázku' : `Na zakázku: ${madeToOrder} ks`
+  return JSON.stringify({
+    name: item.variant?.name || 'Varianta',
+    value: item.variant ? `${item.variant.value} | ${note}` : note,
+  })
+}
+
+function emailItemName(item: PricedOrder['items'][number], reserved: number): string {
+  const variant = describeVariant(item, reserved)
+  return variant ? `${item.name} (${JSON.parse(variant).value})` : item.name
 }
 
 export async function POST(request: NextRequest) {
@@ -151,11 +167,12 @@ export async function POST(request: NextRequest) {
     // Vytvoření objednávky, odečtení skladu a použití slevového kódu v jedné transakci.
     // Při (nepravděpodobné) kolizi čísla objednávky zkusíme vygenerovat jiné.
     let order
+    let reserved: number[] = []
     for (let attempt = 1; ; attempt++) {
       const orderNumber = generateOrderNumber()
       try {
         order = await prisma.$transaction(async (tx) => {
-          await reserveOrderResources(tx, priced)
+          reserved = await reserveOrderResources(tx, priced)
           return tx.order.create({
             data: {
               orderNumber,
@@ -181,12 +198,15 @@ export async function POST(request: NextRequest) {
               discountAmount: priced.discountAmount,
               status: 'new',
               items: {
-                create: priced.items.map((item) => ({
+                create: priced.items.map((item, index) => ({
                   productName: item.name,
                   productId: item.productId,
                   quantity: item.quantity,
                   price: item.price,
-                  variant: item.variant ? JSON.stringify(item.variant) : null
+                  variant: describeVariant(item, reserved[index]),
+                  variantSize: item.stockVariant?.size ?? null,
+                  variantColor: item.stockVariant?.color ?? null,
+                  stockReserved: item.productId ? reserved[index] : null
                 }))
               }
             },
@@ -210,8 +230,9 @@ export async function POST(request: NextRequest) {
     }
     console.log('Order created:', order.orderNumber)
 
-    const emailItems = priced.items.map((item) => ({
-      name: item.name,
+    // V e-mailu je u položky i zvolená varianta (velikost, barva, případně „na zakázku“)
+    const emailItems = priced.items.map((item, index) => ({
+      name: emailItemName(item, reserved[index]),
       quantity: item.quantity,
       price: item.price
     }))

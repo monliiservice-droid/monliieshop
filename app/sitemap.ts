@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       getCategoryTree(),
       getActiveSales(),
       prisma.product.findMany({
-        where: { isVisible: true, OR: [{ hideWhenSoldOut: false }, { stock: { gt: 0 } }] },
+        where: { isVisible: true, OR: [{ hideWhenSoldOut: false }, { stock: { gt: 0 } }, { allowBackorder: true }] },
         select: { id: true, updatedAt: true, categoryId: true },
       }),
     ])

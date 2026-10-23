@@ -68,7 +68,8 @@ Vzor je v [`.env.example`](.env.example). Na Vercelu se nastavují v *Settings �
 s produkčními `DATABASE_URL` / `DIRECT_URL`). Nový kód počítá s novými sloupci a tabulkami – bez migrace by obchod
 nefungoval. Migrace `1_shop_builder` přidává kategorie, výprodeje a sekce stránek a stávající produkty sama zařadí
 do nového stromu kategorií (podle jejich dosavadní kategorie). Migrace `2_sold_out_and_sale_listing` přidává
-volbu „skrýt vyprodaný produkt“ a „produkty jen ve výprodeji“.
+volbu „skrýt vyprodaný produkt“ a „produkty jen ve výprodeji“. Migrace `3_product_variants` přidává sklad
+po velikostech a barvách a prodej na zakázku (původní nepoužívaná tabulka `ProductVariant` se přitom vyprázdní).
 
 ### Migrace – jednorázový přechod na novou historii
 
@@ -90,9 +91,9 @@ Pokud krok 1 vypíše rozdíly, nejdřív je vyřeš (neaplikuj migraci naslepo)
 
 | Sekce | K čemu slouží |
 | --- | --- |
-| **Produkty** | Produkty, fotky (první = hlavní, druhá se ukáže po najetí), barvy, sklad, skrytí, „doporučený“, **Skrýt, když je vyprodáno** (produkt s nulovým skladem zmizí z webu) |
+| **Produkty** | Produkty, fotky (první = hlavní, druhá se ukáže po najetí), barvy, skrytí, „doporučený“, **Skrýt, když je vyprodáno**. Karta **Velikosti a sklad**: typ velikostí (výchozí z kategorie, lze změnit), dostupné velikosti, sklad po velikostech × barvách (nebo jedním číslem) a co dělat, když zboží dojde – prodávat jen skladem, nebo **přijímat objednávky na zakázku** s dobou výroby. |
 | **Kategorie** | Strom kategorií. Nejvyšší úroveň (Ženy / Muži / Děti…) je v hlavním menu, podkategorie v megamenu. U kategorie se nastavuje **typ velikostí** (podprsenka, braletka, set, prádlo XS–XL, oblečení XS–XXL, dětské 86–164, bez velikostí) – podkategorie ho může zdědit. **Pořadí** se mění šipkami a platí všude (menu, dlaždice, filtry, admin). |
-| **Obsah webu** | Shop builder homepage: sekce (úvodní banner, dlaždice kategorií, produkty, fotka + text, hodnoty, výprodej, příběhy, recenze, Instagram, text) – pořadí, viditelnost, texty, fotky. Záložka *Hlavičky stránek* upravuje hlavičky Obchodu, O nás, Kontaktů… |
+| **Obsah webu** | Shop builder homepage: sekce (úvodní banner, dlaždice kategorií, produkty, fotka + text, hodnoty, výprodej, příběhy, recenze, Instagram, text, **vlastní grafika** – obrázek z Canvy v SVG/PNG s verzí pro mobil, doporučené rozměry jsou přímo v editoru) – pořadí, viditelnost, texty, fotky. Záložka *Hlavičky stránek* upravuje hlavičky Obchodu, O nás, Kontaktů… |
 | **Výprodeje** | Časově omezené akce (sezóna, doprodej skladu…) se slevou v %, na celý obchod / kategorie / produkty. Akce má vlastní stránku `/vyprodej/<slug>`, odkaz v menu a banner. Sleva se automaticky promítne do cen i objednávek. Volba **Zobrazovat produkty jen ve výprodeji** je po dobu akce schová z jejich kategorie a z Obchodu – ukážou se jen na stránce výprodeje; po skončení akce se samy vrátí. |
 | **Nastavení → Obchod** | Vzhled produktových karet (klasické / minimalistické / přes fotku), počet sloupců, informační lišta nad menu, **písma** nadpisů a textu, **zapnutí/skrytí předplatného** |
 | **Nastavení → Fakturace** | Firemní údaje a číselná řada faktur |
@@ -108,6 +109,8 @@ Změny z administrace se na webu projeví okamžitě (stránky se po uložení p
 3. **Server ceny vždy přepočítá** (`lib/order-pricing.ts`) – z databáze (produkty, sety) a z ceníku předplatného
    (`lib/pricing.ts`). Pokud se částka liší od toho, co viděl zákazník, objednávka se nevytvoří (409).
 4. V jedné transakci se vytvoří objednávka, odečte sklad a započítá použití slevového kódu (`lib/order-inventory.ts`).
+   Sklad se odečítá z varianty velikost × barva (`lib/product-stock.ts`). U produktů na zakázku se vezme, co je skladem,
+   a zbytek se v objednávce označí „Na zakázku“; při zrušení objednávky se vrátí jen kusy vzaté ze skladu.
 5. QR platba: hned se vystaví faktura a zákazník dostane e-mail s QR kódem a fakturou.
    Dobírka / platba na prodejně: faktura se vystaví při přepnutí do stavu *Ve výrobě*.
 

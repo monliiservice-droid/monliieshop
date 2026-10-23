@@ -1,6 +1,7 @@
 import type { Section, SectionDataMap } from '@/lib/sections'
 import {
   CategoryTilesSection,
+  CustomImageSection,
   HeroSection,
   ImageTextSection,
   InstagramSection,
@@ -40,6 +41,8 @@ export function RenderSections({ sections }: { sections: Section[] }) {
             return <InstagramSection key={key} data={section.data as SectionDataMap['instagram']} />
           case 'text':
             return <TextSection key={key} data={section.data as SectionDataMap['text']} />
+          case 'customImage':
+            return <CustomImageSection key={key} data={section.data as SectionDataMap['customImage']} />
           default:
             return null
         }

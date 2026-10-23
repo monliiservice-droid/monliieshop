@@ -12,6 +12,14 @@ const ALLOWED_TYPES: Record<string, string> = {
   'image/png': '.png',
   'image/webp': '.webp',
   'image/gif': '.gif',
+  'image/svg+xml': '.svg',
+}
+
+// SVG je text a mohl by obsahovat skripty – takové soubory odmítneme. Na webu se SVG vkládá přes <img>,
+// kde se skripty stejně nespouštějí, a soubor leží na jiné doméně (Vercel Blob).
+async function isUnsafeSvg(file: File): Promise<boolean> {
+  const text = (await file.text()).toLowerCase()
+  return /<script|<foreignobject|\son[a-z]+\s*=|javascript:|<iframe|<embed|<object/.test(text)
 }
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
 const MAX_FILES = 20
@@ -43,13 +51,19 @@ export async function POST(request: NextRequest) {
     for (const file of files) {
       if (!(file instanceof File) || !ALLOWED_TYPES[file.type]) {
         return NextResponse.json(
-          { error: 'Povolené jsou pouze obrázky JPG, PNG, WEBP a GIF' },
+          { error: 'Povolené jsou pouze obrázky JPG, PNG, WEBP, GIF a SVG' },
           { status: 400 }
         )
       }
       if (file.size > MAX_FILE_SIZE) {
         return NextResponse.json(
           { error: `Soubor ${file.name} je větší než 10 MB` },
+          { status: 400 }
+        )
+      }
+      if (file.type === 'image/svg+xml' && await isUnsafeSvg(file)) {
+        return NextResponse.json(
+          { error: `SVG ${file.name} obsahuje skripty nebo vložený obsah. Vyexportujte ho prosím znovu (např. z Canvy) jako čisté SVG.` },
           { status: 400 }
         )
       }

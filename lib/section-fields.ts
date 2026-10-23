@@ -4,7 +4,8 @@ import type { SectionType } from './sections'
 export type Field =
   | { kind: 'text'; key: string; label: string; placeholder?: string }
   | { kind: 'textarea'; key: string; label: string; rows?: number }
-  | { kind: 'image'; key: string; label: string; aspect?: 'wide' | 'portrait' | 'square'; hint?: string }
+  | { kind: 'image'; key: string; label: string; aspect?: 'wide' | 'portrait' | 'square'; hint?: string; graphic?: boolean }
+  | { kind: 'note'; key: string; title: string; lines: string[] }
   | { kind: 'select'; key: string; label: string; options: { value: string; label: string }[] }
   | { kind: 'number'; key: string; label: string; min?: number; max?: number }
   | { kind: 'button'; key: string; label: string }
@@ -155,10 +156,30 @@ export const SECTION_FIELDS: Record<SectionType, Field[]> = {
     { kind: 'textarea', key: 'text', label: 'Text', rows: 6 },
     { kind: 'select', key: 'align', label: 'Zarovnání', options: [{ value: 'center', label: 'Na střed' }, { value: 'left', label: 'Vlevo' }] },
   ],
+  customImage: [
+    {
+      kind: 'note',
+      key: '_note',
+      title: 'Jak připravit grafiku (např. v Canvě)',
+      lines: [
+        'Počítač – přes celou šířku: 1920 × 800 px (poměr 12 : 5). Na šířku obsahu stačí 1440 × 600 px.',
+        'Mobil: 1080 × 1350 px (poměr 4 : 5). Bez mobilní verze se použije ta pro počítač, jen menší – drobný text pak nebude čitelný.',
+        'Formát: ideálně SVG (ostré na každé obrazovce, malý soubor), jinak PNG nebo JPG. Max. 10 MB.',
+        'Obrázek se zmenšuje vždy celý a ve stejném poměru stran, nic se neořízne – když dodržíte rozměry, sedí na každém zařízení.',
+        'Důležitý text a loga nedávejte úplně ke krajům, na menších obrazovkách jsou drobnější.',
+      ],
+    },
+    { kind: 'image', key: 'image', label: 'Grafika pro počítač *', aspect: 'wide', graphic: true, hint: '1920 × 800 px · SVG, PNG nebo JPG' },
+    { kind: 'image', key: 'mobileImage', label: 'Grafika pro mobil (doporučeno)', aspect: 'portrait', graphic: true, hint: '1080 × 1350 px · zobrazí se na displejích do 768 px' },
+    { kind: 'text', key: 'alt', label: 'Popis obrázku', placeholder: 'co je na grafice napsané – pro vyhledávače a nevidomé' },
+    { kind: 'text', key: 'link', label: 'Odkaz po kliknutí (nepovinné)', placeholder: '/vyprodej' },
+    { kind: 'select', key: 'width', label: 'Šířka', options: [{ value: 'full', label: 'Přes celou obrazovku' }, { value: 'container', label: 'Na šířku obsahu (s okraji)' }] },
+    { kind: 'select', key: 'spacing', label: 'Mezery nad a pod', options: [{ value: 'none', label: 'Bez mezer (navazuje na sousední sekce)' }, { value: 'normal', label: 'Běžné mezery' }] },
+  ]
 }
 
 /** Krátký popis sekce do seznamu v builderu */
 export function sectionSummary(data: Record<string, unknown>): string {
-  const value = data.title || data.eyebrow || ''
+  const value = data.title || data.eyebrow || data.alt || ''
   return typeof value === 'string' ? value : ''
 }

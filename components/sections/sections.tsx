@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ArrowRight, ArrowUpRight, Instagram } from 'lucide-react'
 import type {
   CategoryTilesData,
+  CustomImageData,
   HeroData,
   ImageTextData,
   InstagramData,
@@ -331,6 +332,30 @@ export function TextSection({ data }: { data: TextData }) {
           ))}
         </div>
       </div>
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------ Custom image */
+// Vlastní grafika (např. z Canvy). <picture> přepne na mobilní verzi; obrázek se vždy zmenšuje celý
+// ve stejném poměru stran, takže se nic neořízne. SVG i PNG se načítají přímo (bez převodu).
+export function CustomImageSection({ data }: { data: CustomImageData }) {
+  if (!data.image) return null
+  const picture = (
+    <picture>
+      {data.mobileImage && <source media="(max-width: 767px)" srcSet={data.mobileImage} />}
+      <img src={data.image} alt={data.alt} loading="lazy" decoding="async" className="block h-auto w-full" />
+    </picture>
+  )
+  return (
+    <section className={`${data.width === 'container' ? 'site-container' : ''} ${data.spacing === 'normal' ? SECTION_Y : ''}`}>
+      {data.link ? (
+        <Link href={data.link} className="block transition-opacity hover:opacity-95">
+          {picture}
+        </Link>
+      ) : (
+        picture
+      )}
     </section>
   )
 }

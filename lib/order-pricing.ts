@@ -4,7 +4,8 @@
 import { prisma } from './prisma'
 import { getActivePrice, type SetConfiguration } from './set-config-types'
 import { calculateDiscountAmount, findValidDiscountCode } from './discount'
-import { getCategoryTree } from './categories'
+import { getCategoryTree, getEffectiveSizeType } from './categories'
+import { findVariant, parseSizeOptions, primarySizeField, productSizeFields, resolveSizeType } from './product-stock'
 import { findBestSale, getActiveSales } from './sales'
 import { getShopSettings } from './site-settings-server'
 import {
@@ -30,6 +31,10 @@ export interface PricedOrderItem {
   quantity: number
   price: number
   variant: { name: string; value: string } | null
+  /** Skladová varianta (velikost × barva); null = sklad celého produktu */
+  stockVariant: { size: string; color: string } | null
+  /** Co není skladem, lze objednat na zakázku */
+  allowBackorder: boolean
 }
 
 export interface PricedOrder {
@@ -95,6 +100,8 @@ function priceSubscription(item: any): PricedOrderItem {
     quantity: parseQuantity(item.quantity),
     price: getSubscriptionPrice(braType, withGarters, plan),
     variant: parts.length > 0 ? { name: 'Míry', value: parts.join(', ') } : null,
+    stockVariant: null,
+    allowBackorder: true,
   }
 }
 
@@ -107,28 +114,14 @@ async function priceProductItems(items: any[]): Promise<Map<any, PricedOrderItem
   }
 
   const [products, tree, sales] = await Promise.all([
-    prisma.product.findMany({ where: { id: { in: productIds }, isVisible: true } }),
+    prisma.product.findMany({
+      where: { id: { in: productIds }, isVisible: true },
+      include: { variants: { select: { size: true, color: true, stock: true } } },
+    }),
     getCategoryTree(),
     getActiveSales(),
   ])
   const productsById = new Map(products.map((product) => [product.id, product]))
-
-  // Kontrola skladu (součet množství přes všechny řádky stejného produktu).
-  // Závazné odečtení probíhá atomicky až při vytváření objednávky.
-  const requestedQuantities = new Map<string, number>()
-  for (const item of items) {
-    requestedQuantities.set(item.productId, (requestedQuantities.get(item.productId) || 0) + parseQuantity(item.quantity))
-  }
-  for (const [productId, quantity] of requestedQuantities) {
-    const product = productsById.get(productId)
-    if (product && product.stock < quantity) {
-      throw new OrderValidationError(
-        product.stock > 0
-          ? `Produkt ${product.name} je skladem pouze v počtu ${product.stock} ks`
-          : `Produkt ${product.name} již není skladem`
-      )
-    }
-  }
 
   const result = new Map<any, PricedOrderItem>()
   for (const item of items) {
@@ -138,6 +131,7 @@ async function priceProductItems(items: any[]): Promise<Map<any, PricedOrderItem
     }
 
     let price = product.price
+    let setBraType: 'bralette' | 'wired' | undefined
     if (product.isSet) {
       let config: SetConfiguration
       try {
@@ -151,6 +145,7 @@ async function priceProductItems(items: any[]): Promise<Map<any, PricedOrderItem
       if (braType !== 'bralette' && braType !== 'wired') {
         throw new OrderValidationError(`Neplatná varianta setu ${product.name}`)
       }
+      setBraType = braType
       const withGarters = config.hasGartersOption ? item.setSelection?.hasGarters === true : false
       price = getActivePrice(config, braType, withGarters)
     }
@@ -165,14 +160,63 @@ async function priceProductItems(items: any[]): Promise<Map<any, PricedOrderItem
       throw new OrderValidationError(`Produkt ${product.name} nelze momentálně objednat`)
     }
 
+    // Zvolené velikosti musí patřit mezi velikosti, které produkt nabízí
+    const sizeType = resolveSizeType(product, getEffectiveSizeType(tree, product.categoryId))
+    const sizes: Record<string, unknown> = item.sizes && typeof item.sizes === 'object' ? item.sizes : {}
+    for (const field of productSizeFields(sizeType, parseSizeOptions(product.sizeOptions), setBraType)) {
+      const chosen = sizes[field.name]
+      if (chosen !== undefined && chosen !== '' && !field.options.includes(chosen as string)) {
+        throw new OrderValidationError(`Zvolená velikost produktu ${product.name} není dostupná`)
+      }
+    }
+
+    // Sklad po variantách: najdeme variantu podle hlavní velikosti a barvy
+    let stockVariant: PricedOrderItem['stockVariant'] = null
+    if (product.variants.length > 0) {
+      const primary = primarySizeField(sizeType)
+      const size = primary && typeof sizes[primary] === 'string' ? (sizes[primary] as string) : ''
+      const color = typeof item.color === 'string' ? item.color : ''
+      if (!findVariant(product.variants, size, color)) {
+        throw new OrderValidationError(
+          `Zvolená varianta produktu ${product.name} (${[size, color].filter(Boolean).join(', ') || 'bez varianty'}) není dostupná. Odeberte ji prosím z košíku a vyberte znovu.`
+        )
+      }
+      stockVariant = { size, color }
+    }
+
     result.set(item, {
       productId: product.id,
       name: product.name,
       quantity: parseQuantity(item.quantity),
       price,
       variant: sanitizeVariant(item.variant),
+      stockVariant,
+      allowBackorder: product.allowBackorder,
     })
   }
+
+  // Kontrola skladu (součet přes všechny řádky stejné varianty) u produktů, které se prodávají jen ze skladu.
+  // Závazné odečtení probíhá atomicky až při vytváření objednávky.
+  const requested = new Map<string, { item: PricedOrderItem; stock: number; quantity: number }>()
+  for (const priced of result.values()) {
+    if (priced.allowBackorder) continue
+    const product = productsById.get(priced.productId!)!
+    const key = [priced.productId, priced.stockVariant?.size, priced.stockVariant?.color].join('\u0000')
+    const stock = priced.stockVariant
+      ? findVariant(product.variants, priced.stockVariant.size, priced.stockVariant.color)!.stock
+      : product.stock
+    const entry = requested.get(key)
+    requested.set(key, { item: priced, stock, quantity: (entry?.quantity || 0) + priced.quantity })
+  }
+  for (const { item, stock, quantity } of requested.values()) {
+    if (stock < quantity) {
+      const label = [item.name, item.stockVariant?.size, item.stockVariant?.color].filter(Boolean).join(' – ')
+      throw new OrderValidationError(
+        stock > 0 ? `${label} je skladem pouze v počtu ${stock} ks` : `${label} již není skladem`
+      )
+    }
+  }
+
   return result
 }
 
