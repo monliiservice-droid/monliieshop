@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { ProductCardStyle, ShopSettings } from '@/lib/site-settings'
+import { toastNetworkError, toastResponseError } from '@/lib/admin-client'
 
 const CARD_STYLES: { value: ProductCardStyle; label: string; description: string }[] = [
   { value: 'classic', label: 'Klasické', description: 'Fotka, pod ní název a cena' },
@@ -36,7 +37,9 @@ export function StoreSettings() {
         body: JSON.stringify({ shop: settings }),
       })
       if (res.ok) toast.success('Nastavení obchodu uloženo')
-      else toast.error('Uložení se nezdařilo')
+      else await toastResponseError(res, 'Nastavení se nepodařilo uložit')
+    } catch {
+      toastNetworkError('Nastavení se nepodařilo uložit')
     } finally {
       setSaving(false)
     }

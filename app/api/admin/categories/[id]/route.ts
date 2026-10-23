@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { badRequest, isPrismaUniqueError, revalidateStorefront, unauthorizedResponse } from '@/lib/admin-api'
+import { adminErrorResponse, badRequest, isPrismaUniqueError, revalidateStorefront, unauthorizedResponse } from '@/lib/admin-api'
 import { parseCategoryInput } from '@/lib/admin-inputs'
 
 type Params = { params: Promise<{ id: string }> }
@@ -30,8 +30,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     return NextResponse.json(category)
   } catch (error) {
     if (isPrismaUniqueError(error)) return badRequest('Kategorie s touto URL (slug) už existuje')
-    console.error('Error updating category:', error)
-    return NextResponse.json({ message: 'Chyba při ukládání kategorie' }, { status: 500 })
+    return adminErrorResponse(error, 'Chyba při ukládání kategorie')
   }
 }
 

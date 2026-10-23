@@ -17,6 +17,7 @@ import { DEFAULT_SECTION_DATA, SECTION_TYPES, SECTION_TYPE_LABELS, type SectionT
 import { SECTION_FIELDS, sectionSummary } from '@/lib/section-fields'
 import { PAGE_HEADER_LABELS, type PageHeaderKey, type PageHeaders } from '@/lib/site-settings'
 import { flattenCategories, type CategoryOption } from '@/lib/category-options'
+import { toastNetworkError, toastResponseError } from '@/lib/admin-client'
 
 interface EditableSection {
   key: string // lokální klíč pro React (sekce se ukládají celé najednou)
@@ -98,11 +99,13 @@ export default function ContentBuilderPage() {
         body: JSON.stringify({ page: 'home', sections: sections.map(({ type, isVisible, data }) => ({ type, isVisible, data })) }),
       })
       if (!res.ok) {
-        toast.error('Uložení se nezdařilo')
+        await toastResponseError(res, 'Homepage se nepodařilo uložit')
         return
       }
       setDirty(false)
       toast.success('Homepage uložena – změny jsou na webu')
+    } catch {
+      toastNetworkError('Homepage se nepodařilo uložit')
     } finally {
       setSaving(false)
     }
@@ -119,16 +122,20 @@ export default function ContentBuilderPage() {
 
   const saveHeaders = async () => {
     if (!headers) return
-    const res = await fetch('/api/admin/site-settings', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pageHeaders: headers }),
-    })
-    if (res.ok) {
-      setHeadersDirty(false)
-      toast.success('Hlavičky stránek uloženy')
-    } else {
-      toast.error('Uložení se nezdařilo')
+    try {
+      const res = await fetch('/api/admin/site-settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageHeaders: headers }),
+      })
+      if (res.ok) {
+        setHeadersDirty(false)
+        toast.success('Hlavičky stránek uloženy')
+      } else {
+        await toastResponseError(res, 'Hlavičky se nepodařilo uložit')
+      }
+    } catch {
+      toastNetworkError('Hlavičky se nepodařilo uložit')
     }
   }
 

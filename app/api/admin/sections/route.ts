@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { badRequest, revalidateStorefront, unauthorizedResponse } from '@/lib/admin-api'
+import { adminErrorResponse, badRequest, revalidateStorefront, unauthorizedResponse } from '@/lib/admin-api'
 import { isSectionType, normalizeSectionData } from '@/lib/sections'
 import { getDefaultSections, getPageSections } from '@/lib/sections-server'
 
@@ -41,11 +41,15 @@ export async function PUT(request: NextRequest) {
       data: normalizeSectionData(s.type, s.data) as object,
     }))
 
-  // Jednoduché a spolehlivé: celé rozložení stránky se nahradí v jedné transakci
-  await prisma.$transaction([
-    prisma.pageSection.deleteMany({ where: { page } }),
-    prisma.pageSection.createMany({ data: sections }),
-  ])
-  revalidateStorefront()
-  return NextResponse.json(await prisma.pageSection.findMany({ where: { page }, orderBy: { sortOrder: 'asc' } }))
+  try {
+    // Jednoduché a spolehlivé: celé rozložení stránky se nahradí v jedné transakci
+    await prisma.$transaction([
+      prisma.pageSection.deleteMany({ where: { page } }),
+      prisma.pageSection.createMany({ data: sections }),
+    ])
+    revalidateStorefront()
+    return NextResponse.json(await prisma.pageSection.findMany({ where: { page }, orderBy: { sortOrder: 'asc' } }))
+  } catch (error) {
+    return adminErrorResponse(error, 'Homepage se nepodařilo uložit')
+  }
 }

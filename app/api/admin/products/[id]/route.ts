@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAdminAuth } from '@/lib/auth'
-import { badRequest, revalidateStorefront } from '@/lib/admin-api'
+import { adminErrorResponse, badRequest, revalidateStorefront } from '@/lib/admin-api'
 import { parseProductInput, validateProduct } from '@/lib/admin-inputs'
 
 // GET - Získat konkrétní produkt
@@ -61,8 +61,7 @@ export async function PUT(
     revalidateStorefront()
     return NextResponse.json(product)
   } catch (err) {
-    console.error('Error updating product:', err)
-    return NextResponse.json({ message: 'Chyba při aktualizaci produktu' }, { status: 500 })
+    return adminErrorResponse(err, 'Chyba při aktualizaci produktu')
   }
 }
 

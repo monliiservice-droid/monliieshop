@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { badRequest, isPrismaUniqueError, revalidateStorefront, unauthorizedResponse } from '@/lib/admin-api'
+import { adminErrorResponse, badRequest, isPrismaUniqueError, revalidateStorefront, unauthorizedResponse } from '@/lib/admin-api'
 import { parseSaleInput, validateSale } from '@/lib/admin-inputs'
 
 export async function GET() {
@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(sale, { status: 201 })
   } catch (err) {
     if (isPrismaUniqueError(err)) return badRequest('Výprodej s touto URL (slug) už existuje')
-    console.error('Error creating sale:', err)
-    return NextResponse.json({ message: 'Chyba při vytváření výprodeje' }, { status: 500 })
+    return adminErrorResponse(err, 'Chyba při vytváření výprodeje')
   }
 }
