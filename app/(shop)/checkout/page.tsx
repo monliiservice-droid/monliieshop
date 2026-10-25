@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, ArrowRight, MapPin } from 'lucide-react'
 import { formatPrice } from '@/components/site/price'
-import { ZASILKOVNA_CONFIG, pickZBox, type ZBoxPoint } from '@/lib/zasilkovna-zbox'
+import { ZASILKOVNA_CONFIG, ZasilkovnaNotConfiguredError, pickZBox, type ZBoxPoint } from '@/lib/zasilkovna-zbox'
 import {
   COD_FEE,
   calculateDiscountAmount,
@@ -81,7 +81,11 @@ export default function CheckoutPage() {
       }
     } catch (error) {
       console.error('Error opening Zásilkovna widget:', error)
-      setZBoxError('Mapu Zásilkovny se nepodařilo načíst. Zkuste to prosím znovu.')
+      setZBoxError(
+        error instanceof ZasilkovnaNotConfiguredError
+          ? 'Výběr Z-BOXu je dočasně nedostupný. Zvolte prosím osobní odběr, nebo nám napište.'
+          : 'Mapu Zásilkovny se nepodařilo načíst. Zkontrolujte připojení a zkuste to prosím znovu.'
+      )
     } finally {
       setIsLoadingZBox(false)
     }

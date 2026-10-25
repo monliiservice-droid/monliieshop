@@ -53,6 +53,13 @@ function loadWidgetScript(): Promise<void> {
   return scriptPromise
 }
 
+/** Na serveru chybí API klíč Zásilkovny (proměnná ZASILKOVNA_API_KEY) */
+export class ZasilkovnaNotConfiguredError extends Error {
+  constructor() {
+    super('Zásilkovna není nakonfigurovaná')
+  }
+}
+
 let apiKeyPromise: Promise<string> | null = null
 
 // API klíč Zásilkovny je podle jejich dokumentace veřejný (widget běží v prohlížeči);
@@ -62,7 +69,7 @@ function getWidgetApiKey(): Promise<string> {
     apiKeyPromise = fetch('/api/zasilkovna/config')
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error('config'))))
       .then((data) => {
-        if (!data.apiKey) throw new Error('Zásilkovna není nakonfigurovaná')
+        if (!data.apiKey) throw new ZasilkovnaNotConfiguredError()
         return data.apiKey as string
       })
       .catch((error) => {
