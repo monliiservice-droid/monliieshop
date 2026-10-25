@@ -17,6 +17,7 @@ import {
   type ShippingMethod,
 } from '@/lib/pricing'
 import { toast } from 'sonner'
+import { refreshCartPrices } from '@/lib/cart-refresh'
 import { PICKUP_LOCATIONS } from '@/lib/pickup-locations'
 
 interface CartItem {
@@ -58,6 +59,7 @@ export default function CheckoutPage() {
         if (cart) {
           const parsedCart = JSON.parse(cart)
           setCartItems(parsedCart)
+          refreshCartPrices(parsedCart).then(setCartItems)
         }
         setAppliedDiscount(loadAppliedDiscount())
       } catch (error) {

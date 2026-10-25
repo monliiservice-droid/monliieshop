@@ -44,7 +44,7 @@ Vzor je v [`.env.example`](.env.example). Na Vercelu se nastavují v *Settings �
 | `ADMIN_PASSWORD` | ano* | heslo v čitelné podobě – jen pokud není nastaven hash |
 | `MAILTRAP_HOST`, `MAILTRAP_PORT`, `MAILTRAP_USER`, `MAILTRAP_PASS` | ano | SMTP pro odesílání e-mailů |
 | `EMAIL_FROM` | ano | odesílatel e-mailů |
-| `SELLER_EMAIL` | ano | kam chodí upozornění na objednávky a zprávy z kontaktního formuláře |
+| `SELLER_EMAIL` | ne | záložní adresa(y) pro upozornění (oddělené čárkou) – hlavně se nastavují v *Nastavení → Upozornění* |
 | `ZASILKOVNA_API_KEY` | ano | API klíč Zásilkovny pro mapový widget (API *heslo* se nepoužívá) |
 | `BLOB_READ_WRITE_TOKEN` | ano | Vercel Blob – nahrávání obrázků produktů |
 | `NEXT_PUBLIC_URL` | ano | veřejná adresa webu (odkazy v e-mailech, sitemap) |
@@ -97,6 +97,8 @@ Pokud krok 1 vypíše rozdíly, nejdřív je vyřeš (neaplikuj migraci naslepo)
 | **Výprodeje** | Časově omezené akce (sezóna, doprodej skladu…) se slevou v %, na celý obchod / kategorie / produkty. Akce má vlastní stránku `/vyprodej/<slug>`, odkaz v menu a banner. Sleva se automaticky promítne do cen i objednávek. Volba **Zobrazovat produkty jen ve výprodeji** je po dobu akce schová z jejich kategorie a z Obchodu – ukážou se jen na stránce výprodeje; po skončení akce se samy vrátí. |
 | **Nastavení → Obchod** | Vzhled produktových karet (klasické / minimalistické / přes fotku), počet sloupců, informační lišta nad menu, **písma** nadpisů a textu, **zapnutí/skrytí předplatného** |
 | **Nastavení → Fakturace** | Firemní údaje a číselná řada faktur |
+| **Nastavení → Upozornění** | Adresy (až 10), na které chodí upozornění na nové objednávky a zprávy z kontaktního formuláře; testovací e-mail |
+| **Kontrola e-shopu** | Ověří nastavení potřebné pro objednávky: databáze, ostrý SMTP (ne sandbox Mailtrapu), přihlášení k SMTP, e-mail prodejce, bankovní účet pro QR, klíč Zásilkovny, fakturační údaje. Tlačítko pošle testovací e-mail. |
 
 Změny z administrace se na webu projeví okamžitě (stránky se po uložení přegenerují).
 
@@ -104,7 +106,8 @@ Změny z administrace se na webu projeví okamžitě (stránky se po uložení p
 
 ### Objednávka
 
-1. Košík je v `localStorage`; uplatněný slevový kód také (`appliedDiscount`).
+1. Košík je v `localStorage`; uplatněný slevový kód také (`appliedDiscount`). Košík i pokladna při načtení srovnají ceny
+   se serverem (`/api/cart/quote`) a odeberou položky, které už nejde objednat.
 2. Checkout → souhrn → `POST /api/orders`.
 3. **Server ceny vždy přepočítá** (`lib/order-pricing.ts`) – z databáze (produkty, sety) a z ceníku předplatného
    (`lib/pricing.ts`). Pokud se částka liší od toho, co viděl zákazník, objednávka se nevytvoří (409).

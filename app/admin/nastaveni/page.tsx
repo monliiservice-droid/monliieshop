@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import { Store, FileText } from 'lucide-react'
+import { Bell, Store, FileText } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { StoreSettings } from '@/components/admin/store-settings'
+import { NotificationSettings } from '@/components/admin/notification-settings'
 
 export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
@@ -90,7 +91,15 @@ export default function SettingsPage() {
             <Store className="h-4 w-4 mr-2" />
             Obchod
           </TabsTrigger>
+          <TabsTrigger value="notifications">
+            <Bell className="h-4 w-4 mr-2" />
+            Upozornění
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="notifications" className="max-w-2xl">
+          <NotificationSettings />
+        </TabsContent>
 
         <TabsContent value="store">
           <StoreSettings />

@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { escapeHtmlDeep } from './escape-html'
 import { getPickupLocation } from './pickup-locations'
+import { getNotificationEmails } from './notification-emails'
 
 function formatPickupAddress(id: unknown): string {
   const location = getPickupLocation(id)
@@ -16,9 +17,38 @@ const transportOptions: SMTPTransport.Options = {
     user: process.env.MAILTRAP_USER || '',
     pass: process.env.MAILTRAP_PASS || '',
   },
+  // Když SMTP neodpovídá, nesmí se zaseknout odeslání objednávky (e-maily se posílají před odpovědí zákazníkovi)
+  connectionTimeout: 10_000,
+  greetingTimeout: 10_000,
+  socketTimeout: 20_000,
 }
 
 const transporter = nodemailer.createTransport(transportOptions)
+
+/** Ověří přihlášení k SMTP serveru (pro kontrolu nastavení v administraci) */
+export async function verifyEmailTransport(): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    await transporter.verify()
+    return { ok: true }
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) }
+  }
+}
+
+/** Testovací e-mail z administrace */
+export async function sendTestEmail(to: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    await transporter.sendMail({
+      from: `"Monlii" <${process.env.EMAIL_FROM || 'noreply@monlii.cz'}>`,
+      to,
+      subject: 'Monlii – testovací e-mail',
+      html: '<p>Tento e-mail byl odeslán z kontroly e-shopu v administraci. Odesílání e-mailů funguje.</p>',
+    })
+    return { ok: true }
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) }
+  }
+}
 
 // Typy emailů
 export type EmailType = 
@@ -72,8 +102,10 @@ export async function sendOrderEmail(type: EmailType, orderData: OrderData) {
   // Všechna data od zákazníka escapujeme před vložením do HTML šablony
   const { subject, html } = getEmailTemplate(type, escapeHtmlDeep(orderData))
   
-  const to = type === 'order_received_seller' 
-    ? process.env.SELLER_EMAIL || 'prodejce@monlii.cz'
+  // Upozornění prodejci chodí na všechny adresy z Nastavení → Upozornění
+  const sellerEmails = type === 'order_received_seller' ? await getNotificationEmails() : []
+  const to = type === 'order_received_seller'
+    ? sellerEmails.join(', ') || 'prodejce@monlii.cz'
     : orderData.customerEmail
 
   try {

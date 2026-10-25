@@ -6,6 +6,7 @@ import { ArrowRight, Minus, Plus, X } from 'lucide-react'
 import { SmartImage } from '@/components/site/smart-image'
 import { formatPrice } from '@/components/site/price'
 import { ZASILKOVNA_CONFIG } from '@/lib/zasilkovna-zbox'
+import { refreshCartPrices } from '@/lib/cart-refresh'
 import { calculateDiscountAmount, loadAppliedDiscount, saveAppliedDiscount, type AppliedDiscount } from '@/lib/pricing'
 
 interface CartItem {
@@ -37,7 +38,12 @@ export default function CartPage() {
   useEffect(() => {
     try {
       const cart = localStorage.getItem('cart')
-      if (cart) setCartItems(JSON.parse(cart))
+      if (cart) {
+        const items: CartItem[] = JSON.parse(cart)
+        setCartItems(items)
+        // Ceny se mohly od přidání do košíku změnit (konec výprodeje, nová cena)
+        refreshCartPrices(items).then(setCartItems)
+      }
       const savedDiscount = loadAppliedDiscount()
       if (savedDiscount) {
         setAppliedDiscountState(savedDiscount)
