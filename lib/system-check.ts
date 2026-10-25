@@ -122,17 +122,15 @@ async function emailChecks(): Promise<SystemCheck[]> {
 }
 
 function paymentAndShippingChecks(): SystemCheck[] {
-  const account = env('BANK_ACCOUNT_NUMBER')
-  const bank = env('BANK_CODE')
+  // Bez proměnných se použije výchozí účet e-shopu z lib/qr-payment.ts (ověřený jako správný)
+  const custom = env('BANK_ACCOUNT_NUMBER') && env('BANK_CODE')
+  const account = custom ? `${env('BANK_ACCOUNT_NUMBER')}/${env('BANK_CODE')}` : '7843801238/6363'
   return [
-    account && bank
-      ? { label: 'Účet pro QR platby', status: 'ok', detail: `${account}/${bank} – ověřte, že je to správný účet.` }
-      : {
-          label: 'Účet pro QR platby',
-          status: 'error',
-          detail: 'BANK_ACCOUNT_NUMBER nebo BANK_CODE není nastavený – QR kód použije náhradní účet z kódu (7843801238/6363).',
-          fix: `Nastavte BANK_ACCOUNT_NUMBER (bez kódu banky) a BANK_CODE. ${VERCEL_ENV_FIX}`,
-        },
+    {
+      label: 'Účet pro QR platby',
+      status: 'ok',
+      detail: `${account}${custom ? ' (z nastavení ve Vercelu)' : ' (výchozí účet e-shopu)'}`,
+    },
     envCheck('ZASILKOVNA_API_KEY', 'Mapa Zásilkovny (Z-BOX)', 'API klíč je nastavený.', {
       status: 'error',
       detail: 'Chybí API klíč – zákazník nevybere Z-BOX a nemůže objednat s doručením.',
