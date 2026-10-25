@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   FolderTree,
   LayoutDashboard,
+  ShieldCheck,
   LayoutTemplate,
   Package,
   Percent,
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { href: '/admin/slevove-kody', icon: Tag, label: 'Slevové kódy' },
   { href: '/admin/trzby', icon: TrendingUp, label: 'Tržby a faktury' },
   { href: '/admin/nastaveni', icon: Settings, label: 'Nastavení' },
+  { href: '/admin/kontrola', icon: ShieldCheck, label: 'Kontrola e-shopu' },
 ]
 
 export function AdminNav() {

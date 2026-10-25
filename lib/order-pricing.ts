@@ -285,3 +285,36 @@ export async function priceOrder(data: any): Promise<PricedOrder> {
     total: subtotal - discountAmount + shippingCost + paymentFee,
   }
 }
+
+export type CartQuote = { price: number } | { error: string }
+
+/**
+ * Aktuální cena každé položky košíku (nebo důvod, proč ji nelze objednat).
+ * Košík si drží cenu z doby přidání; po změně ceny nebo konci výprodeje by jinak
+ * server objednávku odmítal kvůli rozdílné částce a zákazník by se zasekl.
+ */
+export async function quoteCartItems(rawItems: unknown): Promise<CartQuote[]> {
+  if (!Array.isArray(rawItems) || rawItems.length > MAX_ITEMS) {
+    throw new OrderValidationError('Neplatný obsah košíku')
+  }
+  const subscriptionEnabled = rawItems.some((item) => item?.type === 'subscription')
+    ? (await getShopSettings()).subscriptionEnabled
+    : false
+
+  return Promise.all(
+    rawItems.map(async (item): Promise<CartQuote> => {
+      try {
+        if (!item || typeof item !== 'object') throw new OrderValidationError('Neplatná položka košíku')
+        if (item.type === 'subscription') {
+          if (!subscriptionEnabled) throw new OrderValidationError('Předplatné momentálně nenabízíme')
+          return { price: priceSubscription(item).price }
+        }
+        const priced = await priceProductItems([item])
+        return { price: priced.get(item)!.price }
+      } catch (error) {
+        if (error instanceof OrderValidationError) return { error: error.message }
+        throw error
+      }
+    })
+  )
+}

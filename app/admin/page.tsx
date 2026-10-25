@@ -63,6 +63,7 @@ async function isDatabaseUpToDate(): Promise<boolean> {
       // Sloupce z novějších migrací – chybějící sloupec vyhodí chybu P2022
       prisma.product.findFirst({ select: { hideWhenSoldOut: true } }),
       prisma.saleEvent.findFirst({ select: { separateListing: true } }),
+      prisma.productVariant.findFirst({ select: { size: true } }),
     ])
     return true
   } catch (error) {
@@ -70,8 +71,20 @@ async function isDatabaseUpToDate(): Promise<boolean> {
   }
 }
 
+/** Rychlá kontrola nastavení bez síťových dotazů – podrobná je v Kontrole e-shopu */
+function getMissingSettings(): string[] {
+  const has = (name: string) => !!process.env[name]?.trim()
+  const missing: string[] = []
+  if (!has('ZASILKOVNA_API_KEY')) missing.push('API klíč Zásilkovny')
+  if (!has('MAILTRAP_HOST') || process.env.MAILTRAP_HOST!.includes('sandbox')) missing.push('ostrý SMTP server pro e-maily')
+  if (!has('SELLER_EMAIL')) missing.push('e-mail pro upozornění na objednávky')
+  if (!has('BANK_ACCOUNT_NUMBER') || !has('BANK_CODE')) missing.push('bankovní účet pro QR platby')
+  return missing
+}
+
 export default async function AdminDashboard() {
   const [data, databaseUpToDate] = await Promise.all([getDashboardData(), isDatabaseUpToDate()])
+  const missingSettings = getMissingSettings()
 
   const stats = [
     {
@@ -107,6 +120,13 @@ export default async function AdminDashboard() {
           <p className="font-semibold">Databáze není aktualizovaná pro tuto verzi e-shopu</p>
           <p className="mt-1">{MISSING_MIGRATION_MESSAGE}</p>
           <p className="mt-1">Dokud migrace neproběhne, nejde ukládat obsah webu, kategorie ani výprodeje a obchod nezobrazí produkty.</p>
+        </div>
+      )}
+      {missingSettings.length > 0 && (
+        <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-900">
+          <p className="font-semibold">Chybí nastavení, bez kterého nemusí fungovat objednávky nebo e-maily</p>
+          <p className="mt-1">{missingSettings.join(', ')}.</p>
+          <Link href="/admin/kontrola" className="mt-2 inline-block font-medium underline">Otevřít kontrolu e-shopu</Link>
         </div>
       )}
       <div className="mb-8">
