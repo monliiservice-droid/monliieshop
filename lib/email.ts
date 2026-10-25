@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer'
 import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { escapeHtmlDeep } from './escape-html'
 import { getPickupLocation } from './pickup-locations'
+import { getNotificationEmails } from './notification-emails'
 
 function formatPickupAddress(id: unknown): string {
   const location = getPickupLocation(id)
@@ -101,8 +102,10 @@ export async function sendOrderEmail(type: EmailType, orderData: OrderData) {
   // Všechna data od zákazníka escapujeme před vložením do HTML šablony
   const { subject, html } = getEmailTemplate(type, escapeHtmlDeep(orderData))
   
-  const to = type === 'order_received_seller' 
-    ? process.env.SELLER_EMAIL || 'prodejce@monlii.cz'
+  // Upozornění prodejci chodí na všechny adresy z Nastavení → Upozornění
+  const sellerEmails = type === 'order_received_seller' ? await getNotificationEmails() : []
+  const to = type === 'order_received_seller'
+    ? sellerEmails.join(', ') || 'prodejce@monlii.cz'
     : orderData.customerEmail
 
   try {

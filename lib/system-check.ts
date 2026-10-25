@@ -4,6 +4,7 @@
 import { prisma } from './prisma'
 import { isMissingMigrationError } from './admin-api'
 import { verifyEmailTransport } from './email'
+import { getNotificationEmails } from './notification-emails'
 
 export type CheckStatus = 'ok' | 'warn' | 'error'
 
@@ -106,11 +107,16 @@ async function emailChecks(): Promise<SystemCheck[]> {
       ? { label: 'Odesílatel', status: 'ok', detail: `${from} – doména musí být v Mailtrapu ověřená (Sending Domains).` }
       : { label: 'Odesílatel', status: 'warn', detail: 'EMAIL_FROM není nastavený, použije se noreply@monlii.cz.', fix: `Nastavte EMAIL_FROM na adresu z ověřené domény. ${VERCEL_ENV_FIX}` }
   )
+  const recipients = await getNotificationEmails()
   checks.push(
-    envCheck('SELLER_EMAIL', 'Upozornění na objednávky', `Chodí na ${env('SELLER_EMAIL')}`, {
-      status: 'error',
-      detail: 'SELLER_EMAIL není nastavený – upozornění na nové objednávky chodí na prodejce@monlii.cz.',
-    })
+    recipients.length > 0
+      ? { label: 'Upozornění na objednávky', status: 'ok', detail: `Chodí na: ${recipients.join(', ')}` }
+      : {
+          label: 'Upozornění na objednávky',
+          status: 'error',
+          detail: 'Není nastavená žádná adresa – upozornění na nové objednávky chodí na prodejce@monlii.cz.',
+          fix: 'Přidejte adresy v Nastavení → Upozornění.',
+        }
   )
   return checks
 }

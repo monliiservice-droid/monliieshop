@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { AlertTriangle, CheckCircle2, XCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { runSystemChecks, type CheckStatus } from '@/lib/system-check'
-import { TestEmailButton } from './test-email-button'
+import { TestEmailButton } from '@/components/admin/test-email-button'
 
 export const dynamic = 'force-dynamic'
 

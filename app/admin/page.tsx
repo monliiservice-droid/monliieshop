@@ -3,6 +3,7 @@ import { Package, ShoppingBag, TrendingUp } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import { MISSING_MIGRATION_MESSAGE, isMissingMigrationError } from '@/lib/admin-api'
 import Link from 'next/link'
+import { getNotificationEmails } from '@/lib/notification-emails'
 
 // Force dynamic rendering - don't cache this page
 export const dynamic = 'force-dynamic'
@@ -72,19 +73,19 @@ async function isDatabaseUpToDate(): Promise<boolean> {
 }
 
 /** Rychlá kontrola nastavení bez síťových dotazů – podrobná je v Kontrole e-shopu */
-function getMissingSettings(): string[] {
+async function getMissingSettings(): Promise<string[]> {
   const has = (name: string) => !!process.env[name]?.trim()
   const missing: string[] = []
   if (!has('ZASILKOVNA_API_KEY')) missing.push('API klíč Zásilkovny')
   if (!has('MAILTRAP_HOST') || process.env.MAILTRAP_HOST!.includes('sandbox')) missing.push('ostrý SMTP server pro e-maily')
-  if (!has('SELLER_EMAIL')) missing.push('e-mail pro upozornění na objednávky')
+  if ((await getNotificationEmails()).length === 0) missing.push('e-mail pro upozornění na objednávky')
   if (!has('BANK_ACCOUNT_NUMBER') || !has('BANK_CODE')) missing.push('bankovní účet pro QR platby')
   return missing
 }
 
 export default async function AdminDashboard() {
   const [data, databaseUpToDate] = await Promise.all([getDashboardData(), isDatabaseUpToDate()])
-  const missingSettings = getMissingSettings()
+  const missingSettings = await getMissingSettings()
 
   const stats = [
     {

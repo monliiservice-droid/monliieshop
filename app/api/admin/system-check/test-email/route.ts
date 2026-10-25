@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server'
 import { requireAdminAuth } from '@/lib/auth'
 import { sendTestEmail } from '@/lib/email'
+import { getNotificationEmails } from '@/lib/notification-emails'
 
 export const dynamic = 'force-dynamic'
 
-// Pošle testovací e-mail na adresu prodejce (SELLER_EMAIL)
+// Pošle testovací e-mail na všechny adresy pro upozornění
 export async function POST() {
   if (!(await requireAdminAuth())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  const to = process.env.SELLER_EMAIL?.trim()
+  const to = (await getNotificationEmails()).join(', ')
   if (!to) {
-    return NextResponse.json({ message: 'Není nastavený SELLER_EMAIL – není kam e-mail poslat.' }, { status: 400 })
+    return NextResponse.json({ message: 'Nejsou nastavené adresy pro upozornění (Nastavení → Upozornění).' }, { status: 400 })
   }
   const result = await sendTestEmail(to)
   return result.ok

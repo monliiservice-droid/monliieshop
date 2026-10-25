@@ -1,3 +1,4 @@
+import { getNotificationEmails } from '@/lib/notification-emails'
 import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 import { escapeHtml } from '@/lib/escape-html'
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
     const safePhone = escapeHtml(phone)
     const safeMessage = escapeHtml(message)
 
-    const sellerEmail = process.env.SELLER_EMAIL || 'luckaivankova1@seznam.cz'
+    const sellerEmail = (await getNotificationEmails()).join(', ') || 'luckaivankova1@seznam.cz'
     const fromEmail = process.env.EMAIL_FROM || 'noreply@monlii.cz'
     const logoUrl = `${process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'}/logo-email.png`
 
