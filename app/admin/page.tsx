@@ -79,7 +79,6 @@ async function getMissingSettings(): Promise<string[]> {
   if (!has('ZASILKOVNA_API_KEY')) missing.push('API klíč Zásilkovny')
   if (!has('MAILTRAP_HOST') || process.env.MAILTRAP_HOST!.includes('sandbox')) missing.push('ostrý SMTP server pro e-maily')
   if ((await getNotificationEmails()).length === 0) missing.push('e-mail pro upozornění na objednávky')
-  if (!has('BANK_ACCOUNT_NUMBER') || !has('BANK_CODE')) missing.push('bankovní účet pro QR platby')
   return missing
 }
 
