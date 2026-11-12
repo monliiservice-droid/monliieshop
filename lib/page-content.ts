@@ -94,7 +94,9 @@ Momentálně odesíláme pouze v rámci České republiky. V případě zájmu o
 ### Máte dotazy?
 Rádi vám pomůžeme!
 
-**Email:** luckaivankova1@seznam.cz`
+**Email:** monlli@seznam.cz
+
+**Telefon:** +420 702 559 369`
 
 const TERMS_TEXT = `## 1. Úvodní ustanovení
 
@@ -120,12 +122,12 @@ Zboží je dodáváno prostřednictvím přepravní společnosti na adresu uvede
 
 Kupující má právo odstoupit od smlouvy do 14 dnů od převzetí zboží bez udání důvodu. Zboží musí být vráceno nepoužité, v původním obalu a nesmí být porušena hygienická pečeť.
 
-Pro odstoupení od smlouvy kontaktujte prodávajícího na e-mailu: luckaivankova1@seznam.cz
+Pro odstoupení od smlouvy kontaktujte prodávajícího na e-mailu: monlli@seznam.cz
 
 ## 6. Reklamace
 
 Na zboží se vztahuje zákonná záruka 24 měsíců. Reklamaci lze uplatnit:
-- E-mailem na: luckaivankova1@seznam.cz
+- E-mailem na: monlli@seznam.cz
 - Zboží zašlete s popisem vady na adresu prodávajícího
 
 Reklamace bude vyřízena do 30 dnů od jejího uplatnění.
@@ -138,7 +140,7 @@ Zpracování osobních údajů se řídí zákonem č. 110/2019 Sb., o zpracová
 
 **Provozovatel:** Lucie Ivanková
 
-**Email:** luckaivankova1@seznam.cz
+**Email:** monlli@seznam.cz
 
 Tyto obchodní podmínky jsou platné od 2. prosince 2024.`
 
@@ -156,7 +158,7 @@ Na všechny produkty zakoupené v našem e-shopu se vztahuje zákonná záruka 2
 ## 3. Jak uplatnit reklamaci
 
 ### Krok 1: Kontaktujte nás
-Nejdříve nás kontaktujte e-mailem na **luckaivankova1@seznam.cz** a popište problém. Připojte fotografie vady, pokud je to možné.
+Nejdříve nás kontaktujte e-mailem na **monlli@seznam.cz** a popište problém. Připojte fotografie vady, pokud je to možné.
 
 ### Krok 2: Zaslání zboží
 Po domluvě zašlete vadné zboží zpět. Doporučujeme zásilku pojistit. Přiložte:
@@ -191,7 +193,7 @@ Pokud nejste spokojeni s vyřízením reklamace, máte právo:
 
 ## 7. Kontakt
 
-**Email:** luckaivankova1@seznam.cz
+**Email:** monlli@seznam.cz
 
 Odpovídáme do 24 hodin (pracovní dny).`
 
@@ -252,7 +254,7 @@ Náš web používá cookies pro zajištění základní funkcionality e-shopu. 
 
 V případě jakýchkoliv dotazů ohledně zpracování osobních údajů nás můžete kontaktovat:
 
-**Email:** luckaivankova1@seznam.cz
+**Email:** monlli@seznam.cz
 
 Tyto zásady ochrany osobních údajů jsou platné od 2. prosince 2024.`
 
