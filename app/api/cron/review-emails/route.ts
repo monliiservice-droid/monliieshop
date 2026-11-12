@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendOrderEmail } from '@/lib/email'
+import { getSeoSettings } from '@/lib/site-settings-server'
 
 // Tento endpoint by měl být volán cronem každý den
 // Například přes Vercel Cron Jobs nebo externí službu jako cron-job.org
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Odešli review email
-        await sendOrderEmail('review_request', orderData)
+        await sendOrderEmail('review_request', { ...orderData, reviewUrl: (await getSeoSettings()).googleReviewUrl })
 
         // Označ, že email byl odeslán
         await prisma.order.update({

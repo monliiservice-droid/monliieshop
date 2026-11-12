@@ -17,7 +17,7 @@ import type {
 import { getProductCards } from '@/lib/catalog'
 import { getCategoryTree, getDescendantIds } from '@/lib/categories'
 import { getActiveSales } from '@/lib/sales'
-import { getShopSettings } from '@/lib/site-settings-server'
+import { getSeoSettings, getShopSettings } from '@/lib/site-settings-server'
 import { SmartImage } from '@/components/site/smart-image'
 import { ProductCard } from '@/components/site/product-card'
 import { ScrollRow } from '@/components/site/scroll-row'
@@ -285,8 +285,9 @@ export function StoriesSection({ data }: { data: StoriesData }) {
 }
 
 /* ---------------------------------------------------------------- Reviews */
-export function ReviewsSection({ data }: { data: ReviewsData }) {
+export async function ReviewsSection({ data }: { data: ReviewsData }) {
   if (data.items.length === 0) return null
+  const reviewUrl = (await getSeoSettings()).googleReviewUrl
   return (
     <section className="bg-wine-soft">
       <div className={`site-container ${SECTION_Y}`}>
@@ -303,6 +304,12 @@ export function ReviewsSection({ data }: { data: ReviewsData }) {
             </figure>
           ))}
         </div>
+        {/^https:\/\//.test(reviewUrl) && (
+          <a href={reviewUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline mt-12">
+            Napsat recenzi na Googlu
+            <ArrowUpRight className="h-4 w-4" />
+          </a>
+        )}
       </div>
     </section>
   )
