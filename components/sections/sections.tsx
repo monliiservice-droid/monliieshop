@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { ArrowRight, ArrowUpRight, Instagram } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Facebook, Instagram } from 'lucide-react'
 import type {
   CategoryTilesData,
+  ContactData,
   CustomImageData,
   HeroData,
   ImageTextData,
@@ -21,15 +22,12 @@ import { SmartImage } from '@/components/site/smart-image'
 import { ProductCard } from '@/components/site/product-card'
 import { ScrollRow } from '@/components/site/scroll-row'
 import { SectionHeading } from './section-heading'
+import { ContactForm } from '@/components/site/contact-form'
+import { SubscriptionConfigurator } from '@/components/site/subscription-configurator'
+import { PICKUP_LOCATIONS } from '@/lib/pickup-locations'
+import { RichText } from '@/lib/rich-text'
 
 const SECTION_Y = 'py-16 md:py-24'
-
-function paragraphs(text: string) {
-  return text
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter(Boolean)
-}
 
 /* ------------------------------------------------------------------ Hero */
 export function HeroSection({ data, priority }: { data: HeroData; priority?: boolean }) {
@@ -164,27 +162,40 @@ export async function ProductCarouselSection({ data }: { data: ProductCarouselDa
 export function ImageTextSection({ data }: { data: ImageTextData }) {
   const imageRight = data.imagePosition === 'right'
   return (
-    <section className={`site-container ${SECTION_Y}`}>
-      <div className="grid items-center gap-10 md:grid-cols-12 md:gap-6">
-        {data.image && (
-          <div className={`reveal relative aspect-[4/5] overflow-hidden bg-sand md:col-span-6 ${imageRight ? 'md:order-2 md:col-start-7' : ''}`}>
-            <SmartImage src={data.image} alt={data.title} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
-          </div>
-        )}
-        <div className={`md:col-span-5 ${imageRight ? 'md:order-1 md:col-start-1' : 'md:col-start-8'}`}>
-          {data.eyebrow && <p className="eyebrow mb-5">{data.eyebrow}</p>}
-          <h2 className="display text-[clamp(2.25rem,4.5vw,3.75rem)]">{data.title}</h2>
-          <div className="mt-6 space-y-4 text-base leading-relaxed text-ink-soft md:text-lg">
-            {paragraphs(data.text).map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
-          </div>
-          {data.button.text && data.button.link && (
-            <Link href={data.button.link} className="btn btn-outline mt-8">
-              {data.button.text}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+    <section className={data.background === 'sand' ? 'bg-sand' : ''}>
+      <div className={`site-container ${SECTION_Y}`}>
+        <div className="grid items-center gap-10 md:grid-cols-12 md:gap-6">
+          {data.image && (
+            <div className={`reveal relative aspect-[4/5] overflow-hidden bg-sand md:col-span-6 ${imageRight ? 'md:order-2 md:col-start-7' : ''}`}>
+              <SmartImage src={data.image} alt={data.title || data.eyebrow} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+            </div>
           )}
+          <div className={`md:col-span-5 ${imageRight ? 'md:order-1 md:col-start-1' : 'md:col-start-8'}`}>
+            {data.eyebrow && <p className="eyebrow mb-5">{data.eyebrow}</p>}
+            {data.title && <h2 className="display text-[clamp(2.25rem,4.5vw,3.75rem)]">{data.title}</h2>}
+            {data.items.length > 0 && (
+              <ol className={`space-y-8 ${data.title ? 'mt-8' : ''}`}>
+                {data.items.map((item, index) => (
+                  <li key={index} className="border-t border-ink/20 pt-5">
+                    <span className="font-display text-4xl italic text-wine">{String(index + 1).padStart(2, '0')}</span>
+                    {item.title && <h3 className="mt-2 text-lg font-semibold">{item.title}</h3>}
+                    {item.text && <p className="mt-1 text-ink-soft">{item.text}</p>}
+                  </li>
+                ))}
+              </ol>
+            )}
+            {data.text && (
+              <div className={`prose-shop text-base md:text-lg ${data.title || data.items.length ? 'mt-8' : ''} ${data.items.length && !data.title ? 'prose-article [&>p:first-child]:font-display [&>p:first-child]:text-3xl [&>p:first-child]:text-ink' : ''}`}>
+                <RichText text={data.text} />
+              </div>
+            )}
+            {data.button.text && data.button.link && (
+              <Link href={data.button.link} className={`btn ${data.background === 'sand' ? 'btn-ink' : 'btn-outline'} mt-8`}>
+                {data.button.text}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -319,21 +330,131 @@ export function InstagramSection({ data }: { data: InstagramData }) {
 }
 
 /* ------------------------------------------------------------------- Text */
-export function TextSection({ data }: { data: TextData }) {
+// asPageTitle = sekce je nahoře stránky bez hlavičky, její nadpis je hlavní nadpis stránky (h1)
+export function TextSection({ data, asPageTitle = false }: { data: TextData; asPageTitle?: boolean }) {
+  const Heading = asPageTitle ? 'h1' : 'h2'
+  const lead = data.lead && <p className="mb-6 font-display text-[clamp(1.75rem,3vw,2.5rem)] leading-snug text-ink">{data.lead}</p>
+
+  if (data.layout === 'document') {
+    return (
+      <article className="site-container grid gap-10 py-12 md:grid-cols-12 md:py-20">
+        <header className="md:col-span-4">
+          <div className="md:sticky md:top-28">
+            {data.eyebrow && <p className="eyebrow mb-5">{data.eyebrow}</p>}
+            {data.title && <Heading className="display text-[clamp(2.5rem,4.5vw,4rem)]">{data.title}</Heading>}
+          </div>
+        </header>
+        <div className="prose-shop max-w-2xl md:col-span-7 md:col-start-6">
+          {lead}
+          <RichText text={data.text} />
+        </div>
+      </article>
+    )
+  }
+
+  if (data.layout === 'article') {
+    return (
+      <article className="site-container grid gap-12 py-16 md:grid-cols-12 md:py-24">
+        <div className="md:col-span-4">
+          <div className="md:sticky md:top-28">
+            {data.eyebrow && <p className="eyebrow">{data.eyebrow}</p>}
+            {data.title && <Heading className="display mt-5 text-[clamp(2.25rem,4vw,3.5rem)]">{data.title}</Heading>}
+          </div>
+        </div>
+        <div className="prose-shop prose-article md:col-span-7">
+          {lead}
+          <RichText text={data.text} />
+        </div>
+      </article>
+    )
+  }
+
   const centered = data.align === 'center'
   return (
     <section className={`site-container ${SECTION_Y}`}>
       <div className={`max-w-3xl ${centered ? 'mx-auto text-center' : ''}`}>
         {data.eyebrow && <p className="eyebrow mb-5">{data.eyebrow}</p>}
-        {data.title && <h2 className="display text-[clamp(2rem,4vw,3.25rem)]">{data.title}</h2>}
-        <div className="mt-6 space-y-4 text-lg leading-relaxed text-ink-soft">
-          {paragraphs(data.text).map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
+        {data.title && <Heading className="display text-[clamp(2rem,4vw,3.25rem)]">{data.title}</Heading>}
+        <div className={`prose-shop prose-article ${data.title ? 'mt-6' : ''} ${centered ? '[&_ul]:inline-block [&_ul]:text-left' : ''}`}>
+          {lead}
+          <RichText text={data.text} />
         </div>
       </div>
     </section>
   )
+}
+
+/* ---------------------------------------------------------------- Contact */
+export function ContactSection({ data }: { data: ContactData }) {
+  return (
+    <section className={`site-container grid gap-16 md:grid-cols-12 ${SECTION_Y}`}>
+      <div className="space-y-12 md:col-span-5">
+        {(data.email || data.phone) && (
+          <div>
+            {data.eyebrow && <p className="eyebrow mb-5">{data.eyebrow}</p>}
+            {data.email && <a href={`mailto:${data.email}`} className="link-line display block text-[clamp(1.75rem,3vw,2.5rem)]">{data.email}</a>}
+            {data.phone && <a href={`tel:${data.phone.replace(/\s/g, '')}`} className="link-line display mt-2 block text-[clamp(1.75rem,3vw,2.5rem)]">{data.phone}</a>}
+            {data.note && <p className="mt-4 text-ink-soft">{data.note}</p>}
+          </div>
+        )}
+
+        {data.showLocations === 'yes' && (
+          <div>
+            {data.locationsTitle && <p className="eyebrow mb-5">{data.locationsTitle}</p>}
+            <div className="space-y-8">
+              {Object.values(PICKUP_LOCATIONS).map((location) => (
+                <div key={location.name} className="border-t border-line pt-5">
+                  <h2 className="font-display text-2xl">{location.name}</h2>
+                  <p className="mt-1 text-sm font-semibold">{location.place}</p>
+                  <p className="mt-2 text-ink-soft">
+                    {location.address}
+                    {location.note && <span className="block text-sm italic">{location.note}</span>}
+                    <span className="block">{location.zip} {location.city}</span>
+                  </p>
+                  <dl className="mt-3 space-y-1 text-sm">
+                    {location.hours.map((h) => (
+                      <div key={h.days} className="flex gap-4">
+                        <dt className="w-28 shrink-0 text-stone">{h.days}</dt>
+                        <dd>{h.time}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {(data.instagram || data.facebook) && (
+          <div className="flex gap-3">
+            {data.instagram && (
+              <a href={data.instagram} target="_blank" rel="noopener noreferrer" className="btn btn-outline h-11 px-5">
+                <Instagram className="h-4 w-4" /> Instagram
+              </a>
+            )}
+            {data.facebook && (
+              <a href={data.facebook} target="_blank" rel="noopener noreferrer" className="btn btn-outline h-11 px-5">
+                <Facebook className="h-4 w-4" /> Facebook
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div id="kontaktni-formular" className="relative md:col-span-6 md:col-start-7">
+        {data.formEyebrow && <p className="eyebrow mb-5">{data.formEyebrow}</p>}
+        {data.formTitle && <h2 className="display mb-8 text-[clamp(2rem,3.5vw,3rem)]">{data.formTitle}</h2>}
+        <ContactForm />
+      </div>
+    </section>
+  )
+}
+
+/* ----------------------------------------------------------- Subscription */
+export async function SubscriptionSection() {
+  // Předplatné lze v administraci skrýt – sekce se pak nezobrazí
+  if (!(await getShopSettings()).subscriptionEnabled) return null
+  return <SubscriptionConfigurator />
 }
 
 /* ------------------------------------------------------------ Custom image */

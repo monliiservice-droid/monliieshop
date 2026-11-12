@@ -3,8 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { adminErrorResponse, badRequest, revalidateStorefront, unauthorizedResponse } from '@/lib/admin-api'
 import { isSectionType, normalizeSectionData } from '@/lib/sections'
 import { getDefaultSections, getPageSections } from '@/lib/sections-server'
-
-const PAGES = ['home']
+import { CONTENT_PAGES, isContentPageKey } from '@/lib/page-content'
 const MAX_SECTIONS = 40
 
 export async function GET(request: NextRequest) {
@@ -12,9 +11,9 @@ export async function GET(request: NextRequest) {
   if (denied) return denied
 
   const page = request.nextUrl.searchParams.get('page') || 'home'
-  if (!PAGES.includes(page)) return badRequest('Neznámá stránka')
+  if (!isContentPageKey(page)) return badRequest('Neznámá stránka')
   if (request.nextUrl.searchParams.get('defaults') === '1') {
-    return NextResponse.json(getDefaultSections())
+    return NextResponse.json(getDefaultSections(page))
   }
   return NextResponse.json(await getPageSections(page))
 }
@@ -26,7 +25,7 @@ export async function PUT(request: NextRequest) {
 
   const body = await request.json()
   const page = typeof body?.page === 'string' ? body.page : 'home'
-  if (!PAGES.includes(page)) return badRequest('Neznámá stránka')
+  if (!isContentPageKey(page)) return badRequest('Neznámá stránka')
   if (!Array.isArray(body?.sections) || body.sections.length > MAX_SECTIONS) {
     return badRequest('Neplatné sekce')
   }
@@ -50,6 +49,6 @@ export async function PUT(request: NextRequest) {
     revalidateStorefront()
     return NextResponse.json(await prisma.pageSection.findMany({ where: { page }, orderBy: { sortOrder: 'asc' } }))
   } catch (error) {
-    return adminErrorResponse(error, 'Homepage se nepodařilo uložit')
+    return adminErrorResponse(error, `Stránku ${CONTENT_PAGES[page].label} se nepodařilo uložit`)
   }
 }

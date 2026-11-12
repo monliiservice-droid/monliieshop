@@ -38,6 +38,9 @@ export interface ImageTextData {
   image: string
   imagePosition: 'left' | 'right'
   button: ButtonLink
+  /** Číslované body pod nadpisem (nepovinné) */
+  items: { title: string; text: string }[]
+  background: 'none' | 'sand'
 }
 
 export interface ValuesData {
@@ -78,8 +81,30 @@ export interface InstagramData {
 export interface TextData {
   eyebrow: string
   title: string
+  /** Úvodní věta větším písmem (nepovinné) */
+  lead: string
+  /** Text s jednoduchým formátováním (lib/rich-text.tsx) */
   text: string
   align: 'left' | 'center'
+  /** simple = blok textu, document = nadpis vlevo a text vpravo (podmínky), article = nadtitulek vlevo, velký text vpravo */
+  layout: 'simple' | 'document' | 'article'
+}
+
+export interface ContactData {
+  eyebrow: string
+  email: string
+  phone: string
+  note: string
+  showLocations: 'yes' | 'no'
+  locationsTitle: string
+  instagram: string
+  facebook: string
+  formEyebrow: string
+  formTitle: string
+}
+
+export interface SubscriptionData {
+  _: string
 }
 
 export interface CustomImageData {
@@ -103,6 +128,8 @@ export interface SectionDataMap {
   instagram: InstagramData
   text: TextData
   customImage: CustomImageData
+  contact: ContactData
+  subscription: SubscriptionData
 }
 
 export type SectionType = keyof SectionDataMap
@@ -125,8 +152,10 @@ export const SECTION_TYPE_LABELS: Record<SectionType, { label: string; descripti
   stories: { label: 'Příběhy', description: 'Příběhy zákaznic a zákazníků s fotkou' },
   reviews: { label: 'Recenze', description: 'Krátké citace zákazníků' },
   instagram: { label: 'Instagram', description: 'Fotky z Instagramu s odkazy' },
-  text: { label: 'Text', description: 'Samostatný odstavec textu' },
+  text: { label: 'Text', description: 'Odstavce, nadpisy, odrážky – i pro obchodní podmínky' },
   customImage: { label: 'Vlastní grafika', description: 'Vlastní obrázek (např. z Canvy) v SVG nebo PNG' },
+  contact: { label: 'Kontakty', description: 'E-mail, telefon, prodejny a kontaktní formulář' },
+  subscription: { label: 'Předplatné', description: 'Konfigurátor předplatného (jen když je zapnuté)' },
 }
 
 export const SECTION_TYPES = Object.keys(SECTION_TYPE_LABELS) as SectionType[]
@@ -169,6 +198,8 @@ export const DEFAULT_SECTION_DATA: SectionDataMap = {
     image: '/about_us.jpg',
     imagePosition: 'left',
     button: { text: 'Více o nás', link: '/o-nas' },
+    items: [],
+    background: 'none',
   },
   values: {
     eyebrow: 'Proč Monlii',
@@ -242,9 +273,24 @@ export const DEFAULT_SECTION_DATA: SectionDataMap = {
   text: {
     eyebrow: '',
     title: 'Nadpis',
+    lead: '',
     text: 'Text sekce.',
     align: 'center',
+    layout: 'simple',
   },
+  contact: {
+    eyebrow: 'Napište nebo zavolejte',
+    email: 'monlli@seznam.cz',
+    phone: '+420 702 559 369',
+    note: 'Odpovídáme obvykle do 24 hodin.',
+    showLocations: 'yes',
+    locationsTitle: 'Kde nás najdete',
+    instagram: 'https://www.instagram.com/monlii_i/',
+    facebook: 'https://www.facebook.com/monlii.cz',
+    formEyebrow: 'Kontaktní formulář',
+    formTitle: 'Máte dotaz k velikosti, materiálu nebo šití na míru?',
+  },
+  subscription: { _: '' },
   customImage: {
     image: '',
     mobileImage: '',

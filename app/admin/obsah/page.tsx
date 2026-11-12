@@ -18,6 +18,7 @@ import { SECTION_FIELDS, sectionSummary } from '@/lib/section-fields'
 import { PAGE_HEADER_LABELS, type PageHeaderKey, type PageHeaders } from '@/lib/site-settings'
 import { flattenCategories, type CategoryOption } from '@/lib/category-options'
 import { toastNetworkError, toastResponseError } from '@/lib/admin-client'
+import { CONTENT_PAGES, CONTENT_PAGE_KEYS, type ContentPageKey } from '@/lib/page-content'
 
 interface EditableSection {
   key: string // lokální klíč pro React (sekce se ukládají celé najednou)
@@ -34,6 +35,8 @@ function toEditable(sections: any[]): EditableSection[] {
 }
 
 export default function ContentBuilderPage() {
+  const [tab, setTab] = useState('pages')
+  const [page, setPage] = useState<ContentPageKey>('home')
   const [sections, setSections] = useState<EditableSection[]>([])
   const [openKey, setOpenKey] = useState<string | null>(null)
   const [dirty, setDirty] = useState(false)
@@ -43,14 +46,40 @@ export default function ContentBuilderPage() {
   const [headers, setHeaders] = useState<PageHeaders | null>(null)
   const [headersDirty, setHeadersDirty] = useState(false)
 
+  const pageInfo = CONTENT_PAGES[page]
+
+  // Sekce vybrané stránky
+  useEffect(() => {
+    let cancelled = false
+    setSections([])
+    setOpenKey(null)
+    setShowAdd(false)
+    fetch(`/api/admin/sections?page=${page}`)
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => {
+        if (!cancelled) {
+          setSections(toEditable(data))
+          setDirty(false)
+        }
+      })
+      .catch(() => toast.error('Stránku se nepodařilo načíst'))
+    return () => {
+      cancelled = true
+    }
+  }, [page])
+
+  const selectPage = (key: ContentPageKey) => {
+    if (key === page) return
+    if (dirty && !confirm('Na této stránce máte neuložené změny. Opravdu přepnout bez uložení?')) return
+    setPage(key)
+  }
+
   const load = useCallback(async () => {
-    const [sectionsRes, categoriesRes, salesRes, settingsRes] = await Promise.all([
-      fetch('/api/admin/sections?page=home'),
+    const [categoriesRes, salesRes, settingsRes] = await Promise.all([
       fetch('/api/admin/categories'),
       fetch('/api/admin/sales'),
       fetch('/api/admin/site-settings'),
     ])
-    if (sectionsRes.ok) setSections(toEditable(await sectionsRes.json()))
     const categories: CategoryOption[] = categoriesRes.ok ? await categoriesRes.json() : []
     const sales: { id: string; name: string }[] = salesRes.ok ? await salesRes.json() : []
     setContext({ categories: flattenCategories(categories), sales })
@@ -96,24 +125,24 @@ export default function ContentBuilderPage() {
       const res = await fetch('/api/admin/sections', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page: 'home', sections: sections.map(({ type, isVisible, data }) => ({ type, isVisible, data })) }),
+        body: JSON.stringify({ page, sections: sections.map(({ type, isVisible, data }) => ({ type, isVisible, data })) }),
       })
       if (!res.ok) {
-        await toastResponseError(res, 'Homepage se nepodařilo uložit')
+        await toastResponseError(res, `Stránku ${pageInfo.label} se nepodařilo uložit`)
         return
       }
       setDirty(false)
-      toast.success('Homepage uložena – změny jsou na webu')
+      toast.success(`${pageInfo.label} uloženo – změny jsou na webu`)
     } catch {
-      toastNetworkError('Homepage se nepodařilo uložit')
+      toastNetworkError(`Stránku ${pageInfo.label} se nepodařilo uložit`)
     } finally {
       setSaving(false)
     }
   }
 
   const resetToDefault = async () => {
-    if (!confirm('Nahradit současné rozložení výchozím? Změny se projeví až po uložení.')) return
-    const res = await fetch('/api/admin/sections?page=home&defaults=1')
+    if (!confirm('Nahradit současný obsah stránky výchozím? Změny se projeví až po uložení.')) return
+    const res = await fetch(`/api/admin/sections?page=${page}&defaults=1`)
     if (res.ok) {
       const defaults = await res.json()
       change(() => toEditable(defaults))
@@ -153,24 +182,46 @@ export default function ContentBuilderPage() {
         <div>
           <h1 className="mb-2 text-3xl font-bold">Obsah webu</h1>
           <p className="max-w-2xl text-gray-600">
-            Sestavte si homepage ze sekcí – měňte texty, fotky, pořadí a viditelnost. V druhé záložce upravíte hlavičky
-            ostatních stránek.
+            Vyberte stránku a sestavte ji ze sekcí – měňte texty, fotky, pořadí a viditelnost. V druhé záložce upravíte
+            hlavičky stránek (velká fotka s nadpisem nahoře).
           </p>
         </div>
-        <Link href="/" target="_blank">
+        <Link href={pageInfo.path} target="_blank">
           <Button variant="outline">
-            <ExternalLink className="mr-2 h-4 w-4" /> Zobrazit web
+            <ExternalLink className="mr-2 h-4 w-4" /> Zobrazit stránku
           </Button>
         </Link>
       </div>
 
-      <Tabs defaultValue="home">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
-          <TabsTrigger value="home">Homepage</TabsTrigger>
+          <TabsTrigger value="pages">Stránky</TabsTrigger>
           <TabsTrigger value="headers">Hlavičky stránek</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="home" className="mt-6 space-y-3">
+        <TabsContent value="pages" className="mt-6 space-y-3">
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Stránka">
+            {CONTENT_PAGE_KEYS.map((key) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={page === key}
+                onClick={() => selectPage(key)}
+                className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${page === key ? 'border-gray-900 bg-gray-900 text-white' : 'bg-white hover:border-gray-400'}`}
+              >
+                {CONTENT_PAGES[key].label}
+              </button>
+            ))}
+          </div>
+
+          {pageInfo.header && (
+            <p className="rounded-md border bg-gray-50 px-4 py-3 text-sm text-gray-600">
+              Nahoře na stránce je hlavička s fotkou – tu upravíte v záložce{' '}
+              <button type="button" onClick={() => setTab('headers')} className="font-medium underline">Hlavičky stránek</button>. Pod ní jsou tyto sekce:
+            </p>
+          )}
+
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500">
             <span>
               {sections.length} sekcí{hiddenCount > 0 && `, ${hiddenCount} skrytých`}
@@ -255,7 +306,7 @@ export default function ContentBuilderPage() {
           <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 px-4 py-3 backdrop-blur md:left-64">
             <div className="flex items-center justify-end gap-3">
               {dirty && <span className="text-sm text-amber-700">Neuložené změny</span>}
-              <Button onClick={save} disabled={!dirty || saving}>{saving ? 'Ukládám…' : 'Uložit homepage'}</Button>
+              <Button onClick={save} disabled={!dirty || saving}>{saving ? 'Ukládám…' : `Uložit – ${pageInfo.label}`}</Button>
             </div>
           </div>
         </TabsContent>
