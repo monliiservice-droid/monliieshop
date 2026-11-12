@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { Stitch } from '@/components/site/stitch'
 
 export function SectionHeading({
   eyebrow,
@@ -22,6 +23,7 @@ export function SectionHeading({
       <div className={align === 'center' ? 'mx-auto max-w-2xl' : 'max-w-2xl'}>
         {eyebrow && <p className="eyebrow mb-4">{eyebrow}</p>}
         <h2 className="display text-[clamp(2.25rem,4.5vw,3.75rem)]">{title}</h2>
+        <Stitch className={align === 'center' ? 'mx-auto' : ''} />
       </div>
       {link?.text && link.link && (
         <Link href={link.link} className={`group inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.14em] ${withArrows ? 'md:mr-28' : ''}`}>

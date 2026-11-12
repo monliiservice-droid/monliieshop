@@ -385,6 +385,60 @@
     }
   }
 
+  /* Steh pod nadpisy sekcí: nit se odkrývá zleva a jehla jede před ní (transform + clip-path, bez přepočtu rozložení) */
+  .stitch {
+    position: relative;
+    display: block;
+    width: min(11rem, 60%);
+    height: 8px;
+    margin-top: 1.25rem;
+    color: var(--color-wine);
+  }
+  .stitch-thread {
+    position: absolute;
+    inset: 3px 30px auto 0;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, currentColor 0 9px, transparent 9px 15px);
+  }
+  .stitch-needle {
+    position: absolute;
+    inset: 0 30px 0 0;
+    transform: translateX(100%);
+  }
+  .stitch-needle svg {
+    display: block;
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .stitch-thread {
+        animation: stitch-sew linear both;
+        animation-timeline: view();
+        animation-range: entry 60px cover 32%;
+      }
+      .stitch-needle {
+        animation: stitch-needle linear both;
+        animation-timeline: view();
+        animation-range: entry 60px cover 32%;
+      }
+    }
+  }
+  @keyframes stitch-sew {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0);
+    }
+  }
+  @keyframes stitch-needle {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
   @keyframes marquee {
     from {
       transform: translateX(0);

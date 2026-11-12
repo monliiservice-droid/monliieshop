@@ -53,6 +53,11 @@ function ProductImage({ product, sizes, priority, ratio }: { product: ProductCar
       ) : (
         <div className="flex h-full items-center justify-center font-display text-2xl text-clay">Monlii</div>
       )}
+      {/* Prošitý rámeček při najetí – jako našitá etiketa */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 scale-[1.04] border border-dashed border-linen/90 opacity-0 transition-[opacity,transform] duration-500 ease-[var(--ease-out-soft)] group-hover:scale-100 group-hover:opacity-100 motion-reduce:transition-none"
+      />
       <Badges product={product} />
     </div>
   )
