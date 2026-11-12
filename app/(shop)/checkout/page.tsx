@@ -321,7 +321,7 @@ export default function CheckoutPage() {
                     <span className="font-semibold">Osobní odběr</span>
                     <span className="text-sm">Zdarma</span>
                   </div>
-                  <p className="mt-1 text-sm text-ink-soft">Vyzvednutí na jednom z našich míst – ozveme se, až bude připraveno.</p>
+                  <p className="mt-1 text-sm text-ink-soft">Vyzvednutí na výdejním místě u našich partnerů – ozveme se, až bude připraveno.</p>
                   {shippingMethod === 'personal' && (
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                       {(Object.keys(PICKUP_LOCATIONS) as (keyof typeof PICKUP_LOCATIONS)[]).map((key) => {

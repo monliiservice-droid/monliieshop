@@ -189,10 +189,10 @@ export const SECTION_FIELDS: Record<SectionType, Field[]> = {
     {
       kind: 'select',
       key: 'showLocations',
-      label: 'Prodejny (adresy a otevírací doba)',
+      label: 'Výdejní místa (adresy a otevírací doba)',
       options: [{ value: 'yes', label: 'Zobrazit' }, { value: 'no', label: 'Nezobrazovat' }],
     },
-    { kind: 'text', key: 'locationsTitle', label: 'Nadtitulek prodejen' },
+    { kind: 'text', key: 'locationsTitle', label: 'Nadtitulek výdejních míst' },
     { kind: 'text', key: 'instagram', label: 'Odkaz na Instagram (prázdné = skrýt)' },
     { kind: 'text', key: 'facebook', label: 'Odkaz na Facebook (prázdné = skrýt)' },
     { kind: 'text', key: 'formEyebrow', label: 'Nadtitulek formuláře' },

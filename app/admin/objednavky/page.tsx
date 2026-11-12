@@ -328,7 +328,7 @@ export default function OrdersPage() {
                         const paymentMethods: Record<string, string> = {
                           'qr_code': 'QR platba',
                           'cod': 'Dobírka',
-                          'store_payment': 'Platba na prodejně'
+                          'store_payment': 'Platba při vyzvednutí'
                         }
                         const paymentMethod = (selectedOrder as any).paymentMethod || 'qr_code'
                         return paymentMethods[paymentMethod] || paymentMethod
@@ -360,7 +360,7 @@ export default function OrdersPage() {
                           💰 Stav platby: {selectedOrder.paymentStatus === 'paid' ? 'Zaplaceno' : 'Čeká na platbu'}
                         </p>
                         <p className="text-sm text-amber-600">
-                          {selectedOrder.paymentMethod === 'cod' ? 'Platba na dobírku' : 'Platba při vyzvednutí na prodejně'}
+                          {selectedOrder.paymentMethod === 'cod' ? 'Platba na dobírku' : 'Platba při vyzvednutí na výdejním místě'}
                         </p>
                       </div>
                       <Button
@@ -507,7 +507,7 @@ export default function OrdersPage() {
                             <div className="bg-emerald-50 border-2 border-emerald-300 rounded-xl p-5">
                               <div className="flex items-center gap-2 mb-3">
                                 <span className="text-2xl">🏪</span>
-                                <p className="text-emerald-700 font-bold text-lg">Osobní odběr na prodejně</p>
+                                <p className="text-emerald-700 font-bold text-lg">Osobní odběr na výdejním místě</p>
                               </div>
                               {loc ? (
                                 <>
