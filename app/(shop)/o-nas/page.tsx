@@ -10,7 +10,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: 'O nás | Monlii',
   description:
-    'Monlii je rodinná dílna tří žen. Ručně šijeme prádlo a oblečení pro ženy, muže i děti – s láskou k tělu i přírodě.',
+    'Monlii je malá česká rodinná značka – maminka a dvě dcery. Tvoříme slow fashion oblečení a prádlo pro ženy, muže i děti z přírodních a certifikovaných materiálů.',
   alternates: { canonical: '/o-nas' },
 }
 

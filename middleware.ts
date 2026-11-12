@@ -20,6 +20,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(adminUrl)
   }
 
+  // Stránky obchodu patří jen na hlavní doménu – na admin subdoméně by je vyhledávače viděly
+  // jako duplicitní obsah, proto je trvale přesměrujeme
+  if (hostname.startsWith('admin.') && !pathname.startsWith('/admin')) {
+    const shopUrl = new URL(request.url)
+    shopUrl.host = hostname.replace(/^admin\./, '')
+    shopUrl.port = ''
+    return NextResponse.redirect(shopUrl, 308)
+  }
+
   // Admin routes should only be accessible on admin.monlii.cz
   if (pathname.startsWith('/admin')) {
     const isAdminDomain = hostname.startsWith('admin.') || hostname === 'localhost:3000'
@@ -62,5 +71,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/admin/:path*'],
+  // Stránky (bez API, statických souborů a faktur) – kvůli přesměrování admin subdomény
+  matcher: ['/((?!api|_next|faktury|.*\\..*).*)'],
 }

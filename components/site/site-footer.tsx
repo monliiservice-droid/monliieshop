@@ -2,11 +2,12 @@ import Link from 'next/link'
 import { Facebook, Instagram } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import { getSiteNavigation } from '@/lib/navigation'
+import { getSeoSettings } from '@/lib/site-settings-server'
 
 async function getCompanyInfo() {
   try {
     return await prisma.companySettings.findFirst({
-      select: { companyName: true, ico: true, street: true, city: true, zip: true, email: true, phone: true },
+      select: { companyName: true, ico: true, street: true, city: true, zip: true },
     })
   } catch {
     return null
@@ -21,7 +22,8 @@ const INFO_LINKS = [
 ]
 
 export async function SiteFooter() {
-  const [navigation, company] = await Promise.all([getSiteNavigation(), getCompanyInfo()])
+  // Kontakt je jeden pro celý web (Nastavení → SEO), aby se shodoval s firemním profilem Google
+  const [navigation, company, seo] = await Promise.all([getSiteNavigation(), getCompanyInfo(), getSeoSettings()])
   const year = new Date().getFullYear()
 
   return (
@@ -31,7 +33,7 @@ export async function SiteFooter() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-light.svg" alt="Monlii" className="h-12 w-auto" />
           <p className="max-w-xs text-sm leading-relaxed">
-            Rodinná dílna, kde ručně šijeme prádlo a oblečení pro ženy, muže i děti. Malé série, poctivé materiály.
+            Malá rodinná značka. Slow fashion pro ženy, muže i děti z přírodních a certifikovaných materiálů, šité v Česku v malých sériích.
           </p>
           <div className="flex gap-3">
             <a href="https://www.instagram.com/monlii_i/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex h-10 w-10 items-center justify-center border border-linen/25 transition-colors hover:bg-linen hover:text-ink">
@@ -78,14 +80,14 @@ export async function SiteFooter() {
         <div>
           <h2 className="eyebrow text-linen/60">Kontakt</h2>
           <ul className="mt-5 space-y-3 text-sm">
-            {company?.email && (
+            {seo.email && (
               <li>
-                <a href={`mailto:${company.email}`} className="link-line hover:text-linen">{company.email}</a>
+                <a href={`mailto:${seo.email}`} className="link-line hover:text-linen">{seo.email}</a>
               </li>
             )}
-            {company?.phone && (
+            {seo.phone && (
               <li>
-                <a href={`tel:${company.phone.replace(/\s/g, '')}`} className="link-line hover:text-linen">{company.phone}</a>
+                <a href={`tel:${seo.phone.replace(/\s/g, '')}`} className="link-line hover:text-linen">{seo.phone}</a>
               </li>
             )}
             <li>

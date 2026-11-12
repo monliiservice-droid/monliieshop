@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const path = getCategoryPath(found.tree, found.category.id).map((c) => c.name)
   return {
     title: `${path.join(' – ')} | Monlii`,
-    description: found.category.description || `${path.join(' – ')}: ručně šité kousky z rodinné české dílny Monlii.`,
+    description: found.category.description || `${path.join(' – ')}: slow fashion z české rodinné dílny Monlii – přírodní a certifikované materiály, malé série.`,
     alternates: { canonical: `/obchod/${slug}` },
   }
 }

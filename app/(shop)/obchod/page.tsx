@@ -11,7 +11,7 @@ import { EmptyState } from '@/components/site/empty-state'
 
 export const metadata: Metadata = {
   title: 'Obchod | Monlii',
-  description: 'Ručně šité prádlo a oblečení pro ženy, muže i děti z rodinné české dílny.',
+  description: 'Slow fashion oblečení a prádlo pro ženy, muže i děti z české rodinné dílny. Bavlna, bambus a materiály s certifikací OEKO-TEX®.',
   alternates: { canonical: '/obchod' },
 }
 
