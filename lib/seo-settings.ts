@@ -19,6 +19,8 @@ export interface SeoSettings {
   facebook: string
   /** Odkaz na firemní profil Google (Mapy) – propojí web s profilem */
   googleBusinessUrl: string
+  /** Odkaz pro napsání recenze na Googlu – tlačítko u recenzí, v patičce a v e-mailu po doručení */
+  googleReviewUrl: string
   /** Obsah meta značky google-site-verification (jen když neověřujete přes DNS) */
   googleVerification: string
   /** Obsah meta značky seznam-wmt (Seznam Webmaster) */
@@ -42,7 +44,8 @@ export const DEFAULT_SEO_SETTINGS: SeoSettings = {
   phone: '+420 702 559 369',
   instagram: 'https://www.instagram.com/monlii_i/',
   facebook: 'https://www.facebook.com/monlii.cz',
-  googleBusinessUrl: '',
+  googleBusinessUrl: 'https://share.google/HM29lJfOP61RF1nup',
+  googleReviewUrl: 'https://g.page/r/CR_YdQSCYSqbEBM/review',
   googleVerification: '',
   seznamVerification: '',
   bingVerification: '',

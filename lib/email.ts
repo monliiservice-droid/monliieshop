@@ -71,6 +71,8 @@ interface OrderData {
   items: any[]
   shippingAddress: any
   trackingNumber?: string
+  /** Odkaz na recenzi na Googlu (Nastavení → SEO) */
+  reviewUrl?: string
   paymentMethod?: string
   qrPaymentData?: {
     qrCodeURL: string
@@ -785,7 +787,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
               
               <p>Tvoje recenze nám moc pomůže a zároveň pomůžeš dalším zákaznicím se rozhodnout. 🌟</p>
               
-              <a href="https://g.page/r/CR_YdQSCYSqbEBM/review" class="button">Napsat recenzi na Google</a>
+              <a href="${data.reviewUrl || 'https://g.page/r/CR_YdQSCYSqbEBM/review'}" class="button">Napsat recenzi na Google</a>
               
               <div class="order-details">
                 <h3>Máme pro tebe speciální nabídku!</h3>

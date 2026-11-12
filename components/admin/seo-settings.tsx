@@ -126,6 +126,8 @@ export function SeoSettingsForm() {
           </div>
           {field('googleBusinessUrl', 'Odkaz na firemní profil Google', 'https://maps.app.goo.gl/…')}
           <p className="text-xs text-gray-500">V profilu na Googlu klikněte na Sdílet a zkopírujte odkaz.</p>
+          {field('googleReviewUrl', 'Odkaz na napsání recenze na Googlu', 'https://g.page/r/…/review')}
+          <p className="text-xs text-gray-500">Tlačítko „Napsat recenzi“ u recenzí na webu, v patičce a v e-mailu, který chodí zákazníkům po doručení.</p>
         </CardContent>
       </Card>
 
@@ -146,7 +148,7 @@ export function SeoSettingsForm() {
 
       <div className="flex gap-2">
         <Button onClick={save} disabled={saving}>{saving ? 'Ukládám…' : 'Uložit SEO'}</Button>
-        <Button variant="outline" onClick={() => confirm('Vrátit doporučené texty? Uloží se až tlačítkem Uložit.') && setSeo({ ...DEFAULT_SEO_SETTINGS, googleVerification: seo.googleVerification, seznamVerification: seo.seznamVerification, bingVerification: seo.bingVerification, googleBusinessUrl: seo.googleBusinessUrl })}>
+        <Button variant="outline" onClick={() => confirm('Vrátit doporučené texty? Uloží se až tlačítkem Uložit.') && setSeo({ ...DEFAULT_SEO_SETTINGS, googleVerification: seo.googleVerification, seznamVerification: seo.seznamVerification, bingVerification: seo.bingVerification, googleBusinessUrl: seo.googleBusinessUrl, googleReviewUrl: seo.googleReviewUrl })}>
           Doporučené texty
         </Button>
       </div>

@@ -93,6 +93,11 @@ export async function SiteFooter() {
             <li>
               <Link href="/kontakty" className="link-line hover:text-linen">Kontaktní formulář</Link>
             </li>
+            {/^https:\/\//.test(seo.googleReviewUrl) && (
+              <li>
+                <a href={seo.googleReviewUrl} target="_blank" rel="noopener noreferrer" className="link-line hover:text-linen">Recenze na Googlu</a>
+              </li>
+            )}
           </ul>
         </div>
       </div>
