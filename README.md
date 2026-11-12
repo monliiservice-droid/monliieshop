@@ -93,7 +93,7 @@ Pokud krok 1 vypíše rozdíly, nejdřív je vyřeš (neaplikuj migraci naslepo)
 | --- | --- |
 | **Produkty** | Produkty, fotky (první = hlavní, druhá se ukáže po najetí), barvy, skrytí, „doporučený“, **Skrýt, když je vyprodáno**. Karta **Velikosti a sklad**: typ velikostí (výchozí z kategorie, lze změnit), dostupné velikosti, sklad po velikostech × barvách (nebo jedním číslem) a co dělat, když zboží dojde – prodávat jen skladem, nebo **přijímat objednávky na zakázku** s dobou výroby. |
 | **Kategorie** | Strom kategorií. Nejvyšší úroveň (Ženy / Muži / Děti…) je v hlavním menu, podkategorie v megamenu. U kategorie se nastavuje **typ velikostí** (podprsenka, braletka, set, prádlo XS–XL, oblečení XS–XXL, dětské 86–164, bez velikostí) – podkategorie ho může zdědit. **Pořadí** se mění šipkami a platí všude (menu, dlaždice, filtry, admin). |
-| **Obsah webu** | Shop builder homepage: sekce (úvodní banner, dlaždice kategorií, produkty, fotka + text, hodnoty, výprodej, příběhy, recenze, Instagram, text, **vlastní grafika** – obrázek z Canvy v SVG/PNG s verzí pro mobil, doporučené rozměry jsou přímo v editoru) – pořadí, viditelnost, texty, fotky. Záložka *Hlavičky stránek* upravuje hlavičky Obchodu, O nás, Kontaktů… |
+| **Obsah webu** | Shop builder pro **homepage i ostatní stránky** (O nás, Kontakty, Doprava a platba, Obchodní podmínky, Reklamace, Ochrana osobních údajů, Předplatné): sekce (úvodní banner, dlaždice kategorií, produkty, fotka + text, hodnoty, výprodej, příběhy, recenze, Instagram, text s formátováním, kontakty, předplatné, **vlastní grafika** – obrázek z Canvy v SVG/PNG s verzí pro mobil) – pořadí, viditelnost, texty, fotky. Dokud stránku neuložíte, zobrazuje se výchozí obsah z `lib/page-content.ts`. Záložka *Hlavičky stránek* upravuje velkou fotku s nadpisem nahoře na Obchodu, O nás, Kontaktech… |
 | **Výprodeje** | Časově omezené akce (sezóna, doprodej skladu…) se slevou v %, na celý obchod / kategorie / produkty. Akce má vlastní stránku `/vyprodej/<slug>`, odkaz v menu a banner. Sleva se automaticky promítne do cen i objednávek. Volba **Zobrazovat produkty jen ve výprodeji** je po dobu akce schová z jejich kategorie a z Obchodu – ukážou se jen na stránce výprodeje; po skončení akce se samy vrátí. |
 | **Nastavení → Obchod** | Vzhled produktových karet (klasické / minimalistické / přes fotku), počet sloupců, informační lišta nad menu, **písma** nadpisů a textu, **zapnutí/skrytí předplatného** |
 | **Nastavení → Fakturace** | Firemní údaje a číselná řada faktur |
@@ -157,8 +157,9 @@ Server kontroluje platnost, minimální částku i maximální počet použití.
   (světlé); pro e-maily `public/logo-email.png`.
 - Stránky obchodu sdílí layout `app/(shop)/layout.tsx` (lišta, hlavička s megamenu, patička). Hlavička i menu se
   skládají z kategorií, výprodejů a nastavení (`lib/navigation.ts`).
-- Sekce homepage jsou v `components/sections/`, jejich data a výchozí obsah v `lib/sections.ts`, editor polí
-  v `lib/section-fields.ts`.
+- Sekce stránek jsou v `components/sections/`, jejich data v `lib/sections.ts`, výchozí obsah stránek
+  v `lib/page-content.ts`, editor polí v `lib/section-fields.ts`. Text sekcí podporuje jednoduché formátování
+  (`## nadpis`, `- odrážka`, `**tučně**`, `[odkaz](/adresa)`) – `lib/rich-text.tsx`.
 
 ### Detail produktu a SEO
 

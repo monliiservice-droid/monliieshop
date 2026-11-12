@@ -1,16 +1,12 @@
 import { cache } from 'react'
 import { prisma } from './prisma'
-import {
-  DEFAULT_HOME_LAYOUT,
-  DEFAULT_SECTION_DATA,
-  isSectionType,
-  normalizeSectionData,
-  type Section,
-} from './sections'
+import { DEFAULT_SECTION_DATA, isSectionType, normalizeSectionData, type Section } from './sections'
+import { DEFAULT_PAGE_LAYOUTS, isContentPageKey } from './page-content'
 
-/** Výchozí sekce (nejsou v DB) – homepage tak funguje i před prvním uložením v builderu */
-export function getDefaultSections(): Section[] {
-  return DEFAULT_HOME_LAYOUT.map((item, index) => ({
+/** Výchozí sekce stránky (nejsou v DB) – stránka tak funguje i před prvním uložením v builderu */
+export function getDefaultSections(page: string): Section[] {
+  if (!isContentPageKey(page)) return []
+  return DEFAULT_PAGE_LAYOUTS[page].map((item, index) => ({
     id: `default-${index}`,
     type: item.type,
     isVisible: true,
@@ -25,8 +21,8 @@ export const getPageSections = cache(async (page: string): Promise<Section[]> =>
       where: { page },
       orderBy: { sortOrder: 'asc' },
     })
-    if (rows.length === 0 && page === 'home') {
-      return getDefaultSections()
+    if (rows.length === 0) {
+      return getDefaultSections(page)
     }
     return rows
       .filter((row) => isSectionType(row.type))
@@ -39,6 +35,6 @@ export const getPageSections = cache(async (page: string): Promise<Section[]> =>
       }))
   } catch (error) {
     console.error('Error loading page sections:', error)
-    return page === 'home' ? getDefaultSections() : []
+    return getDefaultSections(page)
   }
 })

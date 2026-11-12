@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPageHeaders, getShopSettings } from '@/lib/site-settings-server'
 import { PageHero } from '@/components/site/page-hero'
-import { SubscriptionConfigurator } from '@/components/site/subscription-configurator'
+import { getPageSections } from '@/lib/sections-server'
+import { RenderSections } from '@/components/sections/render-sections'
 
 export const revalidate = 300
 
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 }
 
 export default async function SubscriptionPage() {
-  const [settings, headers] = await Promise.all([getShopSettings(), getPageHeaders()])
+  const [settings, headers, sections] = await Promise.all([getShopSettings(), getPageHeaders(), getPageSections('predplatne')])
   // Předplatné lze v administraci skrýt – stránka pak neexistuje
   if (!settings.subscriptionEnabled) notFound()
 
@@ -21,7 +22,7 @@ export default async function SubscriptionPage() {
   return (
     <>
       <PageHero eyebrow={header.eyebrow} title={header.title} subtitle={header.subtitle} image={header.image} />
-      <SubscriptionConfigurator />
+      <RenderSections sections={sections} />
     </>
   )
 }

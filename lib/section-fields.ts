@@ -1,9 +1,10 @@
 // Popis editovatelných polí jednotlivých sekcí – podle něj admin vykreslí formulář.
+import { RICH_TEXT_HINT } from './rich-text-hint'
 import type { SectionType } from './sections'
 
 export type Field =
   | { kind: 'text'; key: string; label: string; placeholder?: string }
-  | { kind: 'textarea'; key: string; label: string; rows?: number }
+  | { kind: 'textarea'; key: string; label: string; rows?: number; hint?: string }
   | { kind: 'image'; key: string; label: string; aspect?: 'wide' | 'portrait' | 'square'; hint?: string; graphic?: boolean }
   | { kind: 'note'; key: string; title: string; lines: string[] }
   | { kind: 'select'; key: string; label: string; options: { value: string; label: string }[] }
@@ -67,10 +68,23 @@ export const SECTION_FIELDS: Record<SectionType, Field[]> = {
   ],
   imageText: [
     eyebrow,
-    title,
-    { kind: 'textarea', key: 'text', label: 'Text (prázdný řádek = nový odstavec)', rows: 6 },
+    { kind: 'text', key: 'title', label: 'Nadpis (nepovinné)' },
+    {
+      kind: 'list',
+      key: 'items',
+      label: 'Číslované body (nepovinné)',
+      itemLabel: 'Bod',
+      max: 8,
+      newItem: { title: '', text: '' },
+      fields: [
+        { kind: 'text', key: 'title', label: 'Nadpis' },
+        { kind: 'textarea', key: 'text', label: 'Text', rows: 2 },
+      ],
+    },
+    { kind: 'textarea', key: 'text', label: 'Text', rows: 6, hint: RICH_TEXT_HINT },
     { kind: 'image', key: 'image', label: 'Fotka', aspect: 'portrait' },
     { kind: 'select', key: 'imagePosition', label: 'Fotka', options: [{ value: 'left', label: 'Vlevo' }, { value: 'right', label: 'Vpravo' }] },
+    { kind: 'select', key: 'background', label: 'Pozadí', options: [{ value: 'none', label: 'Bez pozadí' }, { value: 'sand', label: 'Béžové' }] },
     { kind: 'button', key: 'button', label: 'Tlačítko' },
   ],
   values: [
@@ -151,10 +165,49 @@ export const SECTION_FIELDS: Record<SectionType, Field[]> = {
     },
   ],
   text: [
+    {
+      kind: 'select',
+      key: 'layout',
+      label: 'Rozvržení',
+      options: [
+        { value: 'simple', label: 'Blok textu' },
+        { value: 'document', label: 'Dokument – nadpis vlevo, text vpravo (podmínky, doprava…)' },
+        { value: 'article', label: 'Článek – nadtitulek vlevo, větší text vpravo (příběh)' },
+      ],
+    },
     eyebrow,
-    title,
-    { kind: 'textarea', key: 'text', label: 'Text', rows: 6 },
-    { kind: 'select', key: 'align', label: 'Zarovnání', options: [{ value: 'center', label: 'Na střed' }, { value: 'left', label: 'Vlevo' }] },
+    { kind: 'text', key: 'title', label: 'Nadpis' },
+    { kind: 'textarea', key: 'lead', label: 'Úvodní věta větším písmem (nepovinné)', rows: 2 },
+    { kind: 'textarea', key: 'text', label: 'Text', rows: 14, hint: RICH_TEXT_HINT },
+    { kind: 'select', key: 'align', label: 'Zarovnání (jen u bloku textu)', options: [{ value: 'center', label: 'Na střed' }, { value: 'left', label: 'Vlevo' }] },
+  ],
+  contact: [
+    eyebrow,
+    { kind: 'text', key: 'email', label: 'E-mail' },
+    { kind: 'text', key: 'phone', label: 'Telefon' },
+    { kind: 'text', key: 'note', label: 'Poznámka pod kontakty' },
+    {
+      kind: 'select',
+      key: 'showLocations',
+      label: 'Prodejny (adresy a otevírací doba)',
+      options: [{ value: 'yes', label: 'Zobrazit' }, { value: 'no', label: 'Nezobrazovat' }],
+    },
+    { kind: 'text', key: 'locationsTitle', label: 'Nadtitulek prodejen' },
+    { kind: 'text', key: 'instagram', label: 'Odkaz na Instagram (prázdné = skrýt)' },
+    { kind: 'text', key: 'facebook', label: 'Odkaz na Facebook (prázdné = skrýt)' },
+    { kind: 'text', key: 'formEyebrow', label: 'Nadtitulek formuláře' },
+    { kind: 'text', key: 'formTitle', label: 'Nadpis formuláře' },
+  ],
+  subscription: [
+    {
+      kind: 'note',
+      key: '_note',
+      title: 'Konfigurátor předplatného',
+      lines: [
+        'Zákazník si tu vybere délku předplatného, typ podprsenky a velikosti.',
+        'Ceny se nastavují v kódu (lib/pricing.ts). Sekce se zobrazí jen tehdy, když je předplatné zapnuté v Nastavení → Obchod.',
+      ],
+    },
   ],
   customImage: [
     {

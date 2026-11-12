@@ -69,6 +69,7 @@ function FieldEditor({
         <div className="space-y-1.5">
           <Label htmlFor={id}>{field.label}</Label>
           <Textarea id={id} rows={field.rows ?? 3} value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
+          {field.hint && <p className="text-xs text-gray-500">{field.hint}</p>}
         </div>
       )
     case 'number':

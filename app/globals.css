@@ -251,6 +251,22 @@
     text-decoration: underline;
     text-underline-offset: 3px;
   }
+  .prose-shop > :first-child {
+    margin-top: 0;
+  }
+  .prose-shop strong {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  /* Větší článkový text (např. příběh na stránce O nás) */
+  .prose-shop.prose-article {
+    font-size: 1.125rem;
+  }
+  .prose-shop.prose-article h2 {
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    line-height: 1.1;
+    margin-top: 3rem;
+  }
 
   .btn {
     display: inline-flex;
