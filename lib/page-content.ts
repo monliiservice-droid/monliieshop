@@ -98,7 +98,7 @@ Rádi vám pomůžeme!
 
 const TERMS_TEXT = `## 1. Úvodní ustanovení
 
-Tyto obchodní podmínky upravují vzájemná práva a povinnosti mezi prodávajícím Lucií Ivankovou a kupujícím při nákupu zboží prostřednictvím internetového obchodu umístěného na adrese monliieshop.vercel.app.
+Tyto obchodní podmínky upravují vzájemná práva a povinnosti mezi prodávajícím Lucií Ivankovou a kupujícím při nákupu zboží prostřednictvím internetového obchodu umístěného na adrese monlii.cz.
 
 ## 2. Objednávka a uzavření kupní smlouvy
 

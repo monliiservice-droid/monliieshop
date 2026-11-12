@@ -14,6 +14,7 @@ import { getShopSettings } from '@/lib/site-settings-server'
 import { Breadcrumbs } from '@/components/site/breadcrumbs'
 import { ProductGallery } from '@/components/product/product-gallery'
 import { isAvailable, parseSizeOptions, resolveSizeType } from '@/lib/product-stock'
+import { ZASILKOVNA_CONFIG } from '@/lib/zasilkovna-zbox'
 import { ProductPurchase } from '@/components/product/product-purchase'
 import { ProductCard } from '@/components/site/product-card'
 import { ScrollRow } from '@/components/site/scroll-row'
@@ -60,7 +61,7 @@ function parseJson<T>(value: string | null, fallback: T): T {
 }
 
 function shortDescription(product: { name: string; description: string | null }): string {
-  const text = (product.description || `${product.name} – ručně šitý kousek z rodinné dílny Monlii.`).replace(/\s+/g, ' ').trim()
+  const text = (product.description || `${product.name} – slow fashion z české rodinné dílny Monlii, z materiálů příjemných k pokožce.`).replace(/\s+/g, ' ').trim()
   return text.length > 160 ? `${text.slice(0, 157)}…` : text
 }
 
@@ -134,6 +135,27 @@ export default async function ProductPage({ params }: Props) {
       availability: product.stock > 0
         ? 'https://schema.org/InStock'
         : product.allowBackorder ? 'https://schema.org/BackOrder' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@id': `${baseUrl}/#organization` },
+      // Doprava a vrácení – Google je u e-shopů vyžaduje pro rozšířené výsledky (cena dopravy, lhůta vrácení)
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: { '@type': 'MonetaryAmount', value: ZASILKOVNA_CONFIG.zboxDeliveryPrice, currency: 'CZK' },
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'CZ' },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 5, unitCode: 'DAY' },
+          transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'CZ',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 14,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility',
+      },
     },
   }
 

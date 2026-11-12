@@ -10,6 +10,8 @@ export interface PickupLocation {
   zip: string
   city: string
   hours: { days: string; time: string }[]
+  /** Otevírací doba pro vyhledávače (schema.org) – jen u vlastní prodejny */
+  openingHours?: { days: string[]; opens: string; closes: string }[]
 }
 
 export const PICKUP_LOCATIONS: Record<PickupLocationId, PickupLocation> = {
@@ -32,6 +34,11 @@ export const PICKUP_LOCATIONS: Record<PickupLocationId, PickupLocation> = {
       { days: 'Po–Pá', time: '8:30–12:00, 12:30–17:00' },
       { days: 'So', time: '8:00–12:00' },
       { days: 'Ne', time: 'zavřeno' },
+    ],
+    openingHours: [
+      { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '08:30', closes: '12:00' },
+      { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '12:30', closes: '17:00' },
+      { days: ['Saturday'], opens: '08:00', closes: '12:00' },
     ],
   },
 }

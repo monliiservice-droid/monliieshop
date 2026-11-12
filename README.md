@@ -97,6 +97,7 @@ Pokud krok 1 vypíše rozdíly, nejdřív je vyřeš (neaplikuj migraci naslepo)
 | **Výprodeje** | Časově omezené akce (sezóna, doprodej skladu…) se slevou v %, na celý obchod / kategorie / produkty. Akce má vlastní stránku `/vyprodej/<slug>`, odkaz v menu a banner. Sleva se automaticky promítne do cen i objednávek. Volba **Zobrazovat produkty jen ve výprodeji** je po dobu akce schová z jejich kategorie a z Obchodu – ukážou se jen na stránce výprodeje; po skončení akce se samy vrátí. |
 | **Nastavení → Obchod** | Vzhled produktových karet (klasické / minimalistické / přes fotku), počet sloupců, informační lišta nad menu, **písma** nadpisů a textu, **zapnutí/skrytí předplatného** |
 | **Nastavení → Fakturace** | Firemní údaje a číselná řada faktur |
+| **Nastavení → SEO** | Titulek a popis pro vyhledávače, klíčová slova, obrázek pro sdílení, údaje o firmě pro strukturovaná data a AI (`/llms.txt`), ověřovací kódy Google / Seznam / Bing |
 | **Nastavení → Upozornění** | Adresy (až 10), na které chodí upozornění na nové objednávky a zprávy z kontaktního formuláře; testovací e-mail |
 | **Kontrola e-shopu** | Ověří nastavení potřebné pro objednávky: databáze, ostrý SMTP (ne sandbox Mailtrapu), přihlášení k SMTP, e-mail prodejce, bankovní účet pro QR, klíč Zásilkovny, fakturační údaje. Tlačítko pošle testovací e-mail. |
 
@@ -160,6 +161,16 @@ Server kontroluje platnost, minimální částku i maximální počet použití.
 - Sekce stránek jsou v `components/sections/`, jejich data v `lib/sections.ts`, výchozí obsah stránek
   v `lib/page-content.ts`, editor polí v `lib/section-fields.ts`. Text sekcí podporuje jednoduché formátování
   (`## nadpis`, `- odrážka`, `**tučně**`, `[odkaz](/adresa)`) – `lib/rich-text.tsx`.
+
+### SEO a vyhledávače
+
+- `app/robots.ts` – povoluje vyhledávače i AI crawlery (GPTBot, ClaudeBot, PerplexityBot…), blokuje admin, API, košík a pokladnu.
+  `/_next/` se blokovat nesmí (styly, skripty a obrázky).
+- `app/sitemap.ts`, `app/llms.txt/route.ts` (souhrn webu pro AI asistenty).
+- Strukturovaná data (`components/site/structured-data.tsx`): Organization, WebSite, ClothingStore (prodejna Frenštát),
+  BreadcrumbList v drobečkové navigaci, Product s dopravou a vrácením zboží.
+- Admin subdoména přesměrovává stránky obchodu na hlavní doménu (žádný duplicitní obsah).
+- `NEXT_PUBLIC_URL` musí odpovídat hlavní doméně ve Vercelu (canonical, sitemap).
 
 ### Detail produktu a SEO
 

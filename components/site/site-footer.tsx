@@ -31,7 +31,7 @@ export async function SiteFooter() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-light.svg" alt="Monlii" className="h-12 w-auto" />
           <p className="max-w-xs text-sm leading-relaxed">
-            Rodinná dílna, kde ručně šijeme prádlo a oblečení pro ženy, muže i děti. Malé série, poctivé materiály.
+            Malá rodinná značka. Slow fashion pro ženy, muže i děti z přírodních a certifikovaných materiálů, šité v Česku v malých sériích.
           </p>
           <div className="flex gap-3">
             <a href="https://www.instagram.com/monlii_i/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex h-10 w-10 items-center justify-center border border-linen/25 transition-colors hover:bg-linen hover:text-ink">

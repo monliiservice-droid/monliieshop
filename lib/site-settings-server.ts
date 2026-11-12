@@ -8,6 +8,7 @@ import {
   type PageHeaders,
   type ShopSettings,
 } from './site-settings'
+import { SEO_SETTINGS_KEY, mergeSeoSettings, type SeoSettings } from './seo-settings'
 
 async function readSetting(key: string): Promise<unknown> {
   try {
@@ -35,4 +36,8 @@ export const getShopSettings = cache(async (): Promise<ShopSettings> => {
 
 export const getPageHeaders = cache(async (): Promise<PageHeaders> => {
   return mergePageHeaders(await readSetting(PAGE_HEADERS_KEY))
+})
+
+export const getSeoSettings = cache(async (): Promise<SeoSettings> => {
+  return mergeSeoSettings(await readSetting(SEO_SETTINGS_KEY))
 })
