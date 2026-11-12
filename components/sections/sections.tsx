@@ -145,7 +145,7 @@ export async function ProductCarouselSection({ data }: { data: ProductCarouselDa
   }
 
   return (
-    <section className={`site-container overflow-hidden ${SECTION_Y}`}>
+    <section className={`site-container overflow-clip ${SECTION_Y}`}>
       <SectionHeading eyebrow={data.eyebrow} title={data.title} link={data.link} withArrows />
       <ScrollRow label={data.title}>
         {products.map((p) => (
@@ -262,7 +262,7 @@ export async function SaleBannerSection({ data }: { data: SaleBannerData }) {
 export function StoriesSection({ data }: { data: StoriesData }) {
   if (data.items.length === 0) return null
   return (
-    <section className={`site-container overflow-hidden ${SECTION_Y}`}>
+    <section className={`site-container overflow-clip ${SECTION_Y}`}>
       <SectionHeading eyebrow={data.eyebrow} title={data.title} withArrows />
       <ScrollRow label={data.title}>
         {data.items.map((story, index) => (
