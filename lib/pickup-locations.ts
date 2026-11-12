@@ -25,7 +25,7 @@ export const PICKUP_LOCATIONS: Record<PickupLocationId, PickupLocation> = {
   },
   frenstat: {
     name: 'Frenštát pod Radhoštěm',
-    place: 'Partnerská prodejna',
+    place: 'Textil Vlasta',
     address: 'Rožnovská 1824',
     zip: '744 01',
     city: 'Frenštát pod Radhoštěm',
