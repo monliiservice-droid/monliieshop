@@ -1,4 +1,3 @@
-import { PICKUP_LOCATIONS } from '@/lib/pickup-locations'
 import { keywordList, type SeoSettings } from '@/lib/seo-settings'
 
 /** JSON-LD do stránky; "<" escapujeme, aby text z administrace nemohl ukončit <script> */
@@ -7,25 +6,39 @@ export function JsonLd({ data }: { data: unknown }) {
 }
 
 /**
- * Strukturovaná data o firmě pro Google a AI asistenty: organizace, web a prodejna ve Frenštátě
- * (shodné údaje jako ve firemním profilu Google pomáhají propojit web s profilem).
+ * Strukturovaná data o firmě pro Google a AI asistenty: online obchod a web.
+ * Monlii nemá vlastní prodejnu – výdejní místa jsou partnerské obchody, proto je neuvádíme jako pobočky
+ * (údaje se musí shodovat s firemním profilem Google).
  */
 export function SiteStructuredData({ seo }: { seo: SeoSettings }) {
   const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'
-  const store = PICKUP_LOCATIONS.frenstat
   const sameAs = [seo.instagram, seo.facebook, seo.googleBusinessUrl].filter((url) => /^https:\/\//.test(url))
 
   const organization = {
-    '@type': 'Organization',
+    '@type': ['Organization', 'OnlineStore'],
     '@id': `${baseUrl}/#organization`,
     name: 'Monlii',
     url: baseUrl,
     logo: `${baseUrl}/icon-512.png`,
+    image: `${baseUrl}${seo.shareImage.startsWith('/') ? seo.shareImage : '/story_4.jpg'}`,
     description: seo.about,
     ...(seo.email && { email: seo.email }),
     ...(seo.phone && { telephone: seo.phone }),
     ...(sameAs.length > 0 && { sameAs }),
+    areaServed: { '@type': 'Country', name: 'Česká republika' },
+    currenciesAccepted: 'CZK',
     knowsAbout: keywordList(seo),
+    ...(seo.email || seo.phone
+      ? {
+          contactPoint: {
+            '@type': 'ContactPoint',
+            contactType: 'customer service',
+            availableLanguage: 'cs',
+            ...(seo.email && { email: seo.email }),
+            ...(seo.phone && { telephone: seo.phone }),
+          },
+        }
+      : {}),
   }
 
   const website = {
@@ -38,35 +51,5 @@ export function SiteStructuredData({ seo }: { seo: SeoSettings }) {
     publisher: { '@id': `${baseUrl}/#organization` },
   }
 
-  const shop = {
-    '@type': 'ClothingStore',
-    '@id': `${baseUrl}/#store-frenstat`,
-    name: 'Monlii',
-    url: baseUrl,
-    image: `${baseUrl}${seo.shareImage.startsWith('/') ? seo.shareImage : '/story_4.jpg'}`,
-    description: seo.about,
-    ...(seo.phone && { telephone: seo.phone }),
-    ...(seo.email && { email: seo.email }),
-    ...(seo.googleBusinessUrl && { hasMap: seo.googleBusinessUrl }),
-    parentOrganization: { '@id': `${baseUrl}/#organization` },
-    priceRange: '$$',
-    currenciesAccepted: 'CZK',
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: store.address,
-      addressLocality: store.city,
-      postalCode: store.zip,
-      addressCountry: 'CZ',
-    },
-    ...(store.openingHours && {
-      openingHoursSpecification: store.openingHours.map((h) => ({
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: h.days,
-        opens: h.opens,
-        closes: h.closes,
-      })),
-    }),
-  }
-
-  return <JsonLd data={{ '@context': 'https://schema.org', '@graph': [organization, website, shop] }} />
+  return <JsonLd data={{ '@context': 'https://schema.org', '@graph': [organization, website] }} />
 }

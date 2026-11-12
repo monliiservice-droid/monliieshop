@@ -352,8 +352,8 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
               
               ${data.paymentMethod === 'store_payment' ? `
                 <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
-                  <strong>🏪 Platba na prodejně</strong><br>
-                  Objednávku zaplatíš při vyzvednutí na prodejně. Žádné příplatky!
+                  <strong>🏪 Platba při vyzvednutí</strong><br>
+                  Objednávku zaplatíš při vyzvednutí na výdejním místě. Žádné příplatky!
                 </div>
               ` : ''}
               
@@ -375,7 +375,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
               
               ${data.shippingAddress?.shippingDetails?.personalLocation ? `
                 <div style="background: #ecfdf5; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #10b981;">
-                  <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Osobní odběr na prodejně</h3>
+                  <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Osobní odběr na výdejním místě</h3>
                   <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">
                     ${getPickupLocation(data.shippingAddress.shippingDetails.personalLocation).name}
                   </p>
@@ -500,7 +500,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
               
               ${data.shippingAddress?.shippingDetails?.personalLocation ? `
                 <div style="background: #ecfdf5; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #10b981;">
-                  <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Osobní odběr na prodejně:</h3>
+                  <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Osobní odběr na výdejním místě:</h3>
                   <p style="font-weight: bold; font-size: 18px; margin: 0 0 10px 0;">
                     ${getPickupLocation(data.shippingAddress.shippingDetails.personalLocation).name}
                   </p>
@@ -592,7 +592,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
                 <h2>Tvůj výrobek je hotový! ✨🎉</h2>
                 <p>Ahoj ${data.customerName},</p>
                 <p>S radostí ti oznamujeme, že tvoje objednávka <strong>#${data.orderNumber}</strong> je kompletně dokončena!</p>
-                <p>Nyní ji připravujeme pro vyzvednutí na prodejně. Jakmile bude připravena, dáme ti vědět. 💝</p>
+                <p>Nyní ji připravujeme pro vyzvednutí na výdejním místě. Jakmile bude připravena, dáme ti vědět. 💝</p>
                 
                 <div style="background: #ecfdf5; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #10b981;">
                   <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Místo vyzvednutí:</h3>
@@ -668,7 +668,7 @@ function getEmailTemplate(type: EmailType, data: OrderData): { subject: string; 
               <div class="content">
                 <h2>Tvoje objednávka je připravena k vyzvednutí! 🎉</h2>
                 <p>Ahoj ${data.customerName},</p>
-                <p>Skvělá zpráva! Tvoje objednávka <strong>#${data.orderNumber}</strong> je připravena a čeká na tebe na prodejně!</p>
+                <p>Skvělá zpráva! Tvoje objednávka <strong>#${data.orderNumber}</strong> je připravena a čeká na tebe na výdejním místě!</p>
                 
                 <div style="background: #ecfdf5; padding: 25px; border-radius: 12px; margin: 25px 0; border: 2px solid #10b981;">
                   <h3 style="color: #059669; margin: 0 0 15px 0;">🏪 Přijď si pro ni na:</h3>

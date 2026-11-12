@@ -40,12 +40,12 @@ ${sales.length ? sales.map((s) => `- [${s.name}](${baseUrl}/vyprodej/${s.slug}) 
 ## Informace
 
 - [O nás](${baseUrl}/o-nas): příběh rodinné značky a co je pro nás důležité
-- [Doprava a platba](${baseUrl}/doprava): Z-BOX Zásilkovny ${ZASILKOVNA_CONFIG.zboxDeliveryPrice} Kč, zdarma od ${ZASILKOVNA_CONFIG.freeShippingThreshold} Kč; osobní odběr zdarma; platba QR kódem, dobírkou nebo na prodejně
+- [Doprava a platba](${baseUrl}/doprava): Z-BOX Zásilkovny ${ZASILKOVNA_CONFIG.zboxDeliveryPrice} Kč, zdarma od ${ZASILKOVNA_CONFIG.freeShippingThreshold} Kč; osobní odběr zdarma; platba QR kódem, dobírkou nebo při vyzvednutí
 - [Obchodní podmínky](${baseUrl}/obchodni-podminky)
 - [Reklamace](${baseUrl}/reklamace)
 - [Kontakty](${baseUrl}/kontakty)
 
-## Kde nás najdete
+## Výdejní místa (partnerské obchody, Monlii nemá vlastní prodejnu)
 
 ${locations.join('\n')}
 

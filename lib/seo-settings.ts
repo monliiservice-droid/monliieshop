@@ -37,7 +37,7 @@ export const DEFAULT_SEO_SETTINGS: SeoSettings = {
     'slow fashion, udržitelná móda, ekologické oblečení, oblečení z bambusu, bavlněné oblečení, OEKO-TEX, česká výroba, české oblečení, rodinná značka, dámské oblečení, pánské oblečení, dětské oblečení, spodní prádlo, prádlo na míru, Frenštát pod Radhoštěm, Havířov',
   shareImage: '/story_4.jpg',
   about:
-    'Monlii je malá česká rodinná značka – maminka a její dvě dcery. Tvoří v duchu slow fashion oblečení a prádlo pro ženy, muže i děti: v malých sériích, s důrazem na kvalitu, pohodlí a nadčasové střihy. Vybírá převážně přírodní a certifikované materiály (bavlna, bambusový úplet, OEKO-TEX® STANDARD 100), visačky jsou z rostoucího papíru. Prodává přes e-shop monlii.cz s dopravou do Z-BOXu Zásilkovny a osobním odběrem ve Frenštátu pod Radhoštěm a v Havířově.',
+    'Monlii je malá česká rodinná značka – maminka a její dvě dcery. Tvoří v duchu slow fashion oblečení a prádlo pro ženy, muže i děti: v malých sériích, s důrazem na kvalitu, pohodlí a nadčasové střihy. Vybírá převážně přírodní a certifikované materiály (bavlna, bambusový úplet, OEKO-TEX® STANDARD 100), visačky jsou z rostoucího papíru. Prodává přes e-shop monlii.cz s dopravou do Z-BOXu Zásilkovny; objednávky si lze vyzvednout i na partnerských výdejních místech v Havířově a ve Frenštátu pod Radhoštěm.',
   email: 'monlli@seznam.cz',
   phone: '+420 702 559 369',
   instagram: 'https://www.instagram.com/monlii_i/',

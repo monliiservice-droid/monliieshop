@@ -154,7 +154,7 @@ export const SECTION_TYPE_LABELS: Record<SectionType, { label: string; descripti
   instagram: { label: 'Instagram', description: 'Fotky z Instagramu s odkazy' },
   text: { label: 'Text', description: 'Odstavce, nadpisy, odrážky – i pro obchodní podmínky' },
   customImage: { label: 'Vlastní grafika', description: 'Vlastní obrázek (např. z Canvy) v SVG nebo PNG' },
-  contact: { label: 'Kontakty', description: 'E-mail, telefon, prodejny a kontaktní formulář' },
+  contact: { label: 'Kontakty', description: 'E-mail, telefon, výdejní místa a kontaktní formulář' },
   subscription: { label: 'Předplatné', description: 'Konfigurátor předplatného (jen když je zapnuté)' },
 }
 
@@ -284,7 +284,7 @@ export const DEFAULT_SECTION_DATA: SectionDataMap = {
     phone: '+420 702 559 369',
     note: 'Odpovídáme obvykle do 24 hodin.',
     showLocations: 'yes',
-    locationsTitle: 'Kde nás najdete',
+    locationsTitle: 'Kde si objednávku vyzvednete',
     instagram: 'https://www.instagram.com/monlii_i/',
     facebook: 'https://www.facebook.com/monlii.cz',
     formEyebrow: 'Kontaktní formulář',

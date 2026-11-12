@@ -9,7 +9,7 @@ export const revalidate = 300
 
 export const metadata: Metadata = {
   title: 'Kontakty | Monlii',
-  description: 'Napište nám nebo se zastavte – Monlii najdete v Havířově a ve Frenštátu pod Radhoštěm.',
+  description: 'Napište nám nebo zavolejte. Objednávky si můžete vyzvednout na výdejních místech v Havířově a ve Frenštátu pod Radhoštěm.',
   alternates: { canonical: '/kontakty' },
 }
 

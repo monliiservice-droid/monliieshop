@@ -111,7 +111,7 @@ export async function SiteFooter() {
             )}
           </p>
           <p>
-            Platba QR kódem, dobírkou nebo na prodejně · Doprava Zásilkovnou ·{' '}
+            Platba QR kódem, dobírkou nebo při vyzvednutí · Doprava Zásilkovnou ·{' '}
             Stránku vytvořil{' '}
             <a href="https://nevymyslis.cz" target="_blank" rel="noopener noreferrer" className="link-line hover:text-linen">Roman Velička z nevymyslis.cz</a>
           </p>

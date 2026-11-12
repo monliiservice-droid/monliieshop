@@ -167,7 +167,7 @@ Server kontroluje platnost, minimální částku i maximální počet použití.
 - `app/robots.ts` – povoluje vyhledávače i AI crawlery (GPTBot, ClaudeBot, PerplexityBot…), blokuje admin, API, košík a pokladnu.
   `/_next/` se blokovat nesmí (styly, skripty a obrázky).
 - `app/sitemap.ts`, `app/llms.txt/route.ts` (souhrn webu pro AI asistenty).
-- Strukturovaná data (`components/site/structured-data.tsx`): Organization, WebSite, ClothingStore (prodejna Frenštát),
+- Strukturovaná data (`components/site/structured-data.tsx`): Organization + OnlineStore (bez poboček – výdejní místa jsou partnerské obchody), WebSite,
   BreadcrumbList v drobečkové navigaci, Product s dopravou a vrácením zboží.
 - Admin subdoména přesměrovává stránky obchodu na hlavní doménu (žádný duplicitní obsah).
 - `NEXT_PUBLIC_URL` musí odpovídat hlavní doméně ve Vercelu (canonical, sitemap).
