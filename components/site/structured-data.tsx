@@ -1,4 +1,5 @@
 import { keywordList, type SeoSettings } from '@/lib/seo-settings'
+import { imageSrc } from '@/lib/image-focus'
 
 /** JSON-LD do stránky; "<" escapujeme, aby text z administrace nemohl ukončit <script> */
 export function JsonLd({ data }: { data: unknown }) {
@@ -20,7 +21,7 @@ export function SiteStructuredData({ seo }: { seo: SeoSettings }) {
     name: 'Monlii',
     url: baseUrl,
     logo: `${baseUrl}/icon-512.png`,
-    image: `${baseUrl}${seo.shareImage.startsWith('/') ? seo.shareImage : '/story_4.jpg'}`,
+    image: `${baseUrl}${imageSrc(seo.shareImage).startsWith('/') ? imageSrc(seo.shareImage) : '/story_4.jpg'}`,
     description: seo.about,
     ...(seo.email && { email: seo.email }),
     ...(seo.phone && { telephone: seo.phone }),

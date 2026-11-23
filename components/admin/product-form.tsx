@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, ChevronLeft, ChevronRight, ImagePlus, Loader2, X } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, Crosshair, ImagePlus, Loader2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +17,8 @@ import { isSizeType } from '@/lib/product-types'
 import { ProductStockEditor, cellValue, selectedOptions, stockGrid } from '@/components/admin/product-stock-editor'
 import { effectiveSizeType, flattenCategories, type CategoryOption } from '@/lib/category-options'
 import { uploadImages } from '@/lib/admin-upload'
+import { splitImage } from '@/lib/image-focus'
+import { FocusPicker } from '@/components/admin/focus-picker'
 import { DEFAULT_PRODUCT_CARE } from '@/lib/product-stock'
 import { SizeChartField } from '@/components/admin/size-chart-field'
 import { RICH_TEXT_HINT } from '@/lib/rich-text-hint'
@@ -37,6 +39,7 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
   const [categories, setCategories] = useState<CategoryOption[]>([])
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [focusIndex, setFocusIndex] = useState<number | null>(null)
   const [newColor, setNewColor] = useState<Color>({ name: '', hex: '#000000' })
   const fileInput = useRef<HTMLInputElement>(null)
 
@@ -77,6 +80,7 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
 
   const moveImage = (index: number, direction: -1 | 1) => {
     const target = index + direction
+    setFocusIndex(null)
     if (target < 0 || target >= values.images.length) return
     const images = [...values.images]
     ;[images[index], images[target]] = [images[target], images[index]]
@@ -277,9 +281,20 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {values.images.map((url, index) => (
-                  <div key={url + index} className="group relative aspect-[3/4] overflow-hidden rounded-lg border bg-gray-50">
-                    <Image src={url} alt="" fill sizes="200px" unoptimized className="object-cover" />
+                {values.images.map((url, index) => {
+                  const shown = splitImage(url)
+                  return (
+                  <div key={shown.src + index} className={`group relative aspect-[3/4] overflow-hidden rounded-lg border bg-gray-50 ${focusIndex === index ? 'ring-2 ring-gray-900' : ''}`}>
+                    <Image src={shown.src} alt="" fill sizes="200px" unoptimized className="object-cover" style={{ objectPosition: `${shown.x}% ${shown.y}%` }} />
+                    <button
+                      type="button"
+                      onClick={() => setFocusIndex(focusIndex === index ? null : index)}
+                      className="absolute right-2 top-2 rounded bg-white/90 p-1"
+                      aria-label="Vybrat výřez"
+                      title="Vybrat výřez – co má zůstat vidět"
+                    >
+                      <Crosshair className="h-4 w-4" />
+                    </button>
                     {index === 0 && (
                       <span className="absolute left-2 top-2 rounded bg-black/70 px-2 py-0.5 text-[11px] font-medium text-white">Hlavní</span>
                     )}
@@ -287,7 +302,10 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
                       <button type="button" onClick={() => moveImage(index, -1)} disabled={index === 0} className="rounded bg-white/90 p-1 disabled:opacity-30" aria-label="Posunout vlevo">
                         <ChevronLeft className="h-4 w-4" />
                       </button>
-                      <button type="button" onClick={() => update('images', values.images.filter((_, i) => i !== index))} className="rounded bg-white/90 p-1 text-red-600" aria-label="Odebrat">
+                      <button type="button" onClick={() => {
+                        setFocusIndex(null)
+                        update('images', values.images.filter((_, i) => i !== index))
+                      }} className="rounded bg-white/90 p-1 text-red-600" aria-label="Odebrat">
                         <X className="h-4 w-4" />
                       </button>
                       <button type="button" onClick={() => moveImage(index, 1)} disabled={index === values.images.length - 1} className="rounded bg-white/90 p-1 disabled:opacity-30" aria-label="Posunout vpravo">
@@ -295,7 +313,8 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
                       </button>
                     </div>
                   </div>
-                ))}
+                  )
+                })}
                 <button
                   type="button"
                   onClick={() => fileInput.current?.click()}
@@ -306,8 +325,17 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
                   {uploading ? 'Nahrávám…' : 'Přidat fotky'}
                 </button>
               </div>
-              <p className="text-xs text-gray-500">První fotka je hlavní, druhá se ukáže po najetí myší. Fotky se automaticky zmenší.</p>
-              <input ref={fileInput} type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleFiles(e.target.files)} />
+              {focusIndex !== null && values.images[focusIndex] && (
+                <FocusPicker
+                  value={values.images[focusIndex]}
+                  onChange={(next) => update('images', values.images.map((img, i) => (i === focusIndex ? next : img)))}
+                />
+              )}
+              <p className="text-xs text-gray-500">
+                První fotka je hlavní, druhá se ukáže po najetí myší. Ikonou zaměřovače vyberete, co má na fotce při ořezu zůstat vidět.
+                Ideální poměr fotek je 4 : 5 (na výšku).
+              </p>
+              <input ref={fileInput} type="file" accept="image/*,.heic,.heif" multiple className="hidden" onChange={(e) => handleFiles(e.target.files)} />
             </CardContent>
           </Card>
 

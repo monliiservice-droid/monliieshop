@@ -14,6 +14,7 @@ import { ProductGallery } from '@/components/product/product-gallery'
 import { DEFAULT_PRODUCT_CARE, isAvailable, parseSizeOptions, resolveSizeType } from '@/lib/product-stock'
 import { RichText } from '@/lib/rich-text'
 import { resolveSizeChart } from '@/lib/size-charts'
+import { imageSrc } from '@/lib/image-focus'
 import { ZASILKOVNA_CONFIG } from '@/lib/zasilkovna-zbox'
 import { ProductPurchase } from '@/components/product/product-purchase'
 import { ProductCard } from '@/components/site/product-card'
@@ -84,7 +85,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       locale: 'cs_CZ',
       siteName: 'Monlii',
       url: `/produkt/${product.id}`,
-      images: images.slice(0, 1).map((url) => ({ url, alt: product.name })),
+      images: images.slice(0, 1).map((url) => ({ url: imageSrc(url), alt: product.name })),
     },
   }
 }
@@ -118,7 +119,7 @@ export default async function ProductPage({ params }: Props) {
     '@type': 'Product',
     name: product.name,
     description: shortDescription(product),
-    image: images.map((url) => new URL(url, baseUrl).toString()),
+    image: images.map((url) => new URL(imageSrc(url), baseUrl).toString()),
     sku: product.id,
     brand: { '@type': 'Brand', name: 'Monlii' },
     ...(path.length > 0 && { category: path.map((c) => c.name).join(' > ') }),

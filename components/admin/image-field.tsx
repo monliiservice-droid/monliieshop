@@ -2,10 +2,12 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
-import { ImagePlus, Loader2, X } from 'lucide-react'
+import { Crosshair, ImagePlus, Loader2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { uploadImages } from '@/lib/admin-upload'
+import { splitImage } from '@/lib/image-focus'
+import { FocusPicker } from '@/components/admin/focus-picker'
 
 interface ImageFieldProps {
   label: string
@@ -27,6 +29,8 @@ const ASPECT_CLASS = {
 export function ImageField({ label, value, onChange, hint, aspect = 'wide', graphic = false }: ImageFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
+  const [picking, setPicking] = useState(false)
+  const preview = splitImage(value)
 
   const handleFile = async (file: File | undefined) => {
     if (!file) return
@@ -48,7 +52,7 @@ export function ImageField({ label, value, onChange, hint, aspect = 'wide', grap
       <div className={`relative w-full max-w-md overflow-hidden rounded-lg border border-dashed bg-gray-50 ${ASPECT_CLASS[aspect]}`}>
         {value ? (
           <>
-            <Image src={value} alt="" fill sizes="448px" unoptimized className={graphic ? 'object-contain' : 'object-cover'} />
+            <Image src={preview.src} alt="" fill sizes="448px" unoptimized className={graphic ? 'object-contain' : 'object-cover'} style={graphic ? undefined : { objectPosition: `${preview.x}% ${preview.y}%` }} />
             <button
               type="button"
               onClick={() => onChange('')}
@@ -87,11 +91,18 @@ export function ImageField({ label, value, onChange, hint, aspect = 'wide', grap
           </button>
         )}
       </div>
+      {value && !graphic && (
+        <button type="button" onClick={() => setPicking(!picking)} className="flex items-center gap-1.5 text-xs font-medium text-gray-700 hover:text-gray-900">
+          <Crosshair className="h-3.5 w-3.5" />
+          {picking ? 'Hotovo' : preview.x !== 50 || preview.y !== 50 ? 'Upravit výřez' : 'Vybrat výřez (co má zůstat vidět)'}
+        </button>
+      )}
+      {picking && value && <FocusPicker value={value} onChange={onChange} />}
       {hint && <p className="text-xs text-gray-500">{hint}</p>}
       <input
         ref={inputRef}
         type="file"
-        accept={graphic ? 'image/svg+xml,image/png,image/jpeg,image/webp' : 'image/*'}
+        accept={graphic ? 'image/svg+xml,image/png,image/jpeg,image/webp' : 'image/*,.heic,.heif'}
         className="hidden"
         onChange={(e) => handleFile(e.target.files?.[0])}
       />
