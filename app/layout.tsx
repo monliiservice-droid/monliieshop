@@ -3,6 +3,7 @@ import { fontVariables } from "@/lib/fonts";
 import "./globals.css";
 import { getSeoSettings } from "@/lib/site-settings-server";
 import { keywordList, verificationCode } from "@/lib/seo-settings";
+import { imageSrc } from "@/lib/image-focus";
 import { Toaster } from "@/components/ui/sonner";
 
 // Titulek, popis, klíčová slova a ověřovací kódy vyhledávačů se nastavují v Nastavení → SEO
@@ -11,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const google = verificationCode(seo.googleVerification)
   const seznam = verificationCode(seo.seznamVerification)
   const bing = verificationCode(seo.bingVerification)
-  const shareImage = seo.shareImage || '/story_4.jpg'
+  const shareImage = imageSrc(seo.shareImage) || '/story_4.jpg'
 
   return {
     title: seo.title,

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image, { type ImageProps } from 'next/image'
+import { splitImage } from '@/lib/image-focus'
 
 /** Obrázky z našeho webu a z Vercel Blob se optimalizují; libovolná jiná URL (vložená v adminu) se načte přímo */
 export function isOptimizable(src: string): boolean {
@@ -21,14 +22,17 @@ export function scaleSizes(sizes: string, factor: number): string {
  * fotka na šířku v rámečku na výšku se zvětší a ořízne, takže potřebuje větší rozlišení, než říká `sizes`.
  * V tom případě se `sizes` zvětší a prohlížeč si dotáhne ostřejší verzi.
  */
-export function SmartImage({ src, alt, sizes, onLoad, ...props }: Omit<ImageProps, 'src'> & { src: string }) {
+export function SmartImage({ src: value, alt, sizes, onLoad, style, ...props }: Omit<ImageProps, 'src'> & { src: string }) {
   const [factor, setFactor] = useState(1)
+  // Výřez zvolený v administraci (#focus=x,y v adrese) – ořez se drží kolem něj
+  const { src, x, y } = splitImage(value)
 
   return (
     <Image
       src={src}
       alt={alt}
       unoptimized={!isOptimizable(src)}
+      style={x !== 50 || y !== 50 ? { ...style, objectPosition: `${x}% ${y}%` } : style}
       sizes={sizes && factor > 1 ? scaleSizes(sizes, factor) : sizes}
       onLoad={(event) => {
         onLoad?.(event)
