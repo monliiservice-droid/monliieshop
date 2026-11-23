@@ -182,11 +182,13 @@ export default async function ProductPage({ params }: Props) {
       </div>
 
       <section className="site-container grid gap-10 pt-6 md:grid-cols-12 md:gap-10 lg:gap-16">
-        <div className="md:col-span-7">
-          <ProductGallery images={images} name={product.name} />
+        <div className="md:col-span-6">
+          <div className="md:sticky md:top-28">
+            <ProductGallery images={images} name={product.name} />
+          </div>
         </div>
 
-        <div className="md:col-span-5">
+        <div className="md:col-span-6 lg:col-span-5 lg:col-start-8">
           <div className="md:sticky md:top-28">
             {path.length > 0 && <p className="eyebrow mb-4">{path[path.length - 1].name}</p>}
             <h1 className="display text-[clamp(2.5rem,4.5vw,4rem)]">{product.name}</h1>

@@ -41,11 +41,12 @@ export function HeroSection({ data, priority }: { data: HeroData; priority?: boo
           fill
           priority={priority}
           sizes="100vw"
+          quality={85}
           className={`-z-10 object-cover ${data.mobileImage ? 'hidden sm:block' : ''}`}
         />
       )}
       {data.mobileImage && (
-        <SmartImage src={data.mobileImage} alt="" fill priority={priority} sizes="100vw" className="-z-10 object-cover sm:hidden" />
+        <SmartImage src={data.mobileImage} alt="" fill priority={priority} sizes="100vw" quality={85} className="-z-10 object-cover sm:hidden" />
       )}
       <div className={`absolute inset-0 -z-10 ${centered ? 'bg-ink/45' : 'bg-gradient-to-r from-ink/75 via-ink/35 to-ink/5'}`} />
       <div className={`site-container flex w-full flex-col justify-end pb-14 pt-24 md:pb-20 ${centered ? 'items-center text-center' : ''}`}>
