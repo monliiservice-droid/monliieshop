@@ -68,7 +68,7 @@ Vzor je v [`.env.example`](.env.example). Na Vercelu se nastavují v *Settings �
 s produkčními `DATABASE_URL` / `DIRECT_URL`). Nový kód počítá s novými sloupci a tabulkami – bez migrace by obchod
 nefungoval. Migrace `1_shop_builder` přidává kategorie, výprodeje a sekce stránek a stávající produkty sama zařadí
 do nového stromu kategorií (podle jejich dosavadní kategorie). Migrace `2_sold_out_and_sale_listing` přidává
-volbu „skrýt vyprodaný produkt“ a „produkty jen ve výprodeji“. Migrace `3_product_variants` přidává sklad
+volbu „skrýt vyprodaný produkt“ a „produkty jen ve výprodeji“. Migrace `4_product_care` přidává vlastní text „Materiál a péče“ u produktu. Migrace `3_product_variants` přidává sklad
 po velikostech a barvách a prodej na zakázku (původní nepoužívaná tabulka `ProductVariant` se přitom vyprázdní).
 
 ### Migrace – jednorázový přechod na novou historii

@@ -17,6 +17,8 @@ import { isSizeType } from '@/lib/product-types'
 import { ProductStockEditor, cellValue, selectedOptions, stockGrid } from '@/components/admin/product-stock-editor'
 import { effectiveSizeType, flattenCategories, type CategoryOption } from '@/lib/category-options'
 import { uploadImages } from '@/lib/admin-upload'
+import { DEFAULT_PRODUCT_CARE } from '@/lib/product-stock'
+import { RICH_TEXT_HINT } from '@/lib/rich-text-hint'
 
 type PriceKey = keyof SetConfiguration['prices']
 
@@ -125,6 +127,7 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
         body: JSON.stringify({
           name: values.name,
           description: values.description,
+          care: values.care,
           price,
           stock: values.stockMode === 'single' ? parseInt(values.stock, 10) : 0,
           variants,
@@ -185,7 +188,12 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Popis</Label>
-                <Textarea id="description" rows={5} value={values.description} onChange={(e) => update('description', e.target.value)} placeholder="Materiál, střih, péče…" />
+                <Textarea id="description" rows={5} value={values.description} onChange={(e) => update('description', e.target.value)} placeholder="Materiál, střih…" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="care">Materiál a péče</Label>
+                <Textarea id="care" rows={5} value={values.care} onChange={(e) => update('care', e.target.value)} placeholder={DEFAULT_PRODUCT_CARE} />
+                <p className="text-xs text-gray-500">Když necháte prázdné, zobrazí se výchozí text (šedě v poli). {RICH_TEXT_HINT}</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Kategorie</Label>

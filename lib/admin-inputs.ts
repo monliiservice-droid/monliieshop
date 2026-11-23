@@ -104,6 +104,7 @@ export function parseProductInput(body: any) {
     data: {
       name: cleanText(body?.name, 200),
       description: optionalText(body?.description, 10000),
+      care: optionalText(body?.care, 5000),
       price: Number.isFinite(price) && price >= 0 ? price : NaN,
       stock: Number.isInteger(stock) && stock >= 0 ? stock : NaN,
       images: jsonArrayString(body?.images),

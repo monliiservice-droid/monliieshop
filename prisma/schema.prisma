@@ -15,6 +15,7 @@ model Product {
   id                String           @id @default(cuid())
   name              String
   description       String?
+  care              String? // Materiál a péče (prázdné = výchozí text na webu)
   price             Float
   stock             Int              @default(0)
   images            String           @default("[]") // JSON array of image URLs

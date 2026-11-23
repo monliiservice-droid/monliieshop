@@ -6,6 +6,11 @@
 
 import { getSizeFields, isSizeType, type SizeField, type SizeType } from './product-types'
 
+/** Výchozí text „Materiál a péče“ u produktu, který nemá vlastní (odrážky = řádky začínající pomlčkou) */
+export const DEFAULT_PRODUCT_CARE = `- Prát v ruce nebo v pračce na 30 °C v síťce na prádlo
+- Nesušit v sušičce, sušit volně rozložené
+- Nežehlit krajku a gumy`
+
 export type SizeOptions = Record<string, string[]>
 
 export interface StockVariant {

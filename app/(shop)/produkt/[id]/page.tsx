@@ -13,7 +13,8 @@ import { DEFAULT_SET_CONFIG, type SetConfiguration } from '@/lib/set-config-type
 import { getShopSettings } from '@/lib/site-settings-server'
 import { Breadcrumbs } from '@/components/site/breadcrumbs'
 import { ProductGallery } from '@/components/product/product-gallery'
-import { isAvailable, parseSizeOptions, resolveSizeType } from '@/lib/product-stock'
+import { DEFAULT_PRODUCT_CARE, isAvailable, parseSizeOptions, resolveSizeType } from '@/lib/product-stock'
+import { RichText } from '@/lib/rich-text'
 import { ZASILKOVNA_CONFIG } from '@/lib/zasilkovna-zbox'
 import { ProductPurchase } from '@/components/product/product-purchase'
 import { ProductCard } from '@/components/site/product-card'
@@ -32,6 +33,7 @@ const getProduct = cache(async (id: string) => {
       id: true,
       name: true,
       description: true,
+      care: true,
       price: true,
       stock: true,
       images: true,
@@ -86,12 +88,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   }
 }
-
-const CARE_ITEMS = [
-  'Prát v ruce nebo v pračce na 30 °C v síťce na prádlo',
-  'Nesušit v sušičce, sušit volně rozložené',
-  'Nežehlit krajku a gumy',
-]
 
 export default async function ProductPage({ params }: Props) {
   const { id } = await params
@@ -230,11 +226,9 @@ export default async function ProductPage({ params }: Props) {
                   Materiál a péče
                   <span className="text-xl font-light transition-transform group-open:rotate-45">+</span>
                 </summary>
-                <ul className="mt-4 list-disc space-y-1.5 pl-5 text-ink-soft">
-                  {CARE_ITEMS.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
+                <div className="prose-shop mt-4 [&_li]:mb-1.5">
+                  <RichText text={product.care?.trim() || DEFAULT_PRODUCT_CARE} />
+                </div>
               </details>
               <details className="group py-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between text-[13px] font-semibold uppercase tracking-[0.14em]">

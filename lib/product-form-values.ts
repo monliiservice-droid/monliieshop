@@ -13,6 +13,7 @@ export function stockCellKey(size: string, color: string): string {
 export interface ProductFormValues {
   name: string
   description: string
+  care: string
   price: string
   stock: string
   categoryId: string
@@ -38,6 +39,7 @@ export interface ProductFormValues {
 export const EMPTY_PRODUCT_VALUES: ProductFormValues = {
   name: '',
   description: '',
+  care: '',
   price: '',
   stock: '1',
   categoryId: '',
@@ -72,6 +74,7 @@ export function productToFormValues(product: any): ProductFormValues {
   return {
     name: product.name ?? '',
     description: product.description ?? '',
+    care: product.care ?? '',
     price: String(product.price ?? ''),
     stock: String(product.stock ?? 0),
     categoryId: product.categoryId ?? '',
