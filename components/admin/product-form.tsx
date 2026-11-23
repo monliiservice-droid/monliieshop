@@ -335,7 +335,7 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
                 První fotka je hlavní, druhá se ukáže po najetí myší. Ikonou zaměřovače vyberete, co má na fotce při ořezu zůstat vidět.
                 Ideální poměr fotek je 4 : 5 (na výšku).
               </p>
-              <input ref={fileInput} type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleFiles(e.target.files)} />
+              <input ref={fileInput} type="file" accept="image/*,.heic,.heif" multiple className="hidden" onChange={(e) => handleFiles(e.target.files)} />
             </CardContent>
           </Card>
 

@@ -102,7 +102,7 @@ export function ImageField({ label, value, onChange, hint, aspect = 'wide', grap
       <input
         ref={inputRef}
         type="file"
-        accept={graphic ? 'image/svg+xml,image/png,image/jpeg,image/webp' : 'image/*'}
+        accept={graphic ? 'image/svg+xml,image/png,image/jpeg,image/webp' : 'image/*,.heic,.heif'}
         className="hidden"
         onChange={(e) => handleFile(e.target.files?.[0])}
       />

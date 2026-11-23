@@ -40,6 +40,28 @@ export async function compressImage(file: File): Promise<File> {
   }
 }
 
+const HEIC_TYPES = ['image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence']
+
+/** Fotky z iPhonu (HEIC/HEIF) – prohlížeče je kromě Safari neumí zobrazit, Chrome jim často nedá ani typ */
+export function isHeicFile(file: File): boolean {
+  return HEIC_TYPES.includes(file.type.toLowerCase()) || /\.(heic|heif)$/i.test(file.name)
+}
+
+/**
+ * Převede HEIC na JPEG v téměř plné kvalitě (0,98) přímo v prohlížeči; pak už jde fotka běžnou cestou
+ * (zmenšení na 2400 px a WebP/JPEG 0,85). Knihovna (~3 MB) se načte jen při nahrávání HEIC.
+ */
+async function convertHeic(file: File): Promise<File> {
+  try {
+    const { heicTo } = await import('heic-to/next')
+    const blob = await heicTo({ blob: file, type: 'image/jpeg', quality: 0.98 })
+    return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' })
+  } catch (error) {
+    console.error('HEIC conversion failed:', error)
+    throw new Error(`Fotku ${file.name} (HEIC) se nepodařilo převést. Zkuste ji prosím nahrát znovu, případně jako JPEG.`)
+  }
+}
+
 const GRAPHIC_ORIGINAL_MAX_BYTES = 2 * 1024 * 1024
 
 /**
@@ -49,6 +71,7 @@ const GRAPHIC_ORIGINAL_MAX_BYTES = 2 * 1024 * 1024
  */
 async function prepareFile(file: File, graphic: boolean): Promise<File> {
   if (file.type === 'image/svg+xml') return file
+  if (isHeicFile(file)) file = await convertHeic(file)
   if (graphic && file.size <= GRAPHIC_ORIGINAL_MAX_BYTES) return file
   return compressImage(file)
 }
