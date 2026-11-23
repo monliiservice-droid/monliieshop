@@ -14,6 +14,7 @@ export interface ProductFormValues {
   name: string
   description: string
   care: string
+  sizeChart: string
   price: string
   stock: string
   categoryId: string
@@ -40,6 +41,7 @@ export const EMPTY_PRODUCT_VALUES: ProductFormValues = {
   name: '',
   description: '',
   care: '',
+  sizeChart: '',
   price: '',
   stock: '1',
   categoryId: '',
@@ -75,6 +77,7 @@ export function productToFormValues(product: any): ProductFormValues {
     name: product.name ?? '',
     description: product.description ?? '',
     care: product.care ?? '',
+    sizeChart: product.sizeChart ?? '',
     price: String(product.price ?? ''),
     stock: String(product.stock ?? 0),
     categoryId: product.categoryId ?? '',

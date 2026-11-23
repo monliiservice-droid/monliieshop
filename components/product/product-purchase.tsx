@@ -262,7 +262,7 @@ export function ProductPurchase({ product, sizeType, salePercent, saleName, show
             <span className={showErrors && !sizes[field.name] ? 'text-wine' : ''}>{field.label}</span>
             {showMeasureLink && field === sizeFields[0] && (
               <a href="#jak-merit" className="flex items-center gap-1.5 font-normal normal-case tracking-normal text-ink-soft underline-offset-4 hover:underline">
-                <Ruler className="h-4 w-4" /> Jak změřit velikost
+                <Ruler className="h-4 w-4" /> Tabulka velikostí
               </a>
             )}
           </legend>

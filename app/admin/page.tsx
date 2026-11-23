@@ -65,7 +65,7 @@ async function isDatabaseUpToDate(): Promise<boolean> {
       prisma.product.findFirst({ select: { hideWhenSoldOut: true } }),
       prisma.saleEvent.findFirst({ select: { separateListing: true } }),
       prisma.productVariant.findFirst({ select: { size: true } }),
-      prisma.product.findFirst({ select: { care: true } }),
+      prisma.product.findFirst({ select: { care: true, sizeChart: true } }),
     ])
     return true
   } catch (error) {

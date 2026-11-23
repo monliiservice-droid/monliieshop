@@ -18,6 +18,7 @@ import { ProductStockEditor, cellValue, selectedOptions, stockGrid } from '@/com
 import { effectiveSizeType, flattenCategories, type CategoryOption } from '@/lib/category-options'
 import { uploadImages } from '@/lib/admin-upload'
 import { DEFAULT_PRODUCT_CARE } from '@/lib/product-stock'
+import { SizeChartField } from '@/components/admin/size-chart-field'
 import { RICH_TEXT_HINT } from '@/lib/rich-text-hint'
 
 type PriceKey = keyof SetConfiguration['prices']
@@ -128,6 +129,7 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
           name: values.name,
           description: values.description,
           care: values.care,
+          sizeChart: values.sizeChart,
           price,
           stock: values.stockMode === 'single' ? parseInt(values.stock, 10) : 0,
           variants,
@@ -306,6 +308,15 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
               </div>
               <p className="text-xs text-gray-500">První fotka je hlavní, druhá se ukáže po najetí myší. Fotky se automaticky zmenší.</p>
               <input ref={fileInput} type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleFiles(e.target.files)} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tabulka velikostí</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SizeChartField value={values.sizeChart} onChange={(url) => update('sizeChart', url)} />
             </CardContent>
           </Card>
 

@@ -70,10 +70,6 @@ export function getSizeFields(sizeType: SizeType, braType?: 'bralette' | 'wired'
   }
 }
 
-/** Typy, u kterých má smysl zobrazit měřicí tabulku podprsenek */
-export function hasBraMeasurements(sizeType: SizeType): boolean {
-  return sizeType === 'bra_wired' || sizeType === 'bralette' || sizeType === 'set'
-}
 
 // Labels pro zobrazení
 export const SIZE_LABELS: Record<string, string> = {
