@@ -9,6 +9,10 @@ export interface HeroData {
   subtitle: string
   image: string
   mobileImage: string
+  /** Další fotky – banner je pak prolíná jako carousel */
+  slides: { image: string; mobileImage: string }[]
+  /** Po kolika sekundách se fotky přepnou */
+  interval: number
   primary: ButtonLink
   secondary: ButtonLink
   align: 'left' | 'center'
@@ -167,6 +171,8 @@ export const DEFAULT_SECTION_DATA: SectionDataMap = {
     subtitle: 'Prádlo a oblečení pro ženy, muže i děti. Malé série, poctivé materiály a střihy, které sedí.',
     image: '/hero_section_alternative_2.jpg',
     mobileImage: '',
+    slides: [],
+    interval: 6,
     primary: { text: 'Nakupovat', link: '/obchod' },
     secondary: { text: 'Náš příběh', link: '/o-nas' },
     align: 'left',

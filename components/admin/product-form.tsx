@@ -17,6 +17,9 @@ import { isSizeType } from '@/lib/product-types'
 import { ProductStockEditor, cellValue, selectedOptions, stockGrid } from '@/components/admin/product-stock-editor'
 import { effectiveSizeType, flattenCategories, type CategoryOption } from '@/lib/category-options'
 import { uploadImages } from '@/lib/admin-upload'
+import { DEFAULT_PRODUCT_CARE } from '@/lib/product-stock'
+import { SizeChartField } from '@/components/admin/size-chart-field'
+import { RICH_TEXT_HINT } from '@/lib/rich-text-hint'
 
 type PriceKey = keyof SetConfiguration['prices']
 
@@ -125,6 +128,8 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
         body: JSON.stringify({
           name: values.name,
           description: values.description,
+          care: values.care,
+          sizeChart: values.sizeChart,
           price,
           stock: values.stockMode === 'single' ? parseInt(values.stock, 10) : 0,
           variants,
@@ -185,7 +190,12 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Popis</Label>
-                <Textarea id="description" rows={5} value={values.description} onChange={(e) => update('description', e.target.value)} placeholder="Materiál, střih, péče…" />
+                <Textarea id="description" rows={5} value={values.description} onChange={(e) => update('description', e.target.value)} placeholder="Materiál, střih…" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="care">Materiál a péče</Label>
+                <Textarea id="care" rows={5} value={values.care} onChange={(e) => update('care', e.target.value)} placeholder={DEFAULT_PRODUCT_CARE} />
+                <p className="text-xs text-gray-500">Když necháte prázdné, zobrazí se výchozí text (šedě v poli). {RICH_TEXT_HINT}</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Kategorie</Label>
@@ -298,6 +308,15 @@ export function ProductForm({ productId, initialValues }: ProductFormProps) {
               </div>
               <p className="text-xs text-gray-500">První fotka je hlavní, druhá se ukáže po najetí myší. Fotky se automaticky zmenší.</p>
               <input ref={fileInput} type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleFiles(e.target.files)} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tabulka velikostí</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SizeChartField value={values.sizeChart} onChange={(url) => update('sizeChart', url)} />
             </CardContent>
           </Card>
 

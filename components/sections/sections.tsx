@@ -22,6 +22,7 @@ import { SmartImage } from '@/components/site/smart-image'
 import { ProductCard } from '@/components/site/product-card'
 import { ScrollRow } from '@/components/site/scroll-row'
 import { SectionHeading } from './section-heading'
+import { HeroSlides } from './hero-slides'
 import { ContactForm } from '@/components/site/contact-form'
 import { SubscriptionConfigurator } from '@/components/site/subscription-configurator'
 import { PICKUP_LOCATIONS } from '@/lib/pickup-locations'
@@ -34,20 +35,11 @@ export function HeroSection({ data, priority }: { data: HeroData; priority?: boo
   const centered = data.align === 'center'
   return (
     <section className={`relative isolate flex overflow-hidden bg-ink text-linen ${data.height === 'tall' ? 'min-h-[calc(100svh-6rem)] lg:min-h-[calc(100svh-7.25rem)]' : 'min-h-[58vh]'}`}>
-      {data.image && (
-        <SmartImage
-          src={data.image}
-          alt=""
-          fill
-          priority={priority}
-          sizes="100vw"
-          quality={85}
-          className={`-z-10 object-cover ${data.mobileImage ? 'hidden sm:block' : ''}`}
-        />
-      )}
-      {data.mobileImage && (
-        <SmartImage src={data.mobileImage} alt="" fill priority={priority} sizes="100vw" quality={85} className="-z-10 object-cover sm:hidden" />
-      )}
+      <HeroSlides
+        slides={[{ image: data.image, mobileImage: data.mobileImage }, ...data.slides].filter((slide) => slide.image)}
+        interval={data.interval}
+        priority={priority}
+      />
       <div className={`absolute inset-0 -z-10 ${centered ? 'bg-ink/45' : 'bg-gradient-to-r from-ink/75 via-ink/35 to-ink/5'}`} />
       <div className={`site-container flex w-full flex-col justify-end pb-14 pt-24 md:pb-20 ${centered ? 'items-center text-center' : ''}`}>
         <div className={`max-w-3xl ${centered ? 'mx-auto' : ''}`}>

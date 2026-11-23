@@ -1,19 +1,19 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { getBasePrice, getProductCards } from '@/lib/catalog'
 import { getCategoryPath, getCategoryTree, getEffectiveSizeType } from '@/lib/categories'
 import { findBestSale, getActiveSales, isSeparatedSaleProduct } from '@/lib/sales'
 import { applySaleDiscount } from '@/lib/pricing'
-import { hasBraMeasurements } from '@/lib/product-types'
 import { DEFAULT_SET_CONFIG, type SetConfiguration } from '@/lib/set-config-types'
 import { getShopSettings } from '@/lib/site-settings-server'
 import { Breadcrumbs } from '@/components/site/breadcrumbs'
 import { ProductGallery } from '@/components/product/product-gallery'
-import { isAvailable, parseSizeOptions, resolveSizeType } from '@/lib/product-stock'
+import { DEFAULT_PRODUCT_CARE, isAvailable, parseSizeOptions, resolveSizeType } from '@/lib/product-stock'
+import { RichText } from '@/lib/rich-text'
+import { resolveSizeChart } from '@/lib/size-charts'
 import { ZASILKOVNA_CONFIG } from '@/lib/zasilkovna-zbox'
 import { ProductPurchase } from '@/components/product/product-purchase'
 import { ProductCard } from '@/components/site/product-card'
@@ -32,6 +32,8 @@ const getProduct = cache(async (id: string) => {
       id: true,
       name: true,
       description: true,
+      care: true,
+      sizeChart: true,
       price: true,
       stock: true,
       images: true,
@@ -87,12 +89,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-const CARE_ITEMS = [
-  'Prát v ruce nebo v pračce na 30 °C v síťce na prádlo',
-  'Nesušit v sušičce, sušit volně rozložené',
-  'Nežehlit krajku a gumy',
-]
-
 export default async function ProductPage({ params }: Props) {
   const { id } = await params
   const product = await getProduct(id)
@@ -110,8 +106,7 @@ export default async function ProductPage({ params }: Props) {
   // Produkt v akci s odděleným výpisem „patří“ do výprodeje, ne do své kategorie
   const separatedSale = isSeparatedSaleProduct(product, sales, tree)
   const basePrice = getBasePrice(product)
-  const showMeasurements = hasBraMeasurements(product.isSet ? 'set' : sizeType)
-  const isBralette = sizeType === 'bralette' || setConfig?.braType === 'bralette'
+  const sizeChart = resolveSizeChart(product.sizeChart, product.isSet ? 'set' : sizeType, setConfig?.braType)
 
   const related = product.categoryId && !separatedSale
     ? (await getProductCards({ categoryIds: [product.categoryId], limit: 9 })).filter((p) => p.id !== product.id).slice(0, 8)
@@ -211,7 +206,7 @@ export default async function ProductPage({ params }: Props) {
                 sizeType={sizeType}
                 salePercent={sale?.discountPercent ?? null}
                 saleName={sale?.name ?? null}
-                showMeasureLink={showMeasurements}
+                showMeasureLink={!!sizeChart}
               />
             </div>
 
@@ -230,11 +225,9 @@ export default async function ProductPage({ params }: Props) {
                   Materiál a péče
                   <span className="text-xl font-light transition-transform group-open:rotate-45">+</span>
                 </summary>
-                <ul className="mt-4 list-disc space-y-1.5 pl-5 text-ink-soft">
-                  {CARE_ITEMS.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
+                <div className="prose-shop mt-4 [&_li]:mb-1.5">
+                  <RichText text={product.care?.trim() || DEFAULT_PRODUCT_CARE} />
+                </div>
               </details>
               <details className="group py-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between text-[13px] font-semibold uppercase tracking-[0.14em]">
@@ -252,28 +245,23 @@ export default async function ProductPage({ params }: Props) {
         </div>
       </section>
 
-      {showMeasurements && (
+      {sizeChart && (
         <section id="jak-merit" className="site-container mt-24 scroll-mt-28">
-          <div className="grid gap-10 border-t border-line pt-16 md:grid-cols-12">
-            <div className="md:col-span-5">
+          <div className="border-t border-line pt-16">
+            <div className="max-w-2xl">
               <p className="eyebrow mb-4">Velikosti</p>
-              <h2 className="display text-[clamp(2rem,4vw,3.25rem)]">Jak si změřit velikost</h2>
+              <h2 className="display text-[clamp(2rem,4vw,3.25rem)]">Tabulka velikostí</h2>
               <p className="mt-6 leading-relaxed text-ink-soft">
                 Měřte přímo na těle, nejlépe bez oblečení. Krejčovský metr veďte rovně a nepřitahujte ho. Když si nebudete
                 jistí, <Link href="/kontakty" className="underline underline-offset-4">napište nám</Link> – rády poradíme
                 nebo ušijeme na míru.
               </p>
             </div>
-            <div className="relative md:col-span-6 md:col-start-7">
-              <Image
-                src={isBralette ? '/merici_tabulka_braletka.png' : '/merici_tabulka_kostice.png'}
-                alt={isBralette ? 'Měřicí tabulka – braletka' : 'Měřicí tabulka – podprsenka s kosticí'}
-                width={1080}
-                height={1350}
-                sizes="(min-width: 768px) 45vw, 100vw"
-                className="h-auto w-full bg-white"
-              />
-            </div>
+            {/* Celá tabulka bez ořezu – v původním poměru stran; kliknutím se otevře ve větší velikosti */}
+            <a href={sizeChart} target="_blank" rel="noopener noreferrer" className="mt-10 block max-w-4xl" title="Otevřít tabulku ve větší velikosti">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={sizeChart} alt={`Tabulka velikostí – ${product.name}`} loading="lazy" className="h-auto w-full bg-white" />
+            </a>
           </div>
         </section>
       )}

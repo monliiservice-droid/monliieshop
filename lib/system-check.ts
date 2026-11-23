@@ -38,7 +38,7 @@ async function databaseChecks(): Promise<SystemCheck[]> {
     await Promise.all([
       prisma.productVariant.findFirst({ select: { size: true, color: true } }),
       prisma.orderItem.findFirst({ select: { stockReserved: true } }),
-      prisma.product.findFirst({ select: { allowBackorder: true, hideWhenSoldOut: true } }),
+      prisma.product.findFirst({ select: { allowBackorder: true, hideWhenSoldOut: true, care: true, sizeChart: true } }),
     ])
     checks.push({ label: 'Databáze', status: 'ok', detail: 'Připojeno, všechny migrace proběhly.' })
   } catch (error) {
