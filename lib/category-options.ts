@@ -8,6 +8,7 @@ export interface CategoryOption {
   parentId: string | null
   sizeType: string | null
   isVisible: boolean
+  comingSoon?: boolean
   sortOrder: number
   description?: string | null
   image?: string | null

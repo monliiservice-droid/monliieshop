@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
-import { getCategoryTree, isCategoryPathVisible } from '@/lib/categories'
+import { getCategoryTree, isCategoryPathVisible, isComingSoon } from '@/lib/categories'
+import { getCategoryProductCounts } from '@/lib/catalog'
 import { getActiveSales } from '@/lib/sales'
 import { getShopSettings } from '@/lib/site-settings-server'
 
@@ -28,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   try {
-    const [settings, tree, sales, products] = await Promise.all([
+    const [settings, tree, sales, products, counts] = await Promise.all([
       getShopSettings(),
       getCategoryTree(),
       getActiveSales(),
@@ -36,13 +37,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         where: { isVisible: true, OR: [{ hideWhenSoldOut: false }, { stock: { gt: 0 } }, { allowBackorder: true }] },
         select: { id: true, updatedAt: true, categoryId: true },
       }),
+      getCategoryProductCounts(),
     ])
 
     if (settings.subscriptionEnabled) {
       entries.push({ url: `${baseUrl}/predplatne`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 })
     }
     for (const category of tree.byId.values()) {
-      if (isCategoryPathVisible(tree, category.id)) {
+      // Prázdné kategorie a kolekce, které teprve připravujeme, vyhledávačům nenabízíme
+      if (isCategoryPathVisible(tree, category.id) && !isComingSoon(tree, category.id) && (counts.get(category.id) ?? 0) > 0) {
         entries.push({ url: `${baseUrl}/obchod/${category.slug}`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 })
       }
     }

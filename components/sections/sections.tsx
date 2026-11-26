@@ -15,7 +15,7 @@ import type {
   ValuesData,
 } from '@/lib/sections'
 import { getProductCards } from '@/lib/catalog'
-import { getCategoryTree, getDescendantIds } from '@/lib/categories'
+import { getCategoryTree, getDescendantIds, isComingSoon } from '@/lib/categories'
 import { getActiveSales } from '@/lib/sales'
 import { getSeoSettings, getShopSettings } from '@/lib/site-settings-server'
 import { SmartImage } from '@/components/site/smart-image'
@@ -66,8 +66,15 @@ export function HeroSection({ data, priority }: { data: HeroData; priority?: boo
 }
 
 /* --------------------------------------------------------- Category tiles */
-export function CategoryTilesSection({ data }: { data: CategoryTilesData }) {
+export async function CategoryTilesSection({ data }: { data: CategoryTilesData }) {
   if (data.items.length === 0) return null
+  // Dlaždice vedoucí na kolekci, kterou připravujeme, dostane štítek
+  const tree = await getCategoryTree()
+  const comingSoon = (link: string) => {
+    const slug = link.match(/^\/obchod\/([^/?#]+)/)?.[1]
+    const category = slug ? tree.bySlug.get(slug) : undefined
+    return category ? isComingSoon(tree, category.id) : false
+  }
   const cols = data.items.length >= 4 ? 'lg:grid-cols-4' : data.items.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'
   return (
     <section className={`site-container ${SECTION_Y}`}>
@@ -95,6 +102,9 @@ export function CategoryTilesSection({ data }: { data: CategoryTilesData }) {
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6 text-linen md:p-8">
                 <div>
                   <span className="font-mono text-[11px] text-linen/60">0{index + 1}</span>
+                  {comingSoon(item.link) && (
+                    <span className="ml-3 border border-linen/50 px-1.5 py-px text-[10px] font-semibold uppercase tracking-[0.12em] text-linen/90">Připravujeme</span>
+                  )}
                   <h3 className="display mt-1 text-[clamp(2.25rem,4vw,3.5rem)]">{item.label}</h3>
                   {item.caption && <p className="mt-2 text-sm text-linen/80">{item.caption}</p>}
                 </div>

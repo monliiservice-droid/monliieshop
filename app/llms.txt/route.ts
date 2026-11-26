@@ -1,4 +1,5 @@
-import { getCategoryTree, isCategoryPathVisible } from '@/lib/categories'
+import { getCategoryTree, isCategoryPathVisible, listedChildren } from '@/lib/categories'
+import { getCategoryProductCounts } from '@/lib/catalog'
 import { getActiveSales } from '@/lib/sales'
 import { getSeoSettings } from '@/lib/site-settings-server'
 import { keywordList } from '@/lib/seo-settings'
@@ -10,12 +11,13 @@ export const revalidate = 3600
 // llms.txt – stručný přehled webu pro AI asistenty (ChatGPT, Claude, Perplexity…), viz llmstxt.org
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://monlii.cz'
-  const [seo, tree, sales] = await Promise.all([getSeoSettings(), getCategoryTree(), getActiveSales().catch(() => [])])
+  const [seo, tree, sales, counts] = await Promise.all([getSeoSettings(), getCategoryTree(), getActiveSales().catch(() => []), getCategoryProductCounts()])
 
   const categories = tree.roots
     .filter((root) => isCategoryPathVisible(tree, root.id))
     .map((root) => {
-      const children = root.children.filter((c) => c.isVisible).map((c) => `[${c.name}](${baseUrl}/obchod/${c.slug})`)
+      if (root.comingSoon) return `- ${root.name} – kolekci připravujeme`
+      const children = listedChildren(root.children, counts).map((c) => `[${c.name}](${baseUrl}/obchod/${c.slug})`)
       return `- [${root.name}](${baseUrl}/obchod/${root.slug})${root.description ? `: ${root.description}` : ''}${children.length ? ` (${children.join(', ')})` : ''}`
     })
 

@@ -23,6 +23,15 @@ function CartButton() {
   )
 }
 
+/** Štítek u kolekce, kterou teprve připravujeme */
+function ComingSoonBadge() {
+  return (
+    <span className="ml-1.5 inline-block translate-y-[-1px] border border-clay px-1.5 py-px align-middle font-sans text-[9px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
+      Připravujeme
+    </span>
+  )
+}
+
 function MegaMenu({ item, onNavigate }: { item: NavItem; onNavigate: () => void }) {
   return (
     <div className="site-container grid gap-10 py-10 lg:grid-cols-[1fr_280px]">
@@ -114,8 +123,9 @@ function MobileMenu({ navigation, onClose }: { navigation: SiteNavigation; onClo
                       )}
                     </>
                   ) : (
-                    <Link href={item.href} onClick={onClose} className={`block py-3 font-display text-2xl ${item.highlight ? 'text-wine' : ''}`}>
+                    <Link href={item.href} onClick={onClose} className={`flex items-center gap-3 py-3 font-display text-2xl ${item.highlight ? 'text-wine' : ''}`}>
                       {item.label}
+                      {item.comingSoon && <ComingSoonBadge />}
                     </Link>
                   )}
                 </li>
@@ -196,6 +206,7 @@ export function HeaderClient({ navigation }: { navigation: SiteNavigation }) {
                 className={`link-line py-1 text-[13px] font-semibold uppercase tracking-[0.14em] ${item.highlight ? 'text-wine' : ''}`}
               >
                 {item.label}
+                {item.comingSoon && <ComingSoonBadge />}
               </Link>
             ))}
           </nav>

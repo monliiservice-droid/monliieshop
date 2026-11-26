@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getProductCards } from '@/lib/catalog'
+import { getCategoryProductCounts, getProductCards } from '@/lib/catalog'
 import { parseSort } from '@/lib/catalog-params'
 import {
   getCategoryPath,
   getCategoryTree,
   getDescendantIds,
   isCategoryPathVisible,
-  visibleChildren,
+  isComingSoon,
+  listedChildren,
 } from '@/lib/categories'
 import { getShopSettings } from '@/lib/site-settings-server'
 import { PageHero } from '@/components/site/page-hero'
@@ -47,19 +48,21 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { tree, category } = found
   const sort = parseSort((await searchParams).razeni)
 
-  const [settings, products] = await Promise.all([
+  const [settings, products, counts] = await Promise.all([
     getShopSettings(),
     getProductCards({ categoryIds: getDescendantIds(category), sort }),
+    getCategoryProductCounts(),
   ])
+  const comingSoon = isComingSoon(tree, category.id)
 
   const path = getCategoryPath(tree, category.id)
   const root = path[0]
 
   // Filtry: podkategorie této kategorie, u koncové kategorie její sourozenci
-  const children = visibleChildren(category.children)
+  const children = listedChildren(category.children, counts)
   const parent = category.parentId ? tree.byId.get(category.parentId) : undefined
   const filterBase = children.length > 0 ? category : parent
-  const filterItems = filterBase ? visibleChildren(filterBase.children) : []
+  const filterItems = filterBase ? listedChildren(filterBase.children, counts) : []
   const filters = filterBase
     ? [
         { label: 'Vše', href: `/obchod/${filterBase.slug}`, active: filterBase.id === category.id },
@@ -85,6 +88,14 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         </div>
       </PageHero>
       <section className="site-container pt-10">
+        {comingSoon ? (
+          <EmptyState
+            title="Připravujeme"
+            text="Tuto kolekci právě šijeme. Brzy ji tu najdete – novinky sdílíme na Instagramu."
+            link={{ text: 'Sledovat na Instagramu', href: 'https://www.instagram.com/monlii_i/' }}
+          />
+        ) : (
+        <>
         <CatalogToolbar count={products.length} sort={sort} filters={filters} />
         {products.length > 0 ? (
           <ProductGrid products={products} variant={settings.productCardStyle} columns={settings.productGridColumns} />
@@ -94,6 +105,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             text={`V kategorii ${category.name} zatím nic není – nové kousky připravujeme.`}
             link={{ text: 'Prohlédnout celý obchod', href: '/obchod' }}
           />
+        )}
+        </>
         )}
       </section>
     </>

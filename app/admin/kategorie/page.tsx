@@ -23,6 +23,7 @@ interface CategoryForm {
   image: string
   sortOrder: number
   isVisible: boolean
+  comingSoon: boolean
 }
 
 const EMPTY_FORM: CategoryForm = {
@@ -34,6 +35,7 @@ const EMPTY_FORM: CategoryForm = {
   image: '',
   sortOrder: 0,
   isVisible: true,
+  comingSoon: false,
 }
 
 const selectClass = 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
@@ -89,6 +91,7 @@ export default function CategoriesPage() {
       image: c.image || '',
       sortOrder: c.sortOrder,
       isVisible: c.isVisible,
+      comingSoon: c.comingSoon === true,
     })
 
   const save = async (data: CategoryForm) => {
@@ -123,6 +126,7 @@ export default function CategoriesPage() {
       image: c.image || '',
       sortOrder: c.sortOrder,
       isVisible: !c.isVisible,
+      comingSoon: c.comingSoon === true,
     })
 
   // Přesun kategorie mezi sourozenci (stejná nadřazená kategorie)
@@ -189,6 +193,7 @@ export default function CategoriesPage() {
                       {c.depth > 0 && <span className="text-gray-300">└</span>}
                       <span className={c.depth === 0 ? 'font-semibold' : 'font-medium'}>{c.name}</span>
                       <span className="text-xs text-gray-400">/{c.slug}</span>
+                      {c.comingSoon && <span className="rounded border px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-gray-600">Připravujeme</span>}
                     </div>
                     <div className="mt-0.5 text-xs text-gray-500" style={{ paddingLeft: c.depth > 0 ? 18 : 0 }}>
                       {c.sizeType
@@ -285,6 +290,10 @@ export default function CategoriesPage() {
                 <label className="mt-6 flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={form.isVisible} onChange={(e) => setForm({ ...form, isVisible: e.target.checked })} />
                   Zobrazit v obchodě
+                </label>
+                <label className="mt-6 flex items-center gap-2 text-sm" title="V menu bude štítek „Připravujeme“ a místo výpisu stránka, že kolekci připravujete">
+                  <input type="checkbox" checked={form.comingSoon} onChange={(e) => setForm({ ...form, comingSoon: e.target.checked })} />
+                  Připravujeme (kolekce zatím není hotová)
                 </label>
               </div>
               <div className="flex justify-end gap-2 pt-2">
