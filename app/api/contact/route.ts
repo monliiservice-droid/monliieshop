@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
           <p>&copy; ${new Date().getFullYear()} Monlii. Všechna práva vyhrazena.</p>
           <p style="margin-top: 10px;">
             <a href="${process.env.NEXT_PUBLIC_URL}" style="color: #931e31; text-decoration: none;">monlii.cz</a> | 
-            <a href="mailto:monlli@seznam.cz" style="color: #931e31; text-decoration: none;">monlli@seznam.cz</a>
+            <a href="mailto:monlii@seznam.cz" style="color: #931e31; text-decoration: none;">monlii@seznam.cz</a>
           </p>
         </div>
       </div>

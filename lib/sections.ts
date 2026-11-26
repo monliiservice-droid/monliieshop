@@ -286,7 +286,7 @@ export const DEFAULT_SECTION_DATA: SectionDataMap = {
   },
   contact: {
     eyebrow: 'Napište nebo zavolejte',
-    email: 'monlli@seznam.cz',
+    email: 'monlii@seznam.cz',
     phone: '+420 702 559 369',
     note: 'Odpovídáme obvykle do 24 hodin.',
     showLocations: 'yes',

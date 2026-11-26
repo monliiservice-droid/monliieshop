@@ -40,7 +40,7 @@ export const DEFAULT_SEO_SETTINGS: SeoSettings = {
   shareImage: '/story_4.jpg',
   about:
     'Monlii je malá česká rodinná značka – maminka a její dvě dcery. Tvoří v duchu slow fashion oblečení a prádlo pro ženy, muže i děti: v malých sériích, s důrazem na kvalitu, pohodlí a nadčasové střihy. Vybírá převážně přírodní a certifikované materiály (bavlna, bambusový úplet, OEKO-TEX® STANDARD 100), visačky jsou z rostoucího papíru. Prodává přes e-shop monlii.cz s dopravou do Z-BOXu Zásilkovny; objednávky si lze vyzvednout i na partnerských výdejních místech v Havířově a ve Frenštátu pod Radhoštěm.',
-  email: 'monlli@seznam.cz',
+  email: 'monlii@seznam.cz',
   phone: '+420 702 559 369',
   instagram: 'https://www.instagram.com/monlii_i/',
   facebook: 'https://www.facebook.com/monlii.cz',
@@ -57,6 +57,8 @@ export function mergeSeoSettings(stored: unknown): SeoSettings {
   for (const key of Object.keys(DEFAULT_SEO_SETTINGS) as (keyof SeoSettings)[]) {
     if (typeof value[key] === 'string') result[key] = (value[key] as string).trim().slice(0, 2000)
   }
+  // Dřívější výchozí hodnota obsahovala překlep v e-mailu – uložená nastavení opravíme při čtení
+  if (result.email === 'monlli@seznam.cz') result.email = 'monlii@seznam.cz'
   return result
 }
 
