@@ -8,7 +8,7 @@ export const SIZE_TYPE_LABELS: Record<SizeType, string> = {
   bralette: 'Braletka (obvod)',
   set: 'Set (podprsenka + kalhotky, konfigurace setu)',
   panties: 'Prádlo XS–XL',
-  clothing: 'Oblečení XS–XXL',
+  clothing: 'Oblečení XS–3XL',
   kids: 'Dětské velikosti 86–164',
   none: 'Bez velikostí',
 }
@@ -24,7 +24,7 @@ export const SIZE_OPTIONS = {
   BRA_SIZE: ['XS', 'S', 'M', 'L', 'XL'] as const,
   BRA_CUP: ['MINI', 'SOFT', 'BALANCED', 'FULL', 'MAXI'] as const,
   STANDARD_SIZE: ['XS', 'S', 'M', 'L', 'XL'] as const,
-  CLOTHING_SIZE: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] as const,
+  CLOTHING_SIZE: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'] as const,
   KIDS_SIZE: ['86', '92', '98', '104', '110', '116', '122', '128', '134', '140', '146', '152', '158', '164'] as const,
 } as const
 

@@ -1,7 +1,7 @@
 // Velikosti a sklad produktu – sdílené pro admin formulář, detail produktu i serverovou kontrolu objednávky.
 //
 // Sklad se vede buď jedním číslem za celý produkt, nebo po variantách „hlavní velikost × barva“
-// (hlavní velikost = první pole velikostí: obvod podprsenky, XS–XXL, výška u dětí).
+// (hlavní velikost = první pole velikostí: obvod podprsenky, XS–3XL, výška u dětí).
 // Další pole (košíček, velikost kalhotek u setu) se jen omezují na povolené hodnoty.
 
 import { getSizeFields, isSizeType, type SizeField, type SizeType } from './product-types'
