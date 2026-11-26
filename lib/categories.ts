@@ -14,6 +14,7 @@ export interface CategoryNode {
   sizeType: string | null
   sortOrder: number
   isVisible: boolean
+  comingSoon: boolean
   children: CategoryNode[]
 }
 
@@ -58,6 +59,7 @@ export const getCategoryTree = cache(async (): Promise<CategoryTree> => {
         sizeType: true,
         sortOrder: true,
         isVisible: true,
+        comingSoon: true,
       },
     })
     return buildTree(rows)
@@ -70,6 +72,16 @@ export const getCategoryTree = cache(async (): Promise<CategoryTree> => {
 /** Viditelné kategorie (skrytá kategorie skryje i své podkategorie) */
 export function visibleChildren(nodes: CategoryNode[]): CategoryNode[] {
   return nodes.filter((n) => n.isVisible)
+}
+
+/** Viditelné podkategorie, ve kterých je aspoň jeden produkt – prázdné se v menu a filtrech neukazují */
+export function listedChildren(nodes: CategoryNode[], counts: Map<string, number>): CategoryNode[] {
+  return visibleChildren(nodes).filter((n) => (counts.get(n.id) ?? 0) > 0)
+}
+
+/** Kategorie, nebo některá nadřazená, je označená „Připravujeme“ */
+export function isComingSoon(tree: CategoryTree, categoryId: string): boolean {
+  return getCategoryPath(tree, categoryId).some((c) => c.comingSoon)
 }
 
 /** Cesta od kořene ke kategorii (pro drobečkovou navigaci) */

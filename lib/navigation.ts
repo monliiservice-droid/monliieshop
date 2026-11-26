@@ -1,5 +1,6 @@
 // Data pro hlavní menu – sestavují se na serveru z kategorií, výprodejů a nastavení
-import { getCategoryTree, visibleChildren } from './categories'
+import { getCategoryTree, listedChildren, visibleChildren } from './categories'
+import { getCategoryProductCounts } from './catalog'
 import { getActiveSales } from './sales'
 import { getShopSettings } from './site-settings-server'
 
@@ -16,6 +17,8 @@ export interface NavItem extends NavLink {
   groups: NavGroup[]
   image?: string | null
   highlight?: boolean
+  /** Kolekci připravujeme – v menu štítek, bez podkategorií */
+  comingSoon?: boolean
 }
 
 export interface SiteNavigation {
@@ -24,17 +27,21 @@ export interface SiteNavigation {
 }
 
 export async function getSiteNavigation(): Promise<SiteNavigation> {
-  const [tree, sales, settings] = await Promise.all([getCategoryTree(), getActiveSales(), getShopSettings()])
+  const [tree, sales, settings, counts] = await Promise.all([getCategoryTree(), getActiveSales(), getShopSettings(), getCategoryProductCounts()])
 
   const primary: NavItem[] = visibleChildren(tree.roots).map((root) => ({
     label: root.name,
     href: `/obchod/${root.slug}`,
     image: root.image,
-    groups: visibleChildren(root.children).map((child) => ({
-      label: child.name,
-      href: `/obchod/${child.slug}`,
-      links: visibleChildren(child.children).map((leaf) => ({ label: leaf.name, href: `/obchod/${leaf.slug}` })),
-    })),
+    comingSoon: root.comingSoon,
+    // Jen podkategorie s produkty – prázdné by v menu vypadaly rozbitě
+    groups: root.comingSoon
+      ? []
+      : listedChildren(root.children, counts).map((child) => ({
+          label: child.name,
+          href: `/obchod/${child.slug}`,
+          links: listedChildren(child.children, counts).map((leaf) => ({ label: leaf.name, href: `/obchod/${leaf.slug}` })),
+        })),
   }))
 
   const menuSales = sales.filter((s) => s.showInMenu)

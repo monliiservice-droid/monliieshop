@@ -1,6 +1,7 @@
 // Katalog pro výpisy produktů (obchod, kategorie, výprodeje, sekce homepage).
 // Ceny už obsahují aktivní výprodejové slevy.
 
+import { cache } from 'react'
 import { isAvailable } from './product-stock'
 import { prisma } from './prisma'
 import { getDisplayPrice } from './set-config-types'
@@ -55,6 +56,32 @@ export function getBasePrice(product: { price: number; isSet: boolean; setOption
   }
   return product.price
 }
+
+/**
+ * Počet produktů zobrazených v kategoriích (včetně podkategorií) – stejná pravidla jako výpisy:
+ * viditelný produkt ve viditelné kategorii, ne vyprodaný se „skrýt při vyprodání“, ne v odděleném výprodeji.
+ */
+export const getCategoryProductCounts = cache(async (): Promise<Map<string, number>> => {
+  const counts = new Map<string, number>()
+  const [tree, sales] = await Promise.all([getCategoryTree(), getActiveSales()])
+  let products
+  try {
+    products = await prisma.product.findMany({
+      where: { isVisible: true, categoryId: { not: null } },
+      select: { id: true, categoryId: true, stock: true, hideWhenSoldOut: true, allowBackorder: true },
+    })
+  } catch (error) {
+    console.error('Error counting products:', error)
+    return counts
+  }
+  for (const p of products) {
+    if (!p.categoryId || !isCategoryPathVisible(tree, p.categoryId)) continue
+    if (p.hideWhenSoldOut && !isAvailable(p.stock, p.allowBackorder)) continue
+    if (isSeparatedSaleProduct(p, sales, tree)) continue
+    for (const c of getCategoryPath(tree, p.categoryId)) counts.set(c.id, (counts.get(c.id) ?? 0) + 1)
+  }
+  return counts
+})
 
 export async function getProductCards(query: CatalogQuery = {}): Promise<ProductCardData[]> {
   const [tree, sales] = await Promise.all([getCategoryTree(), getActiveSales()])

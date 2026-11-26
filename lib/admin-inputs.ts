@@ -17,6 +17,7 @@ export function parseCategoryInput(body: any) {
     sizeType,
     sortOrder: Number.isFinite(Number(body?.sortOrder)) ? Math.trunc(Number(body.sortOrder)) : 0,
     isVisible: body?.isVisible !== false,
+    comingSoon: body?.comingSoon === true,
   }
 }
 

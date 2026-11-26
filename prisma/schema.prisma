@@ -61,6 +61,7 @@ model Category {
   sizeType    String?
   sortOrder   Int         @default(0)
   isVisible   Boolean     @default(true)
+  comingSoon  Boolean     @default(false) // Kolekci připravujeme – v menu štítek, místo výpisu stránka „Připravujeme“
   products    Product[]
   saleEvents  SaleEvent[] @relation("SaleEventCategories")
   createdAt   DateTime    @default(now())
